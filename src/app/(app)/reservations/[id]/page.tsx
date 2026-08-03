@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
+import { logoutUrl } from '@/lib/auth';
 import { FolioPanel } from '@/components/folio-panel';
 import { FrontDeskPanel } from '@/components/front-desk';
 import { ErrorNotice } from '@/components/notice';
@@ -25,7 +26,7 @@ interface Props {
  */
 async function loadReservation(
   id: string,
-): Promise<{ ok: true; data: ReservationDetail } | { ok: false; message: string }> {
+): Promise<{ ok: true; data: ReservationDetail } | { ok: false; message: string; status: number }> {
   try {
     const data = await apiFetch<ReservationDetail>(
       'be',
@@ -36,7 +37,15 @@ async function loadReservation(
     if (error instanceof ApiError && error.notFound) {
       notFound();
     }
-    return { ok: false, message: backendMessage(error, '예약을 불러오지 못했습니다.') };
+    // 세션이 요청 도중 끊겼다면 안내 대신 쿠키를 정리하고 로그인으로 보낸다.
+    if (error instanceof ApiError && error.unauthorized) {
+      redirect(logoutUrl(`/reservations/${id}`, 'expired'));
+    }
+    return {
+      ok: false,
+      message: backendMessage(error, '예약을 불러오지 못했습니다.'),
+      status: error instanceof ApiError ? error.status : 0,
+    };
   }
 }
 
@@ -55,7 +64,11 @@ export default async function ReservationDetailPage({ params }: Props) {
     return (
       <main className="flex flex-col gap-6">
         <PageHeader title="예약 상세" />
-        <ErrorNotice title="예약을 불러오지 못했습니다" message={result.message} />
+        <ErrorNotice
+          title="예약을 불러오지 못했습니다"
+          message={result.message}
+          status={result.status}
+        />
         <Link href="/reservations" className="text-sm underline underline-offset-4 opacity-70">
           ← 예약 목록으로
         </Link>

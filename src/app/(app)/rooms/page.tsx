@@ -39,7 +39,11 @@ export default async function RoomsPage({
       )}
 
       {!rooms.ok ? (
-        <ErrorNotice title="객실을 불러오지 못했습니다" message={rooms.message} />
+        <ErrorNotice
+          title="객실을 불러오지 못했습니다"
+          message={rooms.message}
+          status={rooms.status}
+        />
       ) : rooms.data.length === 0 ? (
         <EmptyState message="등록된 객실이 없습니다. 먼저 예약 동기화를 실행해 주세요." />
       ) : (

@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState, useId } from 'react';
-import { addPostingAction, openFolioAction } from '@/app/reservations/[id]/actions';
+import { addPostingAction, openFolioAction } from '@/app/(app)/reservations/[id]/actions';
 import { IDLE, type ActionState } from '@/lib/action-state';
 import { ActionMessage, SubmitButton } from './action-feedback';
 import type { Folio, PostingType } from '@/lib/types';

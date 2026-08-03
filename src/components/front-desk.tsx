@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState } from 'react';
-import { checkInAction, checkOutAction } from '@/app/reservations/[id]/actions';
+import { checkInAction, checkOutAction } from '@/app/(app)/reservations/[id]/actions';
 import { IDLE, type ActionState } from '@/lib/action-state';
 import type { ReservationStatus } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';

@@ -2,21 +2,42 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { logoutAction } from '@/app/login/actions';
+import type { SessionUser } from '@/lib/session';
+import { SubmitButton } from './action-feedback';
 
-const LINKS = [
+const ROLE_LABELS: Record<SessionUser['role'], string> = {
+  ADMIN: '관리자',
+  MANAGER: '지배인',
+  FRONT_DESK: '프론트데스크',
+  HOUSEKEEPING: '하우스키핑',
+};
+
+interface NavLink {
+  href: string;
+  label: string;
+  /** 이 역할들만 메뉴에 보인다. 비우면 모두에게 보인다. */
+  roles?: SessionUser['role'][];
+}
+
+const LINKS: NavLink[] = [
   { href: '/', label: '대시보드' },
-  { href: '/reservations', label: '예약' },
+  // 하우스키핑은 BE 에서 예약 접근이 403 이므로 메뉴에서도 감춘다.
+  // 감추는 것은 편의일 뿐이고, 실제 차단은 BE 가 한다.
+  { href: '/reservations', label: '예약', roles: ['ADMIN', 'MANAGER', 'FRONT_DESK'] },
   { href: '/rooms', label: '객실' },
 ];
 
-export function Nav() {
+export function Nav({ user }: { user: SessionUser }) {
   const pathname = usePathname();
+  const visible = LINKS.filter((link) => !link.roles || link.roles.includes(user.role));
 
   return (
     <nav aria-label="주 메뉴" className="border-b border-current/10">
-      <div className="mx-auto flex max-w-6xl items-center gap-1 px-6">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-1 px-6">
         <span className="mr-4 py-3 text-sm font-semibold tracking-tight">PlanForge</span>
-        {LINKS.map((link) => {
+
+        {visible.map((link) => {
           const active = link.href === '/' ? pathname === '/' : pathname.startsWith(link.href);
           return (
             <Link
@@ -33,6 +54,21 @@ export function Nav() {
             </Link>
           );
         })}
+
+        <div className="ml-auto flex items-center gap-3 py-2">
+          <span className="text-sm opacity-70">
+            {user.name}
+            <span className="ml-1.5 text-xs opacity-70">({ROLE_LABELS[user.role]})</span>
+          </span>
+          <form action={logoutAction}>
+            <SubmitButton
+              pendingLabel="…"
+              className="rounded-md border border-current/20 px-2.5 py-1 text-xs transition-colors hover:bg-current/5 disabled:opacity-50"
+            >
+              로그아웃
+            </SubmitButton>
+          </form>
+        </div>
       </div>
     </nav>
   );

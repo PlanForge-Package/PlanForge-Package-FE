@@ -8,6 +8,10 @@
  * Core 직접 호출은 서버 컴포넌트/Route Handler 에서만 사용한다.
  */
 
+import 'server-only';
+
+import { getSessionToken } from './session';
+
 /** BE 의 표준 오류 응답. NestJS ValidationPipe 는 message 를 배열로 준다. */
 interface BackendErrorBody {
   statusCode?: number;
@@ -27,6 +31,16 @@ export class ApiError extends Error {
 
   get notFound(): boolean {
     return this.status === 404;
+  }
+
+  /** 세션이 없거나 만료됨. 재로그인이 필요하다. */
+  get unauthorized(): boolean {
+    return this.status === 401;
+  }
+
+  /** 로그인은 되어 있으나 권한이 없음. 재로그인해도 달라지지 않는다. */
+  get forbidden(): boolean {
+    return this.status === 403;
   }
 
   /** 사용자가 고칠 수 있는 입력·상태 문제인지. */
@@ -79,6 +93,8 @@ export interface ApiFetchOptions extends Omit<RequestInit, 'body'> {
   json?: unknown;
   /** 응답 대기 상한. BE 가 멈춰 있을 때 요청이 영원히 매달리지 않게 한다. */
   timeoutMs?: number;
+  /** 세션 토큰을 붙이지 않는다. 로그인처럼 인증 전에 부르는 요청에만 쓴다. */
+  anonymous?: boolean;
 }
 
 const DEFAULT_TIMEOUT_MS = 15_000;
@@ -88,7 +104,7 @@ export async function apiFetch<T>(
   path: string,
   options: ApiFetchOptions = {},
 ): Promise<T> {
-  const { query, json, timeoutMs = DEFAULT_TIMEOUT_MS, ...init } = options;
+  const { query, json, timeoutMs = DEFAULT_TIMEOUT_MS, anonymous, ...init } = options;
 
   const url = new URL(`${baseUrl(target)}${path}`);
   for (const [key, value] of Object.entries(query ?? {})) {
@@ -96,6 +112,9 @@ export async function apiFetch<T>(
       url.searchParams.set(key, String(value));
     }
   }
+
+  // 세션 토큰은 여기서 한 번만 붙인다. 호출부마다 챙기게 하면 언젠가 빠뜨린다.
+  const token = anonymous ? null : await getSessionToken();
 
   let res: Response;
   try {
@@ -107,6 +126,7 @@ export async function apiFetch<T>(
       ...(json === undefined ? {} : { body: JSON.stringify(json) }),
       headers: {
         'content-type': 'application/json',
+        ...(token ? { authorization: `Bearer ${token}` } : {}),
         ...init.headers,
       },
     });

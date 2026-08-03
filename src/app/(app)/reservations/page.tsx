@@ -77,7 +77,11 @@ export default async function ReservationsPage({
       </form>
 
       {!result.ok ? (
-        <ErrorNotice title="예약을 불러오지 못했습니다" message={result.message} />
+        <ErrorNotice
+          title="예약을 불러오지 못했습니다"
+          message={result.message}
+          status={result.status}
+        />
       ) : result.data.items.length === 0 ? (
         <EmptyState message="조건에 맞는 예약이 없습니다." />
       ) : (
