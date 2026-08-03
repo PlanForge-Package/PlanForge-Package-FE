@@ -69,6 +69,23 @@ BE 가 응답하지 않아도 라우트가 죽지 않고 화면에 오류 안내
 
 컨테이너 내부 주소를 브라우저에 노출하지 않도록 서버 전용 변수를 먼저 읽습니다.
 
+## 배포
+
+`Dockerfile` 로 이미지를 만듭니다. Next 의 `output: 'standalone'` 을 써서 실제로
+쓰이는 의존성만 담고, 비-root(`node`)로 실행합니다.
+
+```bash
+docker build -t planforge-fe .
+docker run -p 3000:3000 -e BE_BASE_URL=http://be:3001 planforge-fe
+```
+
+`NEXT_PUBLIC_` 값은 빌드 시점에 번들로 박히므로 이미지에 넣지 않습니다. 서버 전용
+`BE_BASE_URL`·`CORE_BASE_URL` 만 런타임에 주입하면 되고, 그래야 같은 이미지를
+스테이징과 운영에 함께 쓸 수 있습니다.
+
+전체 스택은 BE 리포의 `deploy/docker-compose.yml` 을 참고하세요.
+이미지는 태그를 밀 때만 GHCR 에 발행됩니다.
+
 ## 스크립트
 
 | 명령             | 설명          |
