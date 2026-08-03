@@ -142,6 +142,42 @@ export interface BlockRoomingList {
   items: BlockReservation[];
 }
 
+export type AuditItemKind =
+  | 'ARRIVAL_PENDING'
+  | 'DEPARTURE_PENDING'
+  | 'IN_HOUSE_UNASSIGNED'
+  | 'OPEN_BALANCE'
+  | 'ROOM_DISCREPANCY';
+
+export interface AuditItem {
+  reservationId: string | null;
+  confirmationNumber: string | null;
+  guest: string | null;
+  date: string | null;
+  roomTypeCode: string | null;
+  roomNumber: string | null;
+  /** Prisma Decimal 은 JSON 에서 문자열로 온다. */
+  amount: string | null;
+}
+
+export interface AuditSection {
+  kind: AuditItemKind;
+  label: string;
+  hint: string;
+  items: AuditItem[];
+}
+
+export interface NightAuditReview {
+  propertyId: string;
+  businessDate: string;
+  /** false 면 OPERA 에 닿지 못해 달력 날짜로 대신한 것이다. */
+  businessDateFromOpera: boolean;
+  calendarDate: string;
+  outstanding: number;
+  ready: boolean;
+  sections: AuditSection[];
+}
+
 export type TaskStatus = 'PENDING' | 'IN_PROGRESS' | 'DONE' | 'INSPECTED';
 
 export interface HousekeepingTask {
