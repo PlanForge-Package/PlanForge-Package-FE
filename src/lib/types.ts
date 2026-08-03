@@ -381,6 +381,32 @@ export interface Posting {
   voidedById?: string | null;
 }
 
+export type RoomKeyStatus = 'ACTIVE' | 'REVOKED' | 'EXPIRED';
+
+export interface RoomKey {
+  id: string;
+  roomNumber: string;
+  /** 벤더 시스템의 카드 식별자 */
+  vendorKeyId: string;
+  validFrom: string;
+  validUntil: string;
+  status: RoomKeyStatus;
+  /** 몇 번째 발급인지. 재발급이 잦으면 확인할 이유가 된다. */
+  sequence: number;
+  issuedAt: string;
+  issuedByName: string | null;
+  revokedAt: string | null;
+  revokedReason: string | null;
+}
+
+export interface RoomKeyListResponse {
+  reservationId: string;
+  roomNumber: string | null;
+  /** mock 이면 이 키로는 어떤 문도 열리지 않는다. 화면이 알려야 한다. */
+  driverMode: 'mock' | 'live';
+  items: RoomKey[];
+}
+
 export interface PosOutlet {
   id: string;
   propertyId: string;

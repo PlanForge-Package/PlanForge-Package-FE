@@ -7,10 +7,11 @@ import { FrontDeskPanel } from '@/components/front-desk';
 import { ReservationEditPanel } from '@/components/reservation-edit';
 import { ErrorNotice } from '@/components/notice';
 import { PageHeader } from '@/components/page-header';
+import { RoomKeyPanel } from '@/components/room-key-panel';
 import { ReservationStatusBadge } from '@/components/status-badge';
-import { ApiError, apiFetch, backendMessage } from '@/lib/api';
+import { ApiError, apiFetch, backendMessage, tryFetch } from '@/lib/api';
 import { CHANNEL_LABELS, MARKET_LABELS, SOURCE_LABELS, label } from '@/lib/channel-labels';
-import type { ReservationDetail } from '@/lib/types';
+import type { ReservationDetail, RoomKeyListResponse } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
@@ -81,6 +82,11 @@ export default async function ReservationDetailPage({ params }: Props) {
   const reservation = result.data;
   const folios = reservation.folios ?? [];
 
+  // 키 조회가 실패해도 예약 화면 전체를 죽이지 않는다. 별개 호출인 이유가 이것이다.
+  const keys = await tryFetch(
+    apiFetch<RoomKeyListResponse>('be', `/api/reservations/${encodeURIComponent(id)}/keys`),
+  );
+
   return (
     <main className="flex flex-col gap-8">
       <div className="flex flex-col gap-2">
@@ -147,6 +153,16 @@ export default async function ReservationDetailPage({ params }: Props) {
         status={reservation.status}
         assignedRoomNumber={reservation.assignedRoomNumber}
       />
+
+      {keys.ok ? (
+        <RoomKeyPanel data={keys.data} />
+      ) : (
+        <ErrorNotice
+          title="객실 키를 불러오지 못했습니다"
+          message={keys.message}
+          status={keys.status}
+        />
+      )}
 
       <FolioPanel reservationId={reservation.id} folios={folios} currency={reservation.currency} />
     </main>
