@@ -10,7 +10,13 @@ import { BLOCK_LABELS } from './status-badge';
 const inputClass = 'rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm';
 
 /** 취소는 별도 확인이 필요한 행위라 이 목록에서 뺀다. */
-const EDITABLE_STATUSES: BlockStatus[] = ['INQUIRY', 'TENTATIVE', 'DEFINITE', 'ACTUAL', 'CANCELLED'];
+const EDITABLE_STATUSES: BlockStatus[] = [
+  'INQUIRY',
+  'TENTATIVE',
+  'DEFINITE',
+  'ACTUAL',
+  'CANCELLED',
+];
 
 /**
  * 블록 생성 폼.

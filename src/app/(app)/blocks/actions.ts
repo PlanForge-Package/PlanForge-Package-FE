@@ -10,13 +10,7 @@ const KEEP = ['code', 'name', 'startDate', 'endDate', 'cutoffDate', 'ratePlanCod
 
 // 이 파일은 async 함수만 export 한다. 타입·상수는 @/lib/action-state 에 있다.
 
-const BLOCK_STATUSES: BlockStatus[] = [
-  'INQUIRY',
-  'TENTATIVE',
-  'DEFINITE',
-  'CANCELLED',
-  'ACTUAL',
-];
+const BLOCK_STATUSES: BlockStatus[] = ['INQUIRY', 'TENTATIVE', 'DEFINITE', 'CANCELLED', 'ACTUAL'];
 
 function text(formData: FormData, field: string): string {
   return String(formData.get(field) ?? '').trim();
