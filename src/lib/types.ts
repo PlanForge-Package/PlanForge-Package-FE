@@ -50,6 +50,27 @@ export interface Reservation {
   property: Property;
 }
 
+export type UserRole = 'ADMIN' | 'MANAGER' | 'FRONT_DESK' | 'HOUSEKEEPING';
+
+export interface ManagedUser {
+  id: string;
+  email: string;
+  name: string;
+  role: UserRole;
+  propertyId: string | null;
+  active: boolean;
+  lastLoginAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UserListResponse {
+  items: ManagedUser[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
 export type PostingType = 'CHARGE' | 'PAYMENT' | 'ADJUSTMENT' | 'TAX';
 
 export type FolioStatus = 'OPEN' | 'CLOSED';

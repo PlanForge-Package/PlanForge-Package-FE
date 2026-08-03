@@ -26,6 +26,7 @@ const LINKS: NavLink[] = [
   // 감추는 것은 편의일 뿐이고, 실제 차단은 BE 가 한다.
   { href: '/reservations', label: '예약', roles: ['ADMIN', 'MANAGER', 'FRONT_DESK'] },
   { href: '/rooms', label: '객실' },
+  { href: '/users', label: '계정', roles: ['ADMIN'] },
 ];
 
 export function Nav({ user }: { user: SessionUser }) {
@@ -56,10 +57,10 @@ export function Nav({ user }: { user: SessionUser }) {
         })}
 
         <div className="ml-auto flex items-center gap-3 py-2">
-          <span className="text-sm opacity-70">
+          <Link href="/account" className="text-sm opacity-70 hover:opacity-100">
             {user.name}
             <span className="ml-1.5 text-xs opacity-70">({ROLE_LABELS[user.role]})</span>
-          </span>
+          </Link>
           <form action={logoutAction}>
             <SubmitButton
               pendingLabel="…"
