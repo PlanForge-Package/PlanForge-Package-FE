@@ -6,7 +6,7 @@ import { PageHeader } from '@/components/page-header';
 import { apiFetch, tryFetch } from '@/lib/api';
 import { requireUser } from '@/lib/auth';
 import { getPropertyContext } from '@/lib/property';
-import type { AvailabilityResponse, RateResponse } from '@/lib/types';
+import type { AvailabilityResponse, Block, RateResponse } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
@@ -182,10 +182,15 @@ async function Results({
 }) {
   const query = { propertyId, arrivalDate, departureDate, adults, children: childCount };
 
-  // 재고와 요금은 별개 호출이다. 하나가 실패해도 나머지는 보여준다.
-  const [availability, rates] = await Promise.all([
+  // 재고·요금·블록은 별개 호출이다. 하나가 실패해도 나머지는 보여준다.
+  const [availability, rates, blocks] = await Promise.all([
     tryFetch(apiFetch<AvailabilityResponse>('be', '/api/reservations/availability', { query })),
     tryFetch(apiFetch<RateResponse>('be', '/api/reservations/rates', { query })),
+    tryFetch(
+      apiFetch<Block[]>('be', '/api/blocks', {
+        query: { propertyId, status: 'DEFINITE', startFrom: arrivalDate },
+      }),
+    ),
   ]);
 
   if (!availability.ok) {
@@ -227,6 +232,14 @@ async function Results({
         adults={adults}
         childCount={childCount}
         nights={nights}
+        // 확정된 블록만 고를 수 있다. 가예약 단계에서는 재고가 잡혀 있지 않다.
+        blocks={
+          blocks.ok
+            ? blocks.data
+                .filter((block) => block.startDate.slice(0, 10) <= departureDate)
+                .map((block) => ({ code: block.code, name: block.name }))
+            : []
+        }
       />
     </>
   );

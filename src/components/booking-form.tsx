@@ -41,6 +41,7 @@ export function BookingForm({
   adults,
   childCount,
   nights,
+  blocks = [],
 }: {
   options: BookingOption[];
   propertyId: string;
@@ -50,10 +51,16 @@ export function BookingForm({
   /** 게스트 인원. React 의 children 과 헷갈리지 않도록 이름을 달리한다. */
   childCount: number;
   nights: number;
+  /** 이 기간에 걸리는 단체 블록. 고르면 그 블록의 픽업으로 잡힌다. */
+  blocks?: Array<{ code: string; name: string }>;
 }) {
   const [state, action] = useActionState<ActionState, FormData>(createReservationAction, IDLE);
   const [selected, setSelected] = useState<string | null>(null);
   const uid = useId();
+
+  // React 19 는 액션이 끝나면 비제어 입력을 비운다. 실패했을 때는 액션이
+  // 돌려준 값을 다시 심어야 게스트 정보를 처음부터 타이핑하지 않는다.
+  const kept = state.status === 'error' ? state.values : undefined;
 
   const chosen = options.find((o) => o.item.roomTypeCode === selected);
 
@@ -157,6 +164,7 @@ export function BookingForm({
                 required
                 maxLength={60}
                 placeholder="홍"
+                defaultValue={kept?.lastName ?? ''}
                 className={`w-28 ${inputClass}`}
               />
             </div>
@@ -171,6 +179,7 @@ export function BookingForm({
                 required
                 maxLength={60}
                 placeholder="길동"
+                defaultValue={kept?.firstName ?? ''}
                 className={`w-32 ${inputClass}`}
               />
             </div>
@@ -184,9 +193,31 @@ export function BookingForm({
                 name="email"
                 type="email"
                 placeholder="guest@example.com"
+                defaultValue={kept?.email ?? ''}
                 className={`w-56 ${inputClass}`}
               />
             </div>
+
+            {blocks.length > 0 && (
+              <div className="flex flex-col gap-1">
+                <label htmlFor={`${uid}-block`} className="text-xs text-subtle">
+                  단체 블록 (선택)
+                </label>
+                <select
+                  id={`${uid}-block`}
+                  name="blockCode"
+                  defaultValue={kept?.blockCode ?? ''}
+                  className={`w-48 ${inputClass}`}
+                >
+                  <option value="">일반 예약</option>
+                  {blocks.map((block) => (
+                    <option key={block.code} value={block.code}>
+                      {block.code} — {block.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             <SubmitButton pendingLabel="예약 중…">예약 확정</SubmitButton>
           </fieldset>

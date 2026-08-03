@@ -45,6 +45,8 @@ export interface Reservation {
   adults: number;
   children: number;
   assignedRoomNumber: string | null;
+  /** 단체 블록에서 빠져나온 예약이면 그 블록 코드 */
+  blockCode?: string | null;
   totalAmount: string | null;
   currency: string;
   profile: Profile;
@@ -87,6 +89,57 @@ export interface RateResponse {
   departureDate: string;
   nights: number;
   offers: RateOffer[];
+}
+
+export type BlockStatus = 'INQUIRY' | 'TENTATIVE' | 'DEFINITE' | 'CANCELLED' | 'ACTUAL';
+
+export interface BlockAllotment {
+  id: string;
+  date: string;
+  roomTypeCode: string;
+  /** 잡아 둔 객실 수 */
+  blocked: number;
+  /** 실제 예약으로 빠져나간 수 */
+  pickedUp: number;
+  ratePlanCode: string | null;
+  amount: string | null;
+}
+
+export interface Block {
+  id: string;
+  operaBlockId: string | null;
+  propertyId: string;
+  code: string;
+  name: string;
+  status: BlockStatus;
+  startDate: string;
+  endDate: string;
+  cutoffDate: string | null;
+  currency: string;
+  totalBlocked: number;
+  totalPickedUp: number;
+  allotments: BlockAllotment[];
+}
+
+/** 룸리스트. 예약은 OPERA 에서 바로 읽으므로 로컬 예약 형태와 다르다. */
+export interface BlockReservation {
+  reservationId: string;
+  confirmationNumber?: string;
+  status: string;
+  arrivalDate: string;
+  departureDate: string;
+  roomTypeCode?: string;
+  roomNumber?: string;
+  adults?: number;
+  totalAmount?: number;
+  currency?: string;
+  guest?: { firstName?: string; lastName?: string; email?: string };
+}
+
+export interface BlockRoomingList {
+  blockId: string;
+  code: string;
+  items: BlockReservation[];
 }
 
 export type TaskStatus = 'PENDING' | 'IN_PROGRESS' | 'DONE' | 'INSPECTED';

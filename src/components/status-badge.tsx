@@ -1,4 +1,4 @@
-import type { ReservationStatus, RoomStatus } from '@/lib/types';
+import type { BlockStatus, ReservationStatus, RoomStatus } from '@/lib/types';
 
 const RESERVATION_LABELS: Record<ReservationStatus, string> = {
   RESERVED: '예약',
@@ -36,6 +36,23 @@ const ROOM_TONES: Record<RoomStatus, string> = {
   OUT_OF_SERVICE: 'bg-zinc-500/15 text-zinc-600 dark:text-zinc-400',
 };
 
+const BLOCK_LABELS: Record<BlockStatus, string> = {
+  INQUIRY: '문의',
+  TENTATIVE: '가예약',
+  DEFINITE: '확정',
+  CANCELLED: '취소',
+  ACTUAL: '완료',
+};
+
+/** 확정(DEFINITE)부터 재고를 실제로 잡는다. 색으로도 그 경계가 보이게 한다. */
+const BLOCK_TONES: Record<BlockStatus, string> = {
+  INQUIRY: 'bg-slate-500/15 text-slate-700 dark:text-slate-300',
+  TENTATIVE: 'bg-amber-500/15 text-amber-700 dark:text-amber-300',
+  DEFINITE: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300',
+  CANCELLED: 'bg-red-500/15 text-red-700 dark:text-red-300',
+  ACTUAL: 'bg-zinc-500/15 text-zinc-600 dark:text-zinc-400',
+};
+
 const BASE = 'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium';
 
 export function ReservationStatusBadge({ status }: { status: ReservationStatus }) {
@@ -48,4 +65,8 @@ export function RoomStatusBadge({ status }: { status: RoomStatus }) {
   return <span className={`${BASE} ${ROOM_TONES[status]}`}>{ROOM_LABELS[status]}</span>;
 }
 
-export { RESERVATION_LABELS, ROOM_LABELS };
+export function BlockStatusBadge({ status }: { status: BlockStatus }) {
+  return <span className={`${BASE} ${BLOCK_TONES[status]}`}>{BLOCK_LABELS[status]}</span>;
+}
+
+export { BLOCK_LABELS, RESERVATION_LABELS, ROOM_LABELS };

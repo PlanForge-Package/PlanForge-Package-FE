@@ -27,6 +27,7 @@ const LINKS: NavLink[] = [
   // 하우스키핑은 BE 에서 예약 접근이 403 이므로 메뉴에서도 감춘다.
   // 감추는 것은 편의일 뿐이고, 실제 차단은 BE 가 한다.
   { href: '/reservations', label: '예약', roles: ['ADMIN', 'MANAGER', 'FRONT_DESK'] },
+  { href: '/blocks', label: '단체', roles: ['ADMIN', 'MANAGER', 'FRONT_DESK'] },
   { href: '/rooms', label: '객실' },
   { href: '/housekeeping', label: '하우스키핑' },
   { href: '/users', label: '계정', roles: ['ADMIN'] },

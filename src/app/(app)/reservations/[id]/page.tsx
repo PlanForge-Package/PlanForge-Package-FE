@@ -116,6 +116,9 @@ export default async function ReservationDetailPage({ params }: Props) {
           }
         />
         <Field label="인원" value={`성인 ${reservation.adults} · 아동 ${reservation.children}`} />
+        {reservation.blockCode && (
+          <Field label="단체 블록" value={reservation.blockCode} mono />
+        )}
         {reservation.profile.email && <Field label="이메일" value={reservation.profile.email} />}
         {reservation.notes && <Field label="메모" value={reservation.notes} />}
       </section>
