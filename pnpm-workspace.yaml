@@ -1,8 +1,0 @@
-packages:
-  - packages/*
-  - apps/*
-  - tools/*
-  - e2e
-  # 로컬 전용(gitignore) 디렉터리는 워크스페이스에서 제외한다. 공개 저장소엔 부재하므로
-  # 클론에선 무효(no-op)이고, 로컬에 복원돼 있어도 frozen-lockfile 이 깨지지 않는다.
-  - "!tools/boundary"

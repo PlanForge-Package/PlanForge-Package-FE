@@ -1,101 +1,45 @@
-# 로컬 전용 개발 도구층 — git 추적 제외
-#
-# 이 저장소가 공개하는 것은 제품(React 어드민 + 디자인 시스템)이다. 아래 경로는 그 제품을
-# *만드는 방식*에 속하는 로컬 도구층이지 제품의 일부가 아니므로 추적하지 않는다.
-# 디스크에는 그대로 남아 로컬 작업은 종전대로 동작한다.
-#
-#   orchestration/  로컬 워크플로 레지스트리·스키마·태스크·상태
-#   skills/         로컬 작업 절차 정의
-#   tools/boundary/ 위 레지스트리 전용 도구. 읽는 경로가 전부 orchestration/ 아래라
-#                   레지스트리 없이는 동작 자체가 불가능하다 → 함께 제외한다.
-#   .github/CODEOWNERS  레지스트리에서 생성되던 산출물. 공개 저장소에서는 사용하지 않는다.
-#   .claude/        로컬 세션 설정·워크트리
-orchestration/
-skills/
-tools/boundary/
-.github/CODEOWNERS
-.claude/
-
-# 로컬 워크플로 운영 문서 — 주제가 '작업 조직'이지 제품이 아니다.
-#   docs/architecture/org-design-v2.md        조직 설계서
-#   docs/architecture/org-audit-2026-07-15.md 조직 감사 리포트
-#   docs/architecture/context-digest.md       레지스트리에서 생성된 요약본
-#   docs/_templates/checklists/G*.md          게이트 승인 체크리스트
-#   docs/_templates/D5-review-report.md       리뷰 리포트 템플릿
-# ADR(docs/adr/**)은 여기 포함하지 않는다 — 아키텍처 결정 기록은 제품 자산이다.
-docs/architecture/org-design-v2.md
-docs/architecture/org-audit-2026-07-15.md
-docs/architecture/context-digest.md
-docs/_templates/checklists/
-docs/_templates/D5-review-report.md
-
 # dependencies
 node_modules/
-.pnpm-store/
+.pnp
+.pnp.*
 
-# build outputs
-dist/
+# next.js
+.next/
+out/
+next-env.d.ts
+
+# production
 build/
-storybook-static/
+dist/
+
+# testing
+coverage/
+
+# misc
+.DS_Store
+*.pem
+Thumbs.db
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# env
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# vercel
+.vercel
+
+# typescript
 *.tsbuildinfo
 
-# Turborepo — 로컬 태스크 캐시. 원격 캐시는 쓰지 않는다(외부 서비스 미연결 원칙).
-.turbo/
-
-# test / coverage
-coverage/
-.nyc_output/
-
-# temp & logs
-*.log
-.tmp/
-tmp/
-
-# env & secrets
-.env
-.env.*
-!.env.example
-
-# OS / editor
-.DS_Store
-Thumbs.db
+# editors
 .idea/
 .vscode/*
 !.vscode/extensions.json
-
-# 검증 도구 리포트 — 매 실행마다 재생성된다. 커밋하면 verify:all 이 돌 때마다
-# 트리가 더러워져 끝없는 churn 이 생긴다. 그래서 재생성물은 추적하지 않는다.
-#
-# 예외 (커밋한다): reports/test-coverage/**
-#   커버리지 축4 래칫의 기준선이다. CI 캐시가 초기화돼도 후퇴를 감지하려면 이 파일이
-#   저장소에 영속돼야 한다 (ADR-0010 결정 2). 기준선 없는 래칫은 반쪽이다.
-#
-# 예외 (커밋한다): reports/vrt/baseline/**
-#   같은 이유다 — VRT 기준 이미지는 '재생성물'이 아니라 **비교 대상**이다.
-#   추적하지 않으면 CI 는 매 실행 기준 이미지 0건 상태로 시작해 exit 2(NOT_VERIFIED)가 되거나,
-#   그때그때 캡처한 현재 화면을 자기 자신과 비교하는 공허한 검사가 된다.
-#   리포트/diff/tmp 는 계속 무시한다 — 저것들만 재생성물이다.
-reports/a11y/
-reports/boundary/
-reports/code-quality/
-reports/contract-test/
-reports/drift/
-reports/modularization/
-reports/naming/
-reports/perf/
-reports/reuse/
-# reports/vrt/ 가 아니라 reports/vrt/* 인 이유: git 은 **디렉터리 자체가 제외되면 그 안으로
-# 내려가지 않아** 하위 경로의 `!` 재포함이 조용히 무효가 된다. `reports/vrt/` 로 막고
-# `!reports/vrt/baseline/` 를 쓰면 문법은 합법이고 경고도 없지만 기준 이미지는 계속 무시된다.
-reports/vrt/*
-!reports/vrt/baseline/
-reports/**/tmp/
-tools/vrt/.cache/
-
-# Playwright 실행 산출물 (리포트/트레이스는 실패 진단용 — 커밋 대상 아님)
-e2e/test-results/
-e2e/playwright-report/
-e2e/.last-run.json
-# 임시 검증 산출물 — verify 실행이 만들고 지운다(커밋 대상 아님)
-e2e/out/
-e2e/tmp-verify/
