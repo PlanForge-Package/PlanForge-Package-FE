@@ -4,7 +4,7 @@ import { PageHeader } from '@/components/page-header';
 import { CreateUserForm, UserTable } from '@/components/user-admin';
 import { apiFetch, tryFetch } from '@/lib/api';
 import { requireUser } from '@/lib/auth';
-import type { UserListResponse } from '@/lib/types';
+import type { Property, UserListResponse } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,6 +23,10 @@ export default async function UsersPage({
   // 자기 자신에게는 역할 변경·퇴사 버튼을 내주지 않기 위해서다.
   const me = await requireUser('/users');
   const showInactive = includeInactive === '1';
+
+  // 소속을 지정하려면 고를 수 있는 호텔 목록이 필요하다.
+  const properties = await tryFetch(apiFetch<Property[]>('be', '/api/properties'));
+  const propertyOptions = properties.ok ? properties.data : [];
 
   const result = await tryFetch(
     apiFetch<UserListResponse>('be', '/api/users', {
@@ -66,7 +70,7 @@ export default async function UsersPage({
         </button>
       </form>
 
-      <CreateUserForm />
+      <CreateUserForm properties={propertyOptions} />
 
       {!result.ok ? (
         <ErrorNotice
@@ -79,7 +83,7 @@ export default async function UsersPage({
       ) : (
         <>
           <p className="text-sm opacity-60">전체 {result.data.total.toLocaleString()}명</p>
-          <UserTable users={result.data.items} myId={me.id} />
+          <UserTable users={result.data.items} myId={me.id} properties={propertyOptions} />
         </>
       )}
     </main>

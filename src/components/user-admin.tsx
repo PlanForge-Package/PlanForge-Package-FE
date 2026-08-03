@@ -8,7 +8,7 @@ import {
   updateUserAction,
 } from '@/app/(app)/users/actions';
 import { IDLE, type ActionState } from '@/lib/action-state';
-import type { ManagedUser, UserRole } from '@/lib/types';
+import type { ManagedUser, Property, UserRole } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
 
 export const ROLE_LABELS: Record<UserRole, string> = {
@@ -24,7 +24,36 @@ const inputClass = 'rounded-md border border-current/20 bg-transparent px-3 py-1
 const smallButtonClass =
   'rounded-md border border-current/20 px-2.5 py-1 text-xs transition-colors hover:bg-current/5 disabled:cursor-not-allowed disabled:opacity-50';
 
-export function CreateUserForm() {
+/** 소속 호텔 선택. 빈 값은 소속 없음(본사)이다. */
+function PropertySelect({
+  properties,
+  defaultValue,
+  id,
+  label = '소속 호텔',
+}: {
+  properties: Property[];
+  defaultValue?: string | null;
+  id: string;
+  label?: string;
+}) {
+  return (
+    <div className="flex flex-col gap-1">
+      <label htmlFor={id} className="text-xs opacity-70">
+        {label}
+      </label>
+      <select id={id} name="propertyId" defaultValue={defaultValue ?? ''} className={inputClass}>
+        <option value="">본사 (전 호텔)</option>
+        {properties.map((property) => (
+          <option key={property.id} value={property.id}>
+            {property.name}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+export function CreateUserForm({ properties }: { properties: Property[] }) {
   const [state, action] = useActionState<ActionState, FormData>(createUserAction, IDLE);
   const uid = useId();
 
@@ -89,6 +118,8 @@ export function CreateUserForm() {
           />
         </div>
 
+        <PropertySelect properties={properties} id={`${uid}-property`} />
+
         <SubmitButton pendingLabel="추가 중…">추가</SubmitButton>
       </fieldset>
 
@@ -107,7 +138,15 @@ export function CreateUserForm() {
  * 그 행이 목록에서 빠지며 언마운트되는데, 상태를 행이 들고 있으면 결과 메시지가
  * 함께 사라져 관리자는 무엇이 일어났는지 알 수 없다.
  */
-export function UserTable({ users, myId }: { users: ManagedUser[]; myId: string }) {
+export function UserTable({
+  users,
+  myId,
+  properties,
+}: {
+  users: ManagedUser[];
+  myId: string;
+  properties: Property[];
+}) {
   const [roleState, changeRole] = useActionState<ActionState, FormData>(updateUserAction, IDLE);
   const [activeState, setActive] = useActionState<ActionState, FormData>(setUserActiveAction, IDLE);
   const [passwordState, resetPassword] = useActionState<ActionState, FormData>(
@@ -166,7 +205,7 @@ export function UserTable({ users, myId }: { users: ManagedUser[]; myId: string 
                 이메일
               </th>
               <th scope="col" className="py-2 pr-4 font-medium">
-                역할
+                역할 · 소속
               </th>
               <th scope="col" className="py-2 pr-4 font-medium">
                 상태
@@ -187,6 +226,7 @@ export function UserTable({ users, myId }: { users: ManagedUser[]; myId: string 
                   key={user.id}
                   user={user}
                   isSelf={isSelf}
+                  properties={properties}
                   expanded={openRow === user.id}
                   onToggleExpand={() => setOpenRow(openRow === user.id ? null : user.id)}
                   changeRole={dispatch.role}
@@ -205,6 +245,7 @@ export function UserTable({ users, myId }: { users: ManagedUser[]; myId: string 
 interface RowProps {
   user: ManagedUser;
   isSelf: boolean;
+  properties: Property[];
   expanded: boolean;
   onToggleExpand: () => void;
   changeRole: (formData: FormData) => void;
@@ -215,6 +256,7 @@ interface RowProps {
 function UserRow({
   user,
   isSelf,
+  properties,
   expanded,
   onToggleExpand,
   changeRole,
@@ -238,6 +280,9 @@ function UserRow({
             // 자기 역할은 BE 가 거절한다. 눌러도 안 되는 것을 활성처럼 보이게 두지 않는다.
             <span title="자기 역할은 다른 관리자만 바꿀 수 있습니다.">
               {ROLE_LABELS[user.role]}
+              <span className="ml-1.5 text-xs opacity-60">
+                {properties.find((p) => p.id === user.propertyId)?.name ?? '본사'}
+              </span>
             </span>
           ) : (
             <form action={changeRole} className="flex items-center gap-1.5">
@@ -251,6 +296,19 @@ function UserRow({
                 {ROLES.map((role) => (
                   <option key={role} value={role}>
                     {ROLE_LABELS[role]}
+                  </option>
+                ))}
+              </select>
+              <select
+                name="propertyId"
+                defaultValue={user.propertyId ?? ''}
+                aria-label={`${user.name} 소속 호텔`}
+                className="rounded-md border border-current/20 bg-transparent px-2 py-1 text-sm"
+              >
+                <option value="">본사</option>
+                {properties.map((property) => (
+                  <option key={property.id} value={property.id}>
+                    {property.name}
                   </option>
                 ))}
               </select>

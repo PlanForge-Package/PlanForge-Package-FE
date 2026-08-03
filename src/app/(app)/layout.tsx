@@ -1,5 +1,6 @@
 import { Nav } from '@/components/nav';
 import { requireUser } from '@/lib/auth';
+import { getPropertyContext } from '@/lib/property';
 
 /**
  * 로그인이 필요한 모든 화면의 레이아웃.
@@ -9,10 +10,16 @@ import { requireUser } from '@/lib/auth';
  */
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser();
+  const property = await getPropertyContext(user);
 
   return (
     <>
-      <Nav user={user} />
+      <Nav
+        user={user}
+        properties={property.options}
+        selectedPropertyId={property.selected?.id ?? null}
+        canSwitchProperty={property.canSwitch}
+      />
       <div className="mx-auto max-w-6xl px-6 py-10">{children}</div>
     </>
   );

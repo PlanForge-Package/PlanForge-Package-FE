@@ -3,6 +3,8 @@ import { EmptyState, ErrorNotice } from '@/components/notice';
 import { PageHeader } from '@/components/page-header';
 import { ReservationStatusBadge } from '@/components/status-badge';
 import { apiFetch, tryFetch } from '@/lib/api';
+import { requireUser } from '@/lib/auth';
+import { getPropertyContext } from '@/lib/property';
 import type { ReservationListResponse, ReservationStatus } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -32,15 +34,27 @@ export default async function ReservationsPage({
 }) {
   const { status, q } = await searchParams;
 
+  // 선택된 호텔로 좁힌다. 본사 계정이 호텔을 고르지 않았다면 전 호텔을 본다.
+  const user = await requireUser('/reservations');
+  const property = await getPropertyContext(user);
+
   const result = await tryFetch(
     apiFetch<ReservationListResponse>('be', '/api/reservations', {
-      query: { status: status || undefined, q: q || undefined, limit: 50 },
+      query: {
+        propertyId: property.selected?.id,
+        status: status || undefined,
+        q: q || undefined,
+        limit: 50,
+      },
     }),
   );
 
   return (
     <main className="flex flex-col gap-6">
-      <PageHeader title="예약" description="Core 를 통해 OPERA 에서 동기화된 예약 목록입니다." />
+      <PageHeader
+        title="예약"
+        description={`${property.selected?.name ?? '전 호텔'} — Core 를 통해 OPERA 에서 동기화된 예약입니다.`}
+      />
 
       <form className="flex flex-wrap items-center gap-2" role="search">
         <label htmlFor="q" className="sr-only">

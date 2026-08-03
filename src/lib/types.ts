@@ -30,6 +30,9 @@ export interface Property {
   operaHotelId: string;
   name: string;
   currency: string;
+  timezone?: string;
+  address?: string | null;
+  active?: boolean;
 }
 
 export interface Reservation {

@@ -42,10 +42,12 @@ export async function createUserAction(
   const password = readPassword(formData.get('password'));
   if (typeof password !== 'string') return actionError(password.error);
 
+  const propertyId = String(formData.get('propertyId') ?? '');
+
   try {
     await apiFetch('be', '/api/users', {
       method: 'POST',
-      json: { email, name, password, role },
+      json: { email, name, password, role, ...(propertyId ? { propertyId } : {}) },
     });
   } catch (error) {
     return actionError(backendMessage(error, '계정을 만들지 못했습니다.'));
@@ -77,17 +79,20 @@ export async function updateUserAction(
   const role = readRole(formData.get('role'));
   if (!role) return actionError('역할을 선택해 주세요.');
 
+  // 빈 문자열은 "소속 없음(본사)" 을 뜻한다. BE 도 같은 규칙으로 읽는다.
+  const propertyId = String(formData.get('propertyId') ?? '');
+
   try {
     await apiFetch('be', `/api/users/${encodeURIComponent(userId)}`, {
       method: 'PATCH',
-      json: { role },
+      json: { role, propertyId },
     });
   } catch (error) {
-    return actionError(backendMessage(error, '역할을 바꾸지 못했습니다.'));
+    return actionError(backendMessage(error, '계정을 수정하지 못했습니다.'));
   }
 
   revalidatePath('/users');
-  return actionSuccess('역할을 바꿨습니다.');
+  return actionSuccess('계정을 수정했습니다.');
 }
 
 export async function setUserActiveAction(

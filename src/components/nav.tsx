@@ -4,7 +4,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { logoutAction } from '@/app/login/actions';
 import type { SessionUser } from '@/lib/session';
+import type { Property } from '@/lib/types';
 import { SubmitButton } from './action-feedback';
+import { PropertySwitcher } from './property-switcher';
 
 const ROLE_LABELS: Record<SessionUser['role'], string> = {
   ADMIN: '관리자',
@@ -29,7 +31,17 @@ const LINKS: NavLink[] = [
   { href: '/users', label: '계정', roles: ['ADMIN'] },
 ];
 
-export function Nav({ user }: { user: SessionUser }) {
+export function Nav({
+  user,
+  properties,
+  selectedPropertyId,
+  canSwitchProperty,
+}: {
+  user: SessionUser;
+  properties: Property[];
+  selectedPropertyId: string | null;
+  canSwitchProperty: boolean;
+}) {
   const pathname = usePathname();
   const visible = LINKS.filter((link) => !link.roles || link.roles.includes(user.role));
 
@@ -57,6 +69,11 @@ export function Nav({ user }: { user: SessionUser }) {
         })}
 
         <div className="ml-auto flex items-center gap-3 py-2">
+          <PropertySwitcher
+            options={properties}
+            selectedId={selectedPropertyId}
+            canSwitch={canSwitchProperty}
+          />
           <Link href="/account" className="text-sm opacity-70 hover:opacity-100">
             {user.name}
             <span className="ml-1.5 text-xs opacity-70">({ROLE_LABELS[user.role]})</span>

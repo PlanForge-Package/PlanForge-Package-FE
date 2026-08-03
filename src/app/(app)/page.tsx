@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { ErrorNotice } from '@/components/notice';
 import { PageHeader, StatTile } from '@/components/page-header';
 import { apiFetch, tryFetch } from '@/lib/api';
+import { requireUser } from '@/lib/auth';
+import { getPropertyContext } from '@/lib/property';
 import type { ReservationListResponse } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -9,8 +11,13 @@ export const dynamic = 'force-dynamic';
 export default async function DashboardPage() {
   // Property 를 고르는 UI 가 아직 없으므로, 전체 예약에서 상태별로 집계한다.
   // Property 선택이 들어오면 BE 의 /api/reservations/summary 로 바꾼다.
+  const user = await requireUser('/');
+  const property = await getPropertyContext(user);
+
   const result = await tryFetch(
-    apiFetch<ReservationListResponse>('be', '/api/reservations', { query: { limit: 200 } }),
+    apiFetch<ReservationListResponse>('be', '/api/reservations', {
+      query: { propertyId: property.selected?.id, limit: 200 },
+    }),
   );
 
   const counts = result.ok
@@ -28,7 +35,7 @@ export default async function DashboardPage() {
     <main className="flex flex-col gap-8">
       <PageHeader
         title="대시보드"
-        description="Oracle OPERA(OHIP) 기반 호텔 관리 플랫폼 PlanForge"
+        description={property.selected?.name ?? 'Oracle OPERA(OHIP) 기반 호텔 관리 플랫폼'}
       />
 
       {!result.ok ? (
