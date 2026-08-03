@@ -33,6 +33,24 @@ function hintFor(status?: number): string {
   return 'BE 서버가 실행 중인지, BE_BASE_URL 이 올바른지 확인해 주세요.';
 }
 
+/**
+ * 오류가 아닌, 알아야 하는 상태.
+ *
+ * ErrorNotice 를 돌려쓰면 "BE 서버가 실행 중인지 확인하세요" 같은 복구 안내가
+ * 따라붙어 정상 상태를 장애처럼 보이게 한다.
+ */
+export function InfoNotice({ title, message }: { title: string; message: string }) {
+  return (
+    <div
+      role="status"
+      className="rounded-lg border border-amber-500/30 bg-amber-500/5 px-4 py-3 text-sm"
+    >
+      <p className="font-medium">{title}</p>
+      <p className="mt-1 whitespace-pre-line text-subtle">{message}</p>
+    </div>
+  );
+}
+
 export function EmptyState({ message }: { message: string }) {
   return (
     <div className="rounded-lg border border-dashed border-current/20 px-4 py-12 text-center text-sm text-subtle">

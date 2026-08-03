@@ -28,6 +28,7 @@ const LINKS: NavLink[] = [
   // 감추는 것은 편의일 뿐이고, 실제 차단은 BE 가 한다.
   { href: '/reservations', label: '예약', roles: ['ADMIN', 'MANAGER', 'FRONT_DESK'] },
   { href: '/blocks', label: '단체', roles: ['ADMIN', 'MANAGER', 'FRONT_DESK'] },
+  { href: '/profiles', label: '게스트', roles: ['ADMIN', 'MANAGER', 'FRONT_DESK'] },
   { href: '/rooms', label: '객실' },
   { href: '/housekeeping', label: '하우스키핑' },
   { href: '/night-audit', label: '야간 감사', roles: ['ADMIN', 'MANAGER', 'FRONT_DESK'] },

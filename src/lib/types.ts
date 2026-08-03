@@ -5,12 +5,78 @@ export type ReservationStatus =
 
 export type RoomStatus = 'CLEAN' | 'DIRTY' | 'INSPECTED' | 'OUT_OF_ORDER' | 'OUT_OF_SERVICE';
 
+export type ProfileType = 'GUEST' | 'COMPANY' | 'TRAVEL_AGENT' | 'GROUP';
+
+export type MembershipTier = 'NONE' | 'SILVER' | 'GOLD' | 'PLATINUM';
+
 export interface Profile {
   id: string;
   firstName: string | null;
   lastName: string | null;
   email: string | null;
   vip: boolean;
+}
+
+/** 목록·상세에서 쓰는 전체 프로필. 예약에 딸려 오는 Profile 보다 넓다. */
+export interface GuestProfile extends Profile {
+  operaProfileId: string | null;
+  type: ProfileType;
+  companyName: string | null;
+  phone: string | null;
+  nationality: string | null;
+  membershipNumber: string | null;
+  membershipTier: MembershipTier;
+  /** 선호 코드. 자유 텍스트가 아니다 — 표기는 화면이 맡는다. */
+  preferences: string[];
+  notes: string | null;
+  mergedIntoId: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProfileListResponse {
+  items: GuestProfile[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+export interface ProfileStay {
+  id: string;
+  confirmationNumber: string;
+  status: ReservationStatus;
+  arrivalDate: string;
+  departureDate: string;
+  totalAmount: string | null;
+  currency: string;
+  assignedRoomNumber: string | null;
+  property: { name: string };
+  roomType: { code: string };
+}
+
+export interface ProfileDetail extends GuestProfile {
+  merged: boolean;
+  mergedInto: { id: string; firstName: string | null; lastName: string | null } | null;
+  stays: ProfileStay[];
+  summary: {
+    stayCount: number;
+    nights: number;
+    revenue: string;
+    lastStay: string | null;
+  };
+}
+
+export type DuplicateReason = 'SAME_EMAIL' | 'SAME_PHONE' | 'SAME_NAME' | 'SAME_MEMBERSHIP';
+
+export interface DuplicateCandidate {
+  profile: GuestProfile;
+  /** 같은 사람으로 본 근거. 자동으로 합치지 않고 사람이 판단한다. */
+  reasons: DuplicateReason[];
+}
+
+export interface DuplicateResponse {
+  profileId: string;
+  items: DuplicateCandidate[];
 }
 
 export interface RoomType {
