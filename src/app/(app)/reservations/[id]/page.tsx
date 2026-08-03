@@ -1,17 +1,21 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
-import { logoutUrl } from '@/lib/auth';
+import { logoutUrl, requireUser } from '@/lib/auth';
 import { FolioPanel } from '@/components/folio-panel';
 import { FrontDeskPanel } from '@/components/front-desk';
 import { ReservationEditPanel } from '@/components/reservation-edit';
 import { ErrorNotice } from '@/components/notice';
 import { PageHeader } from '@/components/page-header';
+import { PaymentPanel } from '@/components/payment-panel';
 import { RoomKeyPanel } from '@/components/room-key-panel';
 import { ReservationStatusBadge } from '@/components/status-badge';
 import { ApiError, apiFetch, backendMessage, tryFetch } from '@/lib/api';
 import { CHANNEL_LABELS, MARKET_LABELS, SOURCE_LABELS, label } from '@/lib/channel-labels';
-import type { ReservationDetail, RoomKeyListResponse } from '@/lib/types';
+import type { PaymentListResponse, ReservationDetail, RoomKeyListResponse } from '@/lib/types';
+
+/** 환불은 돈이 나가는 방향이다. BE 도 같은 규칙으로 막는다. */
+const CAN_REFUND = ['ADMIN', 'MANAGER'];
 
 export const dynamic = 'force-dynamic';
 
@@ -61,6 +65,7 @@ function guestName(reservation: ReservationDetail): string {
 
 export default async function ReservationDetailPage({ params }: Props) {
   const { id } = await params;
+  const user = await requireUser(`/reservations/${id}`);
   const result = await loadReservation(id);
 
   if (!result.ok) {
@@ -82,10 +87,15 @@ export default async function ReservationDetailPage({ params }: Props) {
   const reservation = result.data;
   const folios = reservation.folios ?? [];
 
-  // 키 조회가 실패해도 예약 화면 전체를 죽이지 않는다. 별개 호출인 이유가 이것이다.
-  const keys = await tryFetch(
-    apiFetch<RoomKeyListResponse>('be', `/api/reservations/${encodeURIComponent(id)}/keys`),
-  );
+  // 키·결제 조회가 실패해도 예약 화면 전체를 죽이지 않는다. 별개 호출인 이유가 이것이다.
+  const [keys, payments] = await Promise.all([
+    tryFetch(
+      apiFetch<RoomKeyListResponse>('be', `/api/reservations/${encodeURIComponent(id)}/keys`),
+    ),
+    tryFetch(
+      apiFetch<PaymentListResponse>('be', `/api/reservations/${encodeURIComponent(id)}/payments`),
+    ),
+  ]);
 
   return (
     <main className="flex flex-col gap-8">
@@ -161,6 +171,16 @@ export default async function ReservationDetailPage({ params }: Props) {
           title="객실 키를 불러오지 못했습니다"
           message={keys.message}
           status={keys.status}
+        />
+      )}
+
+      {payments.ok ? (
+        <PaymentPanel data={payments.data} canRefund={CAN_REFUND.includes(user.role)} />
+      ) : (
+        <ErrorNotice
+          title="결제 이력을 불러오지 못했습니다"
+          message={payments.message}
+          status={payments.status}
         />
       )}
 

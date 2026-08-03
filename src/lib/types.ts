@@ -381,6 +381,38 @@ export interface Posting {
   voidedById?: string | null;
 }
 
+export type PaymentMethod = 'CARD' | 'CASH' | 'TRANSFER';
+
+export type PaymentStatus = 'AUTHORIZED' | 'CAPTURED' | 'VOIDED' | 'REFUNDED' | 'FAILED';
+
+export interface Payment {
+  id: string;
+  folioId: string;
+  method: PaymentMethod;
+  status: PaymentStatus;
+  /** Prisma Decimal 은 JSON 에서 문자열로 온다. */
+  amount: string;
+  refundedAmount: string;
+  currency: string;
+  vendorTxnId: string | null;
+  approvalNumber: string | null;
+  /** 뒷 네 자리만. 전체 카드 번호는 저장하지 않는다. */
+  maskedCard: string | null;
+  cardBrand: string | null;
+  failureReason: string | null;
+  authorizedAt: string;
+  capturedAt: string | null;
+  voidedAt: string | null;
+  folio?: { window: number };
+}
+
+export interface PaymentListResponse {
+  reservationId: string;
+  /** mock 이면 실제로 돈이 오가지 않는다. 화면이 알려야 한다. */
+  driverMode: 'mock' | 'live';
+  items: Payment[];
+}
+
 export type RoomKeyStatus = 'ACTIVE' | 'REVOKED' | 'EXPIRED';
 
 export interface RoomKey {
