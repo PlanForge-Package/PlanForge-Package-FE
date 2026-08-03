@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { EmptyState, ErrorNotice } from '@/components/notice';
 import { PageHeader } from '@/components/page-header';
 import { ReservationStatusBadge } from '@/components/status-badge';
@@ -113,7 +114,12 @@ export default async function ReservationsPage({
                 {result.data.items.map((reservation) => (
                   <tr key={reservation.id} className="border-b border-current/5">
                     <td className="py-2.5 pr-4 font-mono text-xs">
-                      {reservation.confirmationNumber}
+                      <Link
+                        href={`/reservations/${reservation.id}`}
+                        className="underline underline-offset-4 hover:no-underline"
+                      >
+                        {reservation.confirmationNumber}
+                      </Link>
                     </td>
                     <td className="py-2.5 pr-4">
                       {guestName(reservation)}

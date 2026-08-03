@@ -50,6 +50,35 @@ export interface Reservation {
   property: Property;
 }
 
+export type PostingType = 'CHARGE' | 'PAYMENT' | 'ADJUSTMENT' | 'TAX';
+
+export type FolioStatus = 'OPEN' | 'CLOSED';
+
+export interface Posting {
+  id: string;
+  type: PostingType;
+  transactionCode: string;
+  description: string;
+  /** Prisma Decimal 은 JSON 에서 문자열로 온다. 부호가 붙어 있다. */
+  amount: string;
+  currency: string;
+  postedAt: string;
+}
+
+export interface Folio {
+  id: string;
+  window: number;
+  status: FolioStatus;
+  balance: string;
+  currency: string;
+  postings: Posting[];
+}
+
+export interface ReservationDetail extends Reservation {
+  notes: string | null;
+  folios: Folio[];
+}
+
 export interface ReservationListResponse {
   items: Reservation[];
   total: number;
