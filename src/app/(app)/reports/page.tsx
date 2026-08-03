@@ -4,7 +4,8 @@ import { PageHeader, StatTile } from '@/components/page-header';
 import { apiFetch, tryFetch } from '@/lib/api';
 import { requireUser } from '@/lib/auth';
 import { getPropertyContext } from '@/lib/property';
-import type { DailyReport } from '@/lib/types';
+import { CHANNEL_LABELS, MARKET_LABELS, SOURCE_LABELS, label } from '@/lib/channel-labels';
+import type { BreakdownRow, DailyReport } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
@@ -103,6 +104,60 @@ export default async function ReportsPage({
   );
 }
 
+function BreakdownTable({
+  title,
+  rows,
+  labels,
+  currency,
+}: {
+  title: string;
+  rows: BreakdownRow[];
+  labels: Record<string, string>;
+  currency: string;
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      <h3 className="text-xs uppercase tracking-wide text-subtle">{title}</h3>
+      {rows.length === 0 ? (
+        <p className="text-sm text-subtle">판매 실적이 없습니다.</p>
+      ) : (
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-current/10 text-left">
+              <th scope="col" className="py-2 pr-2 font-medium">
+                구분
+              </th>
+              <th scope="col" className="py-2 pr-2 text-right font-medium">
+                판매
+              </th>
+              <th scope="col" className="py-2 pr-2 text-right font-medium">
+                비중
+              </th>
+              <th scope="col" className="py-2 text-right font-medium">
+                매출
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr key={row.code} className="border-b border-current/5">
+                <th scope="row" className="py-2 pr-2 text-left font-normal">
+                  {label(labels, row.code)}
+                </th>
+                <td className="py-2 pr-2 text-right tabular-nums">{row.roomsSold}</td>
+                <td className="py-2 pr-2 text-right tabular-nums text-subtle">
+                  {percent(row.share)}
+                </td>
+                <td className="py-2 text-right tabular-nums">{money(row.roomRevenue, currency)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+}
+
 function Report({ data }: { data: DailyReport }) {
   const { currency } = data;
 
@@ -132,6 +187,36 @@ function Report({ data }: { data: DailyReport }) {
           폴리오에 실제로 올라간 금액입니다. 위의 객실 매출과 다른 값이며, 정산 대사에는 이쪽을
           씁니다. 회계 마감용 공식 수치는 OPERA 의 리포트를 따릅니다.
         </p>
+      </section>
+
+      <section aria-label="채널 분해" className="flex flex-col gap-4">
+        <div>
+          <h2 className="text-sm font-medium">경로별 실적</h2>
+          <p className="mt-1 text-xs text-subtle">
+            어디서 들어온 예약이 얼마를 남기는지 봅니다. 수수료를 물고도 계속 파는 채널을 여기서
+            골라냅니다. 합계는 위의 기간 요약과 같습니다.
+          </p>
+        </div>
+        <div className="grid gap-6 lg:grid-cols-3">
+          <BreakdownTable
+            title="판매 채널"
+            rows={data.breakdown.channel}
+            labels={CHANNEL_LABELS}
+            currency={currency}
+          />
+          <BreakdownTable
+            title="예약 출처"
+            rows={data.breakdown.source}
+            labels={SOURCE_LABELS}
+            currency={currency}
+          />
+          <BreakdownTable
+            title="시장 구분"
+            rows={data.breakdown.market}
+            labels={MARKET_LABELS}
+            currency={currency}
+          />
+        </div>
       </section>
 
       <section aria-label="일별 실적" className="flex flex-col gap-2">

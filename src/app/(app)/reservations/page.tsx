@@ -3,6 +3,7 @@ import { EmptyState, ErrorNotice } from '@/components/notice';
 import { PageHeader } from '@/components/page-header';
 import { ReservationStatusBadge } from '@/components/status-badge';
 import { apiFetch, tryFetch } from '@/lib/api';
+import { CHANNEL_LABELS, SOURCE_LABELS, label } from '@/lib/channel-labels';
 import { requireUser } from '@/lib/auth';
 import { getPropertyContext } from '@/lib/property';
 import type { ReservationListResponse, ReservationStatus } from '@/lib/types';
@@ -30,9 +31,9 @@ function formatDate(value: string): string {
 export default async function ReservationsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; q?: string }>;
+  searchParams: Promise<{ status?: string; q?: string; channelCode?: string }>;
 }) {
-  const { status, q } = await searchParams;
+  const { status, q, channelCode } = await searchParams;
 
   // 선택된 호텔로 좁힌다. 본사 계정이 호텔을 고르지 않았다면 전 호텔을 본다.
   const user = await requireUser('/reservations');
@@ -44,6 +45,7 @@ export default async function ReservationsPage({
         propertyId: property.selected?.id,
         status: status || undefined,
         q: q || undefined,
+        channelCode: channelCode || undefined,
         limit: 50,
       },
     }),
@@ -90,6 +92,22 @@ export default async function ReservationsPage({
             </option>
           ))}
         </select>
+        <label htmlFor="channelCode" className="sr-only">
+          판매 채널
+        </label>
+        <select
+          id="channelCode"
+          name="channelCode"
+          defaultValue={channelCode ?? ''}
+          className="rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm"
+        >
+          <option value="">전체 채널</option>
+          {Object.entries(CHANNEL_LABELS).map(([code, name]) => (
+            <option key={code} value={code}>
+              {name}
+            </option>
+          ))}
+        </select>
         <button type="submit" className="btn-primary rounded-md px-3 py-1.5 text-sm font-medium">
           조회
         </button>
@@ -128,6 +146,9 @@ export default async function ReservationsPage({
                   <th scope="col" className="py-2 pr-4 font-medium">
                     객실
                   </th>
+                  <th scope="col" className="py-2 pr-4 font-medium">
+                    경로
+                  </th>
                   <th scope="col" className="py-2 font-medium">
                     상태
                   </th>
@@ -161,6 +182,11 @@ export default async function ReservationsPage({
                     <td className="py-2.5 pr-4">{reservation.roomType.code}</td>
                     <td className="py-2.5 pr-4 tabular-nums">
                       {reservation.assignedRoomNumber ?? '—'}
+                    </td>
+                    <td className="py-2.5 pr-4">
+                      {label(CHANNEL_LABELS, reservation.channelCode) === '—'
+                        ? label(SOURCE_LABELS, reservation.sourceCode)
+                        : label(CHANNEL_LABELS, reservation.channelCode)}
                     </td>
                     <td className="py-2.5">
                       <ReservationStatusBadge status={reservation.status} />

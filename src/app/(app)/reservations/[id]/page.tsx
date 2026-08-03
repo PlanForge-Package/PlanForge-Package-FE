@@ -9,6 +9,7 @@ import { ErrorNotice } from '@/components/notice';
 import { PageHeader } from '@/components/page-header';
 import { ReservationStatusBadge } from '@/components/status-badge';
 import { ApiError, apiFetch, backendMessage } from '@/lib/api';
+import { CHANNEL_LABELS, MARKET_LABELS, SOURCE_LABELS, label } from '@/lib/channel-labels';
 import type { ReservationDetail } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -117,6 +118,16 @@ export default async function ReservationDetailPage({ params }: Props) {
         />
         <Field label="인원" value={`성인 ${reservation.adults} · 아동 ${reservation.children}`} />
         {reservation.blockCode && <Field label="단체 블록" value={reservation.blockCode} mono />}
+        <Field
+          label="예약 경로"
+          value={[
+            label(SOURCE_LABELS, reservation.sourceCode),
+            label(CHANNEL_LABELS, reservation.channelCode),
+            label(MARKET_LABELS, reservation.marketCode),
+          ]
+            .filter((part) => part !== '—')
+            .join(' · ')}
+        />
         {reservation.profile.email && <Field label="이메일" value={reservation.profile.email} />}
         {reservation.notes && <Field label="메모" value={reservation.notes} />}
       </section>

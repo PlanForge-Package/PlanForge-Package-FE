@@ -113,6 +113,10 @@ export interface Reservation {
   assignedRoomNumber: string | null;
   /** 단체 블록에서 빠져나온 예약이면 그 블록 코드 */
   blockCode?: string | null;
+  /** 예약이 들어온 경로. 세 축을 따로 두어야 조합을 구분할 수 있다. */
+  sourceCode?: string | null;
+  marketCode?: string | null;
+  channelCode?: string | null;
   totalAmount: string | null;
   currency: string;
   profile: Profile;
@@ -221,6 +225,15 @@ export interface DailyReportRow {
   revpar: string;
 }
 
+export interface BreakdownRow {
+  code: string;
+  roomsSold: number;
+  roomRevenue: string;
+  adr: string;
+  /** 전체 판매에서 차지하는 비중. 채널 의존도를 한눈에 본다. */
+  share: number;
+}
+
 export interface DailyReport {
   propertyId: string;
   currency: string;
@@ -236,6 +249,12 @@ export interface DailyReport {
     roomRevenue: string;
     adr: string;
     revpar: string;
+  };
+  /** 채널·출처·시장별 분해. 합계는 totals 와 같다. */
+  breakdown: {
+    channel: BreakdownRow[];
+    source: BreakdownRow[];
+    market: BreakdownRow[];
   };
   /** 폴리오에 실제로 올라간 금액. 계약 기준 매출과 다른 값이다. */
   postings: {

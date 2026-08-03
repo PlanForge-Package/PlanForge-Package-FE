@@ -11,7 +11,7 @@ import { apiFetch, backendMessage } from '@/lib/api';
  * React 19 는 액션이 끝나면 비제어 입력을 비운다. 게스트 이름을 다 넣고 OPERA
  * 가 거절했을 때 이름까지 사라지면 프런트가 같은 타이핑을 반복한다.
  */
-const KEEP = ['lastName', 'firstName', 'email', 'blockCode'];
+const KEEP = ['lastName', 'firstName', 'email', 'blockCode', 'sourceCode', 'marketCode'];
 
 // 이 파일은 async 함수만 export 한다. 타입·상수는 @/lib/action-state 에 있다.
 
@@ -80,6 +80,14 @@ export async function createReservationAction(
   // 블록 코드를 넘기면 OPERA 가 그 단체의 픽업으로 잡는다. 빈 값은 일반 예약이다.
   const blockCode = String(formData.get('blockCode') ?? '').trim();
 
+  /*
+   * 예약 경로. 허용 코드 검증은 OPERA 가 한다 — 호텔마다 설정이 다르므로 화면에
+   * 목록을 박아 두면 설정이 바뀔 때마다 세 곳을 고쳐야 한다.
+   */
+  const sourceCode = String(formData.get('sourceCode') ?? '').trim();
+  const marketCode = String(formData.get('marketCode') ?? '').trim();
+  const channelCode = String(formData.get('channelCode') ?? '').trim();
+
   let created: CreatedReservation;
   try {
     created = await apiFetch<CreatedReservation>('be', '/api/reservations', {
@@ -93,6 +101,9 @@ export async function createReservationAction(
         adults,
         children,
         ...(blockCode ? { blockCode } : {}),
+        ...(sourceCode ? { sourceCode } : {}),
+        ...(marketCode ? { marketCode } : {}),
+        ...(channelCode ? { channelCode } : {}),
         guest: { firstName, lastName, ...(email ? { email } : {}) },
       },
     });

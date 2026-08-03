@@ -3,6 +3,7 @@
 import { useActionState, useId, useState } from 'react';
 import { createReservationAction } from '@/app/(app)/reservations/new/actions';
 import { IDLE, type ActionState } from '@/lib/action-state';
+import { MARKET_LABELS, SOURCE_LABELS } from '@/lib/channel-labels';
 import type { AvailabilityItem, RateOffer } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
 
@@ -145,6 +146,8 @@ export function BookingForm({
             name="ratePlanCode"
             value={chosen.offer?.ratePlanCode ?? chosen.item.ratePlanCode ?? ''}
           />
+          {/* 이 화면에서 만든 예약은 언제나 프런트 채널이다. 고르게 할 이유가 없다. */}
+          <input type="hidden" name="channelCode" value="FRONTDESK" />
 
           <fieldset className="flex flex-wrap items-end gap-2">
             <legend className="mb-2 text-sm font-medium">
@@ -196,6 +199,42 @@ export function BookingForm({
                 defaultValue={kept?.email ?? ''}
                 className={`w-56 ${inputClass}`}
               />
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label htmlFor={`${uid}-source`} className="text-xs text-subtle">
+                예약 출처
+              </label>
+              <select
+                id={`${uid}-source`}
+                name="sourceCode"
+                defaultValue={kept?.sourceCode ?? 'DIRECT'}
+                className={`w-32 ${inputClass}`}
+              >
+                {Object.entries(SOURCE_LABELS).map(([code, name]) => (
+                  <option key={code} value={code}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label htmlFor={`${uid}-market`} className="text-xs text-subtle">
+                시장 구분
+              </label>
+              <select
+                id={`${uid}-market`}
+                name="marketCode"
+                defaultValue={kept?.marketCode ?? 'TRANSIENT'}
+                className={`w-28 ${inputClass}`}
+              >
+                {Object.entries(MARKET_LABELS).map(([code, name]) => (
+                  <option key={code} value={code}>
+                    {name}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {blocks.length > 0 && (
