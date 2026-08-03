@@ -69,7 +69,7 @@ export default async function ReservationDetailPage({ params }: Props) {
           message={result.message}
           status={result.status}
         />
-        <Link href="/reservations" className="text-sm underline underline-offset-4 opacity-70">
+        <Link href="/reservations" className="text-sm underline underline-offset-4 text-subtle">
           ← 예약 목록으로
         </Link>
       </main>
@@ -82,7 +82,7 @@ export default async function ReservationDetailPage({ params }: Props) {
   return (
     <main className="flex flex-col gap-8">
       <div className="flex flex-col gap-2">
-        <Link href="/reservations" className="text-sm underline underline-offset-4 opacity-60">
+        <Link href="/reservations" className="text-sm underline underline-offset-4 text-subtle">
           ← 예약 목록
         </Link>
         <PageHeader
@@ -133,7 +133,7 @@ export default async function ReservationDetailPage({ params }: Props) {
 function Field({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <span className="text-xs uppercase tracking-wide opacity-50">{label}</span>
+      <span className="text-xs uppercase tracking-wide text-subtle">{label}</span>
       <span className={`text-sm ${mono ? 'font-mono' : ''}`}>{value}</span>
     </div>
   );

@@ -14,8 +14,8 @@ export function ErrorNotice({
       className="rounded-lg border border-red-500/30 bg-red-500/5 px-4 py-3 text-sm"
     >
       <p className="font-medium text-red-700 dark:text-red-300">{title}</p>
-      <p className="mt-1 whitespace-pre-line opacity-80">{message}</p>
-      <p className="mt-2 text-xs opacity-60">{hintFor(status)}</p>
+      <p className="mt-1 whitespace-pre-line text-subtle">{message}</p>
+      <p className="mt-2 text-xs text-subtle">{hintFor(status)}</p>
     </div>
   );
 }
@@ -35,7 +35,7 @@ function hintFor(status?: number): string {
 
 export function EmptyState({ message }: { message: string }) {
   return (
-    <div className="rounded-lg border border-dashed border-current/20 px-4 py-12 text-center text-sm opacity-60">
+    <div className="rounded-lg border border-dashed border-current/20 px-4 py-12 text-center text-sm text-subtle">
       {message}
     </div>
   );

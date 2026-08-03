@@ -4,7 +4,7 @@ export default function ReservationNotFound() {
   return (
     <main className="flex flex-col items-start gap-4 py-16">
       <h1 className="text-2xl font-semibold tracking-tight">예약을 찾을 수 없습니다</h1>
-      <p className="text-sm opacity-70">
+      <p className="text-sm text-subtle">
         삭제되었거나 주소가 잘못되었을 수 있습니다. 확인 번호로 다시 검색해 보세요.
       </p>
       <Link

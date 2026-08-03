@@ -1,21 +1,38 @@
 @import 'tailwindcss';
 
+/**
+ * 디자인 토큰.
+ *
+ * 색을 컴포넌트마다 직접 적지 않고 여기 한 곳에서 정의한다. 나중에 값을 바꾸면
+ * 화면 전체가 함께 따라간다.
+ */
 @theme {
-  --color-brand-50: oklch(0.97 0.02 250);
-  --color-brand-500: oklch(0.62 0.16 250);
-  --color-brand-600: oklch(0.55 0.16 250);
-  --color-brand-900: oklch(0.32 0.09 250);
+  /* 본문 */
+  --color-ink: #333d4b;
+  /* 보조 설명·라벨 */
+  --color-muted: #8b95a1;
+
+  /* 주요 동작 */
+  --color-brand: #3182f6;
+  --color-brand-hover: #2272eb;
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.21 0.01 250);
+  --background: #ffffff;
+  --foreground: var(--color-ink);
+  --subtle: var(--color-muted);
 }
 
+/**
+ * 다크 모드 값은 별도로 지정받지 않았다. 주신 색을 그대로 쓰면 어두운 배경에서
+ * 본문이 묻히므로, 같은 색상 계열을 유지하되 명도만 올려 대비를 확보한다.
+ * 정확한 값이 정해지면 여기만 고치면 된다.
+ */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: oklch(0.19 0.01 250);
-    --foreground: oklch(0.95 0.005 250);
+    --background: #191f28;
+    --foreground: #e5e8eb;
+    --subtle: #8b95a1;
   }
 }
 
@@ -23,4 +40,40 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: ui-sans-serif, system-ui, 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+}
+
+/** 보조 텍스트. opacity 대신 이 클래스를 쓴다 — 배경에 따라 색이 흐려지지 않는다. */
+.text-subtle {
+  color: var(--subtle);
+}
+
+/**
+ * 평소엔 보조색, 올리면 본문색이 되는 링크.
+ *
+ * hover:text-ink 로 쓰지 않는 이유: --color-ink 는 고정값이라 다크 모드에서
+ * 어두운 배경에 어두운 글자가 된다. 여기서는 테마를 따라가는 --foreground 를 쓴다.
+ */
+.link-subtle {
+  color: var(--subtle);
+  transition: color 0.15s;
+}
+
+.link-subtle:hover {
+  color: var(--foreground);
+}
+
+/** 주요 동작 버튼. */
+.btn-primary {
+  background: var(--color-brand);
+  color: #fff;
+  transition: background-color 0.15s;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--color-brand-hover);
+}
+
+.btn-primary:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }

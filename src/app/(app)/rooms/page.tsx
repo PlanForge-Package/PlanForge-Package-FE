@@ -111,7 +111,7 @@ export default async function RoomsPage({
         </div>
       )}
 
-      <p className="text-xs opacity-50">
+      <p className="text-xs text-subtle">
         상태 표기:{' '}
         {Object.entries(ROOM_LABELS)
           .map(([key, label]) => `${key}=${label}`)

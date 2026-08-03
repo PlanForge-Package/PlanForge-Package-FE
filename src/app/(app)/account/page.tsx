@@ -31,7 +31,7 @@ export default async function AccountPage() {
 function Field({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <span className="text-xs uppercase tracking-wide opacity-50">{label}</span>
+      <span className="text-xs uppercase tracking-wide text-subtle">{label}</span>
       <span className="text-sm">{value}</span>
     </div>
   );

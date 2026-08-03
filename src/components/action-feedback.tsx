@@ -47,10 +47,7 @@ export function SubmitButton({
             }
           : undefined
       }
-      className={
-        className ??
-        'rounded-md border border-current/20 px-3 py-1.5 text-sm font-medium transition-colors hover:bg-current/5 disabled:cursor-not-allowed disabled:opacity-50'
-      }
+      className={className ?? 'btn-primary rounded-md px-3 py-1.5 text-sm font-medium'}
     >
       {pending ? (pendingLabel ?? '처리 중…') : children}
     </button>

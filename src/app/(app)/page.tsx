@@ -52,14 +52,14 @@ export default async function DashboardPage() {
       )}
 
       <section className="flex flex-col gap-3">
-        <h2 className="text-sm font-medium uppercase tracking-wide opacity-60">바로 가기</h2>
+        <h2 className="text-sm font-medium uppercase tracking-wide text-subtle">바로 가기</h2>
         <div className="grid gap-3 sm:grid-cols-2">
           <Link
             href="/reservations"
             className="rounded-lg border border-current/10 px-4 py-3 transition-colors hover:bg-current/5"
           >
             <p className="font-medium">예약</p>
-            <p className="mt-1 text-sm opacity-70">
+            <p className="mt-1 text-sm text-subtle">
               확인 번호·게스트로 검색하고 상태를 확인합니다.
             </p>
           </Link>
@@ -68,13 +68,13 @@ export default async function DashboardPage() {
             className="rounded-lg border border-current/10 px-4 py-3 transition-colors hover:bg-current/5"
           >
             <p className="font-medium">객실</p>
-            <p className="mt-1 text-sm opacity-70">하우스키핑 상태와 재실 현황을 봅니다.</p>
+            <p className="mt-1 text-sm text-subtle">하우스키핑 상태와 재실 현황을 봅니다.</p>
           </Link>
         </div>
       </section>
 
-      <section className="flex flex-col gap-2 text-sm opacity-70">
-        <h2 className="text-sm font-medium uppercase tracking-wide opacity-80">플랫폼 구성</h2>
+      <section className="flex flex-col gap-2 text-sm text-subtle">
+        <h2 className="text-sm font-medium uppercase tracking-wide text-subtle">플랫폼 구성</h2>
         <p>FE → BE(업무 로직·DB) → Core(OPERA 게이트웨이) → OPERA Cloud</p>
       </section>
     </main>

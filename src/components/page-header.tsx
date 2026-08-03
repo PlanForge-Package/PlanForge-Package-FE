@@ -11,7 +11,7 @@ export function PageHeader({
     <header className="flex flex-wrap items-end justify-between gap-4">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
-        {description && <p className="mt-1 text-sm opacity-70">{description}</p>}
+        {description && <p className="mt-1 text-sm text-subtle">{description}</p>}
       </div>
       {actions}
     </header>
@@ -21,7 +21,7 @@ export function PageHeader({
 export function StatTile({ label, value }: { label: string; value: number | string }) {
   return (
     <div className="rounded-lg border border-current/10 px-4 py-3">
-      <p className="text-xs uppercase tracking-wide opacity-60">{label}</p>
+      <p className="text-xs uppercase tracking-wide text-subtle">{label}</p>
       <p className="mt-1 text-2xl font-semibold tabular-nums">{value}</p>
     </div>
   );

@@ -26,7 +26,7 @@ export function PropertySwitcher({
 
   if (!canSwitch) {
     return (
-      <span className="text-sm opacity-70" title={`OPERA 코드 ${only.operaHotelId}`}>
+      <span className="text-sm text-subtle" title={`OPERA 코드 ${only.operaHotelId}`}>
         {only.name}
       </span>
     );

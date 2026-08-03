@@ -54,7 +54,7 @@ export function FolioPanel({
   return (
     <section className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-sm font-medium uppercase tracking-wide opacity-70">폴리오</h2>
+        <h2 className="text-sm font-medium uppercase tracking-wide text-subtle">폴리오</h2>
         <form action={openAction}>
           <SubmitButton pendingLabel="여는 중…">윈도 추가</SubmitButton>
         </form>
@@ -62,7 +62,7 @@ export function FolioPanel({
       <ActionMessage state={openState} />
 
       {folios.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-current/20 px-4 py-8 text-center text-sm opacity-60">
+        <p className="rounded-lg border border-dashed border-current/20 px-4 py-8 text-center text-sm text-subtle">
           아직 폴리오가 없습니다. 체크인하면 자동으로 열리며, 위 버튼으로 직접 열 수도 있습니다.
         </p>
       ) : (
@@ -119,7 +119,7 @@ function FolioCard({
       </header>
 
       {folio.postings.length === 0 ? (
-        <p className="px-4 py-6 text-center text-sm opacity-60">등록된 거래가 없습니다.</p>
+        <p className="px-4 py-6 text-center text-sm text-subtle">등록된 거래가 없습니다.</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[36rem] text-sm">
@@ -158,7 +158,7 @@ function FolioCard({
                     >
                       {formatMoney(posting.amount, posting.currency || currency)}
                     </td>
-                    <td className="py-2 pr-4 tabular-nums opacity-60">
+                    <td className="py-2 pr-4 tabular-nums text-subtle">
                       {posting.postedAt.slice(0, 16).replace('T', ' ')}
                     </td>
                   </tr>
@@ -170,7 +170,7 @@ function FolioCard({
       )}
 
       {closed ? (
-        <p className="border-t border-current/10 px-4 py-3 text-xs opacity-60">
+        <p className="border-t border-current/10 px-4 py-3 text-xs text-subtle">
           마감된 폴리오에는 거래를 등록할 수 없습니다.
         </p>
       ) : (
@@ -193,7 +193,7 @@ function PostingForm({ reservationId, window }: { reservationId: string; window:
         <legend className="sr-only">윈도 {window} 거래 등록</legend>
 
         <div className="flex flex-col gap-1">
-          <label htmlFor={`${uid}-type`} className="text-xs opacity-70">
+          <label htmlFor={`${uid}-type`} className="text-xs text-subtle">
             종류
           </label>
           <select
@@ -211,7 +211,7 @@ function PostingForm({ reservationId, window }: { reservationId: string; window:
         </div>
 
         <div className="flex flex-col gap-1">
-          <label htmlFor={`${uid}-code`} className="text-xs opacity-70">
+          <label htmlFor={`${uid}-code`} className="text-xs text-subtle">
             코드
           </label>
           <input
@@ -224,7 +224,7 @@ function PostingForm({ reservationId, window }: { reservationId: string; window:
         </div>
 
         <div className="flex flex-col gap-1">
-          <label htmlFor={`${uid}-desc`} className="text-xs opacity-70">
+          <label htmlFor={`${uid}-desc`} className="text-xs text-subtle">
             적요
           </label>
           <input
@@ -237,7 +237,7 @@ function PostingForm({ reservationId, window }: { reservationId: string; window:
         </div>
 
         <div className="flex flex-col gap-1">
-          <label htmlFor={`${uid}-amount`} className="text-xs opacity-70">
+          <label htmlFor={`${uid}-amount`} className="text-xs text-subtle">
             금액
           </label>
           <input
@@ -253,7 +253,7 @@ function PostingForm({ reservationId, window }: { reservationId: string; window:
           />
         </div>
 
-        <label className="flex items-center gap-1.5 py-1.5 text-xs opacity-70">
+        <label className="flex items-center gap-1.5 py-1.5 text-xs text-subtle">
           <input type="checkbox" name="negative" className="size-3.5" />
           조정을 차감으로
         </label>
@@ -261,7 +261,7 @@ function PostingForm({ reservationId, window }: { reservationId: string; window:
         <SubmitButton pendingLabel="등록 중…">등록</SubmitButton>
       </fieldset>
 
-      <p className="mt-1.5 text-xs opacity-50">
+      <p className="mt-1.5 text-xs text-subtle">
         금액은 항상 양수로 입력합니다. 결제는 자동으로 잔액에서 차감됩니다.
       </p>
       <ActionMessage state={state} />

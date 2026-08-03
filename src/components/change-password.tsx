@@ -13,13 +13,13 @@ export function ChangePasswordForm() {
 
   return (
     <form action={action} className="flex flex-col gap-4">
-      <h2 className="text-sm font-medium uppercase tracking-wide opacity-70">비밀번호 변경</h2>
+      <h2 className="text-sm font-medium uppercase tracking-wide text-subtle">비밀번호 변경</h2>
 
       {/* 브라우저 비밀번호 관리자가 계정을 알아보도록 아이디 필드를 숨겨 둔다. */}
       <input type="text" name="username" autoComplete="username" hidden readOnly value="" />
 
       <div className="flex flex-col gap-1">
-        <label htmlFor={`${uid}-current`} className="text-sm opacity-70">
+        <label htmlFor={`${uid}-current`} className="text-sm text-subtle">
           현재 비밀번호
         </label>
         <input
@@ -33,7 +33,7 @@ export function ChangePasswordForm() {
       </div>
 
       <div className="flex flex-col gap-1">
-        <label htmlFor={`${uid}-new`} className="text-sm opacity-70">
+        <label htmlFor={`${uid}-new`} className="text-sm text-subtle">
           새 비밀번호
         </label>
         <input
@@ -48,7 +48,7 @@ export function ChangePasswordForm() {
       </div>
 
       <div className="flex flex-col gap-1">
-        <label htmlFor={`${uid}-confirm`} className="text-sm opacity-70">
+        <label htmlFor={`${uid}-confirm`} className="text-sm text-subtle">
           새 비밀번호 확인
         </label>
         <input
@@ -64,7 +64,7 @@ export function ChangePasswordForm() {
 
       <SubmitButton pendingLabel="변경 중…">비밀번호 변경</SubmitButton>
 
-      <p className="text-xs opacity-50">8자 이상이어야 하며, 현재 비밀번호와 달라야 합니다.</p>
+      <p className="text-xs text-subtle">8자 이상이어야 하며, 현재 비밀번호와 달라야 합니다.</p>
       <ActionMessage state={state} />
     </form>
   );

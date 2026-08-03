@@ -58,9 +58,7 @@ export function Nav({
               href={link.href}
               aria-current={active ? 'page' : undefined}
               className={`border-b-2 px-3 py-3 text-sm transition-colors ${
-                active
-                  ? 'border-current font-medium'
-                  : 'border-transparent opacity-60 hover:opacity-100'
+                active ? 'border-current font-medium' : 'border-transparent link-subtle'
               }`}
             >
               {link.label}
@@ -74,9 +72,9 @@ export function Nav({
             selectedId={selectedPropertyId}
             canSwitch={canSwitchProperty}
           />
-          <Link href="/account" className="text-sm opacity-70 hover:opacity-100">
+          <Link href="/account" className="text-sm link-subtle">
             {user.name}
-            <span className="ml-1.5 text-xs opacity-70">({ROLE_LABELS[user.role]})</span>
+            <span className="ml-1.5 text-xs text-subtle">({ROLE_LABELS[user.role]})</span>
           </Link>
           <form action={logoutAction}>
             <SubmitButton

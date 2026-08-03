@@ -38,7 +38,7 @@ function PropertySelect({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={id} className="text-xs opacity-70">
+      <label htmlFor={id} className="text-xs text-subtle">
         {label}
       </label>
       <select id={id} name="propertyId" defaultValue={defaultValue ?? ''} className={inputClass}>
@@ -63,7 +63,7 @@ export function CreateUserForm({ properties }: { properties: Property[] }) {
         <legend className="mb-2 text-sm font-medium">계정 추가 (입사)</legend>
 
         <div className="flex flex-col gap-1">
-          <label htmlFor={`${uid}-email`} className="text-xs opacity-70">
+          <label htmlFor={`${uid}-email`} className="text-xs text-subtle">
             이메일
           </label>
           <input
@@ -77,7 +77,7 @@ export function CreateUserForm({ properties }: { properties: Property[] }) {
         </div>
 
         <div className="flex flex-col gap-1">
-          <label htmlFor={`${uid}-name`} className="text-xs opacity-70">
+          <label htmlFor={`${uid}-name`} className="text-xs text-subtle">
             이름
           </label>
           <input
@@ -91,7 +91,7 @@ export function CreateUserForm({ properties }: { properties: Property[] }) {
         </div>
 
         <div className="flex flex-col gap-1">
-          <label htmlFor={`${uid}-role`} className="text-xs opacity-70">
+          <label htmlFor={`${uid}-role`} className="text-xs text-subtle">
             역할
           </label>
           <select id={`${uid}-role`} name="role" defaultValue="FRONT_DESK" className={inputClass}>
@@ -104,7 +104,7 @@ export function CreateUserForm({ properties }: { properties: Property[] }) {
         </div>
 
         <div className="flex flex-col gap-1">
-          <label htmlFor={`${uid}-password`} className="text-xs opacity-70">
+          <label htmlFor={`${uid}-password`} className="text-xs text-subtle">
             초기 비밀번호
           </label>
           <input
@@ -123,7 +123,7 @@ export function CreateUserForm({ properties }: { properties: Property[] }) {
         <SubmitButton pendingLabel="추가 중…">추가</SubmitButton>
       </fieldset>
 
-      <p className="mt-1.5 text-xs opacity-50">
+      <p className="mt-1.5 text-xs text-subtle">
         비밀번호는 8자 이상입니다. 만든 뒤 본인에게 직접 전달하고 변경하도록 안내해 주세요.
       </p>
       <ActionMessage state={state} />
@@ -271,7 +271,7 @@ function UserRow({
       <tr className={`border-b border-current/5 ${user.active ? '' : 'opacity-50'}`}>
         <td className="py-2.5 pr-4">
           {user.name}
-          {isSelf && <span className="ml-1.5 text-xs opacity-60">(나)</span>}
+          {isSelf && <span className="ml-1.5 text-xs text-subtle">(나)</span>}
         </td>
         <td className="py-2.5 pr-4 font-mono text-xs">{user.email}</td>
 
@@ -280,7 +280,7 @@ function UserRow({
             // 자기 역할은 BE 가 거절한다. 눌러도 안 되는 것을 활성처럼 보이게 두지 않는다.
             <span title="자기 역할은 다른 관리자만 바꿀 수 있습니다.">
               {ROLE_LABELS[user.role]}
-              <span className="ml-1.5 text-xs opacity-60">
+              <span className="ml-1.5 text-xs text-subtle">
                 {properties.find((p) => p.id === user.propertyId)?.name ?? '본사'}
               </span>
             </span>
@@ -320,14 +320,14 @@ function UserRow({
         </td>
 
         <td className="py-2.5 pr-4">{user.active ? '재직' : '퇴사'}</td>
-        <td className="py-2.5 pr-4 text-xs tabular-nums opacity-60">
+        <td className="py-2.5 pr-4 text-xs tabular-nums text-subtle">
           {user.lastLoginAt ? user.lastLoginAt.slice(0, 10) : '기록 없음'}
         </td>
 
         <td className="py-2.5">
           <div className="flex flex-wrap items-center gap-2">
             {isSelf ? (
-              <span className="text-xs opacity-50">자기 계정</span>
+              <span className="text-xs text-subtle">자기 계정</span>
             ) : (
               <form action={setActive}>
                 <input type="hidden" name="userId" value={user.id} />
@@ -361,7 +361,7 @@ function UserRow({
             <form action={resetPassword} className="flex flex-wrap items-end gap-2">
               <input type="hidden" name="userId" value={user.id} />
               <div className="flex flex-col gap-1">
-                <label htmlFor={`${uid}-pw`} className="text-xs opacity-70">
+                <label htmlFor={`${uid}-pw`} className="text-xs text-subtle">
                   {user.name} 의 새 비밀번호
                 </label>
                 <input
@@ -378,7 +378,7 @@ function UserRow({
               <button
                 type="button"
                 onClick={onToggleExpand}
-                className="rounded-md px-2.5 py-1.5 text-sm opacity-60 hover:opacity-100"
+                className="rounded-md px-2.5 py-1.5 text-sm link-subtle"
               >
                 닫기
               </button>

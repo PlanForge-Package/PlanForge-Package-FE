@@ -22,7 +22,7 @@ export function LoginForm({ next, reason }: { next?: string; reason?: string }) 
       <input type="hidden" name="next" value={next ?? '/'} />
 
       <div className="flex flex-col gap-1">
-        <label htmlFor="email" className="text-sm opacity-70">
+        <label htmlFor="email" className="text-sm text-subtle">
           이메일
         </label>
         <input
@@ -38,7 +38,7 @@ export function LoginForm({ next, reason }: { next?: string; reason?: string }) 
       </div>
 
       <div className="flex flex-col gap-1">
-        <label htmlFor="password" className="text-sm opacity-70">
+        <label htmlFor="password" className="text-sm text-subtle">
           비밀번호
         </label>
         <input
@@ -53,7 +53,7 @@ export function LoginForm({ next, reason }: { next?: string; reason?: string }) 
 
       <SubmitButton
         pendingLabel="로그인 중…"
-        className="rounded-md bg-brand-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-500 disabled:cursor-not-allowed disabled:opacity-50"
+        className="btn-primary rounded-md px-3 py-2 text-sm font-medium"
       >
         로그인
       </SubmitButton>

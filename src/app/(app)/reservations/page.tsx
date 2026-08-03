@@ -82,10 +82,7 @@ export default async function ReservationsPage({
             </option>
           ))}
         </select>
-        <button
-          type="submit"
-          className="rounded-md border border-current/20 px-3 py-1.5 text-sm font-medium hover:bg-current/5"
-        >
+        <button type="submit" className="btn-primary rounded-md px-3 py-1.5 text-sm font-medium">
           조회
         </button>
       </form>
@@ -100,7 +97,7 @@ export default async function ReservationsPage({
         <EmptyState message="조건에 맞는 예약이 없습니다." />
       ) : (
         <>
-          <p className="text-sm opacity-60">전체 {result.data.total.toLocaleString()}건</p>
+          <p className="text-sm text-subtle">전체 {result.data.total.toLocaleString()}건</p>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[56rem] text-sm">
               <thead>

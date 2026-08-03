@@ -49,7 +49,7 @@ export function FrontDeskPanel({
         <form action={checkIn} className="mt-3">
           <div className="flex flex-wrap items-end gap-2">
             <div className="flex flex-col gap-1">
-              <label htmlFor="roomNumber" className="text-xs opacity-70">
+              <label htmlFor="roomNumber" className="text-xs text-subtle">
                 객실 번호
               </label>
               <input
@@ -63,7 +63,7 @@ export function FrontDeskPanel({
             </div>
             <SubmitButton pendingLabel="체크인 중…">체크인</SubmitButton>
           </div>
-          <p className="mt-1.5 text-xs opacity-50">
+          <p className="mt-1.5 text-xs text-subtle">
             비워 두면 예약에 이미 배정된 객실을 사용합니다.
           </p>
         </form>
@@ -73,7 +73,7 @@ export function FrontDeskPanel({
         <form action={checkOut} className="mt-3">
           <div className="flex flex-wrap items-end gap-2">
             <div className="flex flex-col gap-1">
-              <label htmlFor="notes" className="text-xs opacity-70">
+              <label htmlFor="notes" className="text-xs text-subtle">
                 메모 (선택)
               </label>
               <input
@@ -87,14 +87,14 @@ export function FrontDeskPanel({
               체크아웃
             </SubmitButton>
           </div>
-          <p className="mt-1.5 text-xs opacity-50">
+          <p className="mt-1.5 text-xs text-subtle">
             미결제 잔액이 남아 있으면 체크아웃할 수 없습니다.
           </p>
         </form>
       )}
 
       {!canCheckIn && !canCheckOut && (
-        <p className="mt-1 text-sm opacity-60">현재 상태에서는 체크인·체크아웃할 수 없습니다.</p>
+        <p className="mt-1 text-sm text-subtle">현재 상태에서는 체크인·체크아웃할 수 없습니다.</p>
       )}
 
       <div data-testid="front-desk-feedback">

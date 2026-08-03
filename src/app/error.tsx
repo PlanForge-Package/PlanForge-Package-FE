@@ -22,11 +22,11 @@ export default function RouteError({
   return (
     <main className="flex flex-col items-start gap-4 py-16">
       <h1 className="text-2xl font-semibold tracking-tight">화면을 표시하지 못했습니다</h1>
-      <p className="text-sm opacity-70">
+      <p className="text-sm text-subtle">
         일시적인 문제일 수 있습니다. 다시 시도해도 같으면 BE 서버 상태를 확인해 주세요.
       </p>
       {error.digest && (
-        <p className="text-xs opacity-50">
+        <p className="text-xs text-subtle">
           오류 ID: <code className="font-mono">{error.digest}</code>
         </p>
       )}
