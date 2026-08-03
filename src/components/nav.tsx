@@ -31,6 +31,8 @@ const LINKS: NavLink[] = [
   { href: '/rooms', label: '객실' },
   { href: '/housekeeping', label: '하우스키핑' },
   { href: '/night-audit', label: '야간 감사', roles: ['ADMIN', 'MANAGER', 'FRONT_DESK'] },
+  // 매출 지표는 경영 정보다. 프런트데스크에게는 열지 않는다.
+  { href: '/reports', label: '실적', roles: ['ADMIN', 'MANAGER'] },
   { href: '/users', label: '계정', roles: ['ADMIN'] },
 ];
 

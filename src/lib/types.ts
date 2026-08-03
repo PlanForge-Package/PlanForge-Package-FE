@@ -142,6 +142,45 @@ export interface BlockRoomingList {
   items: BlockReservation[];
 }
 
+/** 금액은 Prisma Decimal 이라 JSON 에서 문자열로 온다. 정밀도를 잃지 않기 위해서다. */
+export interface DailyReportRow {
+  date: string;
+  roomsAvailable: number;
+  roomsSold: number;
+  /** 아직 도착하지 않은 예약분. 실적과 섞지 않는다. */
+  roomsBooked: number;
+  occupancy: number;
+  roomRevenue: string;
+  adr: string;
+  revpar: string;
+}
+
+export interface DailyReport {
+  propertyId: string;
+  currency: string;
+  from: string;
+  to: string;
+  nights: number;
+  roomsAvailable: number;
+  basis: string;
+  totals: {
+    roomsSold: number;
+    roomsAvailable: number;
+    occupancy: number;
+    roomRevenue: string;
+    adr: string;
+    revpar: string;
+  };
+  /** 폴리오에 실제로 올라간 금액. 계약 기준 매출과 다른 값이다. */
+  postings: {
+    charges: string;
+    payments: string;
+    adjustments: string;
+    outstanding: string;
+  };
+  rows: DailyReportRow[];
+}
+
 export type AuditItemKind =
   | 'ARRIVAL_PENDING'
   | 'DEPARTURE_PENDING'
