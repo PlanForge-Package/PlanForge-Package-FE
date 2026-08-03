@@ -45,6 +45,7 @@ pnpm dev
 | `/housekeeping`      | 하우스키핑 — 작업 배정·진행, 불일치 확인          |
 | `/night-audit`       | 야간 감사 — 마감 점검표, 노쇼 처리                |
 | `/reports`           | 실적 — 점유율·ADR·RevPAR, 경로별 분해 (지배인)    |
+| `/pos-outlets`       | POS 아웃렛 — 키 발급·재발급·사용 중지 (지배인)    |
 | `/users`             | 계정 관리 — 입사·역할·퇴사 (관리자 전용)          |
 | `/account`           | 내 계정 — 비밀번호 변경                           |
 

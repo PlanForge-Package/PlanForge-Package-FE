@@ -373,6 +373,30 @@ export interface Posting {
   amount: string;
   currency: string;
   postedAt: string;
+  /** 외부 POS 가 단 요금이면 그 아웃렛. 프런트가 직접 올린 것은 null. */
+  outletId?: string | null;
+  /** POS 전표 번호 */
+  reference?: string | null;
+  /** 취소되었으면 그 취소를 만든 조정 포스팅 ID */
+  voidedById?: string | null;
+}
+
+export interface PosOutlet {
+  id: string;
+  propertyId: string;
+  code: string;
+  name: string;
+  transactionCode: string;
+  /** 키 앞자리. 전체 키는 발급 순간에만 존재한다. */
+  apiKeyPrefix: string;
+  keyIssuedAt: string;
+  active: boolean;
+  lastUsedAt: string | null;
+  createdAt: string;
+}
+
+export interface OutletListResponse {
+  items: PosOutlet[];
 }
 
 export interface Folio {

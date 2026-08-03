@@ -150,7 +150,20 @@ function FolioCard({
                   <tr key={posting.id} className="border-b border-current/5 last:border-0">
                     <td className="px-4 py-2">{POSTING_LABELS[posting.type] ?? posting.type}</td>
                     <td className="py-2 pr-4 font-mono text-xs">{posting.transactionCode}</td>
-                    <td className="py-2 pr-4">{posting.description}</td>
+                    <td className="py-2 pr-4">
+                      <span className={posting.voidedById ? 'line-through text-subtle' : ''}>
+                        {posting.description}
+                      </span>
+                      {/* 전표 번호가 있으면 외부 POS 가 단 것이다. 대사할 때 필요하다. */}
+                      {posting.reference && (
+                        <span className="ml-1.5 font-mono text-xs text-subtle">
+                          {posting.reference}
+                        </span>
+                      )}
+                      {posting.voidedById && (
+                        <span className="ml-1.5 text-xs text-subtle">취소됨</span>
+                      )}
+                    </td>
                     <td
                       className={`py-2 pr-4 text-right tabular-nums ${
                         value < 0 ? 'text-emerald-700 dark:text-emerald-300' : ''
