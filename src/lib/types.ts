@@ -53,6 +53,42 @@ export interface Reservation {
   property: Property;
 }
 
+/** BE 가 Core 를 거쳐 OPERA 에서 받아 온 재고. 우리가 계산한 값이 아니다. */
+export interface AvailabilityItem {
+  roomTypeCode: string;
+  roomTypeName?: string;
+  availableRooms: number;
+  ratePlanCode?: string;
+  amount?: number;
+  currency?: string;
+}
+
+export interface AvailabilityResponse {
+  propertyId: string;
+  hotelId: string;
+  arrivalDate: string;
+  departureDate: string;
+  items: AvailabilityItem[];
+}
+
+export interface RateOffer {
+  ratePlanCode: string;
+  roomTypeCode: string;
+  roomTypeName?: string;
+  currency: string;
+  nightlyRates: Array<{ date: string; amount: number }>;
+  totalAmount: number;
+}
+
+export interface RateResponse {
+  propertyId: string;
+  hotelId: string;
+  arrivalDate: string;
+  departureDate: string;
+  nights: number;
+  offers: RateOffer[];
+}
+
 export type UserRole = 'ADMIN' | 'MANAGER' | 'FRONT_DESK' | 'HOUSEKEEPING';
 
 export interface ManagedUser {

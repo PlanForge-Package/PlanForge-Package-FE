@@ -4,6 +4,7 @@ import { notFound, redirect } from 'next/navigation';
 import { logoutUrl } from '@/lib/auth';
 import { FolioPanel } from '@/components/folio-panel';
 import { FrontDeskPanel } from '@/components/front-desk';
+import { ReservationEditPanel } from '@/components/reservation-edit';
 import { ErrorNotice } from '@/components/notice';
 import { PageHeader } from '@/components/page-header';
 import { ReservationStatusBadge } from '@/components/status-badge';
@@ -118,6 +119,16 @@ export default async function ReservationDetailPage({ params }: Props) {
         {reservation.profile.email && <Field label="이메일" value={reservation.profile.email} />}
         {reservation.notes && <Field label="메모" value={reservation.notes} />}
       </section>
+
+      <ReservationEditPanel
+        reservationId={reservation.id}
+        status={reservation.status}
+        arrivalDate={reservation.arrivalDate.slice(0, 10)}
+        departureDate={reservation.departureDate.slice(0, 10)}
+        roomTypeCode={reservation.roomType.code}
+        adults={reservation.adults}
+        childCount={reservation.children}
+      />
 
       <FrontDeskPanel
         reservationId={reservation.id}

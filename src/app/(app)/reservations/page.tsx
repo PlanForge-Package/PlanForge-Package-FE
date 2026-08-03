@@ -54,6 +54,14 @@ export default async function ReservationsPage({
       <PageHeader
         title="예약"
         description={`${property.selected?.name ?? '전 호텔'} — Core 를 통해 OPERA 에서 동기화된 예약입니다.`}
+        actions={
+          <Link
+            href="/reservations/new"
+            className="btn-primary rounded-md px-3 py-1.5 text-sm font-medium"
+          >
+            새 예약
+          </Link>
+        }
       />
 
       <form className="flex flex-wrap items-center gap-2" role="search">

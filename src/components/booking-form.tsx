@@ -1,0 +1,206 @@
+'use client';
+
+import { useActionState, useId, useState } from 'react';
+import { createReservationAction } from '@/app/(app)/reservations/new/actions';
+import { IDLE, type ActionState } from '@/lib/action-state';
+import type { AvailabilityItem, RateOffer } from '@/lib/types';
+import { ActionMessage, SubmitButton } from './action-feedback';
+
+const inputClass = 'rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm';
+
+function formatMoney(amount: number | undefined, currency: string): string {
+  if (amount === undefined) return '—';
+  try {
+    return new Intl.NumberFormat('ko-KR', {
+      style: 'currency',
+      currency,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  } catch {
+    return `${amount.toLocaleString('ko-KR')} ${currency}`;
+  }
+}
+
+export interface BookingOption {
+  item: AvailabilityItem;
+  offer?: RateOffer;
+}
+
+/**
+ * 재고 목록에서 객실 타입을 고르고 게스트 정보를 넣어 예약을 만든다.
+ *
+ * 요금과 재고는 이미 OPERA 가 준 값이므로 여기서 다시 계산하지 않는다. 화면은
+ * 받은 값을 보여주고, 최종 확정도 OPERA 가 한다 — 조회 시점과 생성 시점 사이에
+ * 재고가 팔릴 수 있어, 여기 숫자는 참고용이지 보장이 아니다.
+ */
+export function BookingForm({
+  options,
+  propertyId,
+  arrivalDate,
+  departureDate,
+  adults,
+  childCount,
+  nights,
+}: {
+  options: BookingOption[];
+  propertyId: string;
+  arrivalDate: string;
+  departureDate: string;
+  adults: number;
+  /** 게스트 인원. React 의 children 과 헷갈리지 않도록 이름을 달리한다. */
+  childCount: number;
+  nights: number;
+}) {
+  const [state, action] = useActionState<ActionState, FormData>(createReservationAction, IDLE);
+  const [selected, setSelected] = useState<string | null>(null);
+  const uid = useId();
+
+  const chosen = options.find((o) => o.item.roomTypeCode === selected);
+
+  return (
+    <section className="flex flex-col gap-4">
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[44rem] text-sm">
+          <caption className="sr-only">선택 가능한 객실 타입</caption>
+          <thead>
+            <tr className="border-b border-current/10 text-left">
+              <th scope="col" className="py-2 pr-4 font-medium">
+                객실 타입
+              </th>
+              <th scope="col" className="py-2 pr-4 font-medium">
+                요금제
+              </th>
+              <th scope="col" className="py-2 pr-4 font-medium">
+                잔여
+              </th>
+              <th scope="col" className="py-2 pr-4 text-right font-medium">
+                {nights}박 총액
+              </th>
+              <th scope="col" className="py-2 font-medium">
+                선택
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {options.map(({ item, offer }) => {
+              const soldOut = item.availableRooms <= 0;
+              const active = selected === item.roomTypeCode;
+              const currency = offer?.currency ?? item.currency ?? 'KRW';
+
+              return (
+                <tr
+                  key={item.roomTypeCode}
+                  className={`border-b border-current/5 ${soldOut ? 'text-subtle' : ''}`}
+                >
+                  <td className="py-2.5 pr-4">
+                    <span className="font-medium">{item.roomTypeCode}</span>
+                    {item.roomTypeName && (
+                      <span className="ml-1.5 text-subtle">{item.roomTypeName}</span>
+                    )}
+                  </td>
+                  <td className="py-2.5 pr-4">{offer?.ratePlanCode ?? item.ratePlanCode ?? '—'}</td>
+                  <td className="py-2.5 pr-4 tabular-nums">
+                    {soldOut ? '매진' : `${item.availableRooms}실`}
+                  </td>
+                  <td className="py-2.5 pr-4 text-right tabular-nums">
+                    {formatMoney(offer?.totalAmount ?? item.amount, currency)}
+                  </td>
+                  <td className="py-2.5">
+                    <button
+                      type="button"
+                      disabled={soldOut}
+                      aria-pressed={active}
+                      onClick={() => setSelected(active ? null : item.roomTypeCode)}
+                      className={`rounded-md px-2.5 py-1 text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+                        active ? 'btn-primary' : 'border border-current/20 hover:bg-current/5'
+                      }`}
+                    >
+                      {active ? '선택됨' : '선택'}
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {chosen ? (
+        <form action={action} className="rounded-lg border border-current/10 px-4 py-3">
+          <input type="hidden" name="propertyId" value={propertyId} />
+          <input type="hidden" name="arrivalDate" value={arrivalDate} />
+          <input type="hidden" name="departureDate" value={departureDate} />
+          <input type="hidden" name="adults" value={adults} />
+          <input type="hidden" name="children" value={childCount} />
+          <input type="hidden" name="roomTypeCode" value={chosen.item.roomTypeCode} />
+          <input
+            type="hidden"
+            name="ratePlanCode"
+            value={chosen.offer?.ratePlanCode ?? chosen.item.ratePlanCode ?? ''}
+          />
+
+          <fieldset className="flex flex-wrap items-end gap-2">
+            <legend className="mb-2 text-sm font-medium">
+              게스트 정보 — {chosen.item.roomTypeCode}
+              {chosen.item.roomTypeName && (
+                <span className="ml-1.5 text-subtle">{chosen.item.roomTypeName}</span>
+              )}
+            </legend>
+
+            <div className="flex flex-col gap-1">
+              <label htmlFor={`${uid}-last`} className="text-xs text-subtle">
+                성
+              </label>
+              <input
+                id={`${uid}-last`}
+                name="lastName"
+                required
+                maxLength={60}
+                placeholder="홍"
+                className={`w-28 ${inputClass}`}
+              />
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label htmlFor={`${uid}-first`} className="text-xs text-subtle">
+                이름
+              </label>
+              <input
+                id={`${uid}-first`}
+                name="firstName"
+                required
+                maxLength={60}
+                placeholder="길동"
+                className={`w-32 ${inputClass}`}
+              />
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label htmlFor={`${uid}-email`} className="text-xs text-subtle">
+                이메일 (선택)
+              </label>
+              <input
+                id={`${uid}-email`}
+                name="email"
+                type="email"
+                placeholder="guest@example.com"
+                className={`w-56 ${inputClass}`}
+              />
+            </div>
+
+            <SubmitButton pendingLabel="예약 중…">예약 확정</SubmitButton>
+          </fieldset>
+
+          <p className="mt-1.5 text-xs text-subtle">
+            최종 확정은 OPERA 가 합니다. 조회 이후 재고가 팔렸다면 거절될 수 있습니다.
+          </p>
+          <ActionMessage state={state} />
+        </form>
+      ) : (
+        <p className="text-sm text-subtle">
+          객실 타입을 선택하면 게스트 정보를 입력할 수 있습니다.
+        </p>
+      )}
+    </section>
+  );
+}

@@ -127,3 +127,101 @@ export async function openFolioAction(
   revalidatePath(`/reservations/${reservationId}`);
   return actionSuccess('폴리오 윈도를 열었습니다.');
 }
+
+/** 폼 값에서 날짜를 읽는다. 비어 있으면 "변경 없음" 으로 본다. */
+function optionalDate(
+  raw: FormDataEntryValue | null,
+  label: string,
+): string | undefined | { error: string } {
+  const value = String(raw ?? '').trim();
+  if (!value) return undefined;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return { error: `${label}을(를) 올바른 날짜로 입력해 주세요.` };
+  }
+  return value;
+}
+
+function optionalCount(
+  raw: FormDataEntryValue | null,
+  label: string,
+  min: number,
+  max: number,
+): number | undefined | { error: string } {
+  const text = String(raw ?? '').trim();
+  if (!text) return undefined;
+  const value = Number(text);
+  if (!Number.isInteger(value) || value < min || value > max) {
+    return { error: `${label}은(는) ${min}~${max} 사이의 정수여야 합니다.` };
+  }
+  return value;
+}
+
+export async function updateReservationAction(
+  reservationId: string,
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const arrivalDate = optionalDate(formData.get('arrivalDate'), '도착일');
+  if (arrivalDate && typeof arrivalDate !== 'string') return actionError(arrivalDate.error);
+
+  const departureDate = optionalDate(formData.get('departureDate'), '출발일');
+  if (departureDate && typeof departureDate !== 'string') return actionError(departureDate.error);
+
+  if (arrivalDate && departureDate && departureDate <= arrivalDate) {
+    return actionError('출발일은 도착일보다 뒤여야 합니다.');
+  }
+
+  const adults = optionalCount(formData.get('adults'), '성인', 1, 10);
+  if (adults !== undefined && typeof adults !== 'number') return actionError(adults.error);
+
+  const children = optionalCount(formData.get('children'), '아동', 0, 10);
+  if (children !== undefined && typeof children !== 'number') return actionError(children.error);
+
+  const roomTypeCode = String(formData.get('roomTypeCode') ?? '').trim();
+
+  const payload = {
+    ...(arrivalDate ? { arrivalDate } : {}),
+    ...(departureDate ? { departureDate } : {}),
+    ...(roomTypeCode ? { roomTypeCode } : {}),
+    ...(adults === undefined ? {} : { adults }),
+    ...(children === undefined ? {} : { children }),
+  };
+
+  if (Object.keys(payload).length === 0) {
+    return actionError('변경할 내용이 없습니다.');
+  }
+
+  try {
+    await apiFetch('be', `/api/reservations/${encodeURIComponent(reservationId)}`, {
+      method: 'PATCH',
+      json: payload,
+    });
+  } catch (error) {
+    return actionError(backendMessage(error, '예약을 변경하지 못했습니다.'));
+  }
+
+  revalidatePath(`/reservations/${reservationId}`);
+  revalidatePath('/reservations');
+  return actionSuccess('예약을 변경했습니다. 총액은 OPERA 가 다시 계산했습니다.');
+}
+
+export async function cancelReservationAction(
+  reservationId: string,
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const reason = String(formData.get('reason') ?? '').trim();
+
+  try {
+    await apiFetch('be', `/api/reservations/${encodeURIComponent(reservationId)}/cancel`, {
+      method: 'POST',
+      json: reason ? { reason } : {},
+    });
+  } catch (error) {
+    return actionError(backendMessage(error, '예약을 취소하지 못했습니다.'));
+  }
+
+  revalidatePath(`/reservations/${reservationId}`);
+  revalidatePath('/reservations');
+  return actionSuccess('예약을 취소했습니다.');
+}
