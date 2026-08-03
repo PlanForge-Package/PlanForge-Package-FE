@@ -89,6 +89,43 @@ export interface RateResponse {
   offers: RateOffer[];
 }
 
+export type TaskStatus = 'PENDING' | 'IN_PROGRESS' | 'DONE' | 'INSPECTED';
+
+export interface HousekeepingTask {
+  id: string;
+  propertyId: string;
+  roomId: string;
+  assignedToId: string | null;
+  date: string;
+  status: TaskStatus;
+  notes: string | null;
+  startedAt: string | null;
+  completedAt: string | null;
+  room: Room;
+  assignedTo: { id: string; name: string; role: UserRole } | null;
+}
+
+export interface TaskListResponse {
+  date: string;
+  items: HousekeepingTask[];
+  total: number;
+}
+
+export type DiscrepancyKind =
+  'OCCUPIED_WITHOUT_RESERVATION' | 'RESERVATION_WITHOUT_OCCUPANCY' | 'OCCUPIED_BUT_CLEAN';
+
+export interface Discrepancy {
+  room: Room;
+  kind: DiscrepancyKind;
+  reservation: string | null;
+}
+
+export interface DiscrepancyResponse {
+  propertyId: string;
+  total: number;
+  items: Discrepancy[];
+}
+
 export type UserRole = 'ADMIN' | 'MANAGER' | 'FRONT_DESK' | 'HOUSEKEEPING';
 
 export interface ManagedUser {

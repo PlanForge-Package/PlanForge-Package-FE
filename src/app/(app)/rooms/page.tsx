@@ -1,6 +1,7 @@
 import { EmptyState, ErrorNotice } from '@/components/notice';
 import { PageHeader, StatTile } from '@/components/page-header';
-import { ROOM_LABELS, RoomStatusBadge } from '@/components/status-badge';
+import { RoomStatusPanel } from '@/components/room-status';
+import { ROOM_LABELS } from '@/components/status-badge';
 import { apiFetch, tryFetch } from '@/lib/api';
 import { requireUser } from '@/lib/auth';
 import { getPropertyContext } from '@/lib/property';
@@ -73,42 +74,7 @@ export default async function RoomsPage({
       ) : rooms.data.length === 0 ? (
         <EmptyState message="등록된 객실이 없습니다. 먼저 예약 동기화를 실행해 주세요." />
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[40rem] text-sm">
-            <thead>
-              <tr className="border-b border-current/10 text-left">
-                <th scope="col" className="py-2 pr-4 font-medium">
-                  객실
-                </th>
-                <th scope="col" className="py-2 pr-4 font-medium">
-                  층
-                </th>
-                <th scope="col" className="py-2 pr-4 font-medium">
-                  타입
-                </th>
-                <th scope="col" className="py-2 pr-4 font-medium">
-                  상태
-                </th>
-                <th scope="col" className="py-2 font-medium">
-                  재실
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {rooms.data.map((room) => (
-                <tr key={room.id} className="border-b border-current/5">
-                  <td className="py-2.5 pr-4 font-medium tabular-nums">{room.number}</td>
-                  <td className="py-2.5 pr-4 tabular-nums">{room.floor ?? '—'}</td>
-                  <td className="py-2.5 pr-4">{room.roomType.code}</td>
-                  <td className="py-2.5 pr-4">
-                    <RoomStatusBadge status={room.status} />
-                  </td>
-                  <td className="py-2.5">{room.occupied ? '재실' : '공실'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <RoomStatusPanel rooms={rooms.data} />
       )}
 
       <p className="text-xs text-subtle">
