@@ -100,6 +100,7 @@ src/
 │   ├── folio-panel.tsx           フォリオ・取引登録
 │   ├── payment-panel.tsx         オーソリ・売上確定・取消・返金
 │   ├── room-key-panel.tsx        カード発行・無効化
+│   ├── room-outage-panel.tsx     使用不可客室の登録・解除
 │   ├── block-form.tsx            ブロック作成・変更
 │   ├── profile-editor.tsx        嗜好・会員・メモ・統合
 │   ├── outlet-admin.tsx          POS アウトレット発行・再発行
@@ -166,7 +167,7 @@ pnpm dev -- -p 3200
 | `/reservations/[id]`         | 予約詳細 —— 変更・取消、チェックイン/アウト、フォリオ、客室キー、決済    |
 | `/blocks` `/blocks/[id]`     | 団体ブロック —— 確保とピックアップ、日付別割当グリッド、ルーミングリスト |
 | `/profiles` `/profiles/[id]` | ゲストプロファイル —— 検索、宿泊履歴、重複統合                           |
-| `/rooms`                     | 客室 —— ステータス変更（OPERA へ委譲）と在館状況                         |
+| `/rooms`                     | 客室 —— ステータス変更（OPERA へ委譲）、在館状況、使用不可の登録・解除   |
 | `/housekeeping`              | ハウスキーピング —— 作業割当・進捗、不一致の確認                         |
 | `/night-audit`               | ナイトオーディット —— 締めチェックリスト、ノーショー処理                 |
 | `/reports`                   | 実績 —— 稼働率・ADR・RevPAR、経路別内訳（支配人）                        |

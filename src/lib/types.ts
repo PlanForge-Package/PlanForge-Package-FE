@@ -487,6 +487,39 @@ export interface Room {
   roomType: RoomType;
 }
 
+/**
+ * 사용 불가 객실.
+ *
+ * `OUT_OF_ORDER` 는 재고에서 빠져 점유율의 분모도 줄이고, `OUT_OF_SERVICE` 는
+ * 팔지 않을 뿐 재고에는 남아 분모가 그대로다.
+ */
+export type RoomOutageKind = 'OUT_OF_ORDER' | 'OUT_OF_SERVICE';
+
+export interface RoomOutage {
+  id: string;
+  propertyId: string;
+  roomId: string;
+  operaId: string;
+  kind: RoomOutageKind;
+  startDate: string;
+  endDate: string;
+  reason: string;
+  returnStatus: RoomStatus;
+  releasedAt: string | null;
+  room: {
+    id: string;
+    number: string;
+    floor: string | null;
+    roomType: { code: string };
+  };
+  createdBy: { id: string; name: string } | null;
+}
+
+export interface RoomOutageList {
+  items: RoomOutage[];
+  total: number;
+}
+
 export interface RoomStatusSummary {
   propertyId: string;
   total: number;

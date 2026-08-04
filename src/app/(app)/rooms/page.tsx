@@ -1,11 +1,12 @@
 import { EmptyState, ErrorNotice } from '@/components/notice';
 import { PageHeader, StatTile } from '@/components/page-header';
+import { RoomOutagePanel } from '@/components/room-outage-panel';
 import { RoomStatusPanel } from '@/components/room-status';
 import { ROOM_LABELS } from '@/components/status-badge';
 import { apiFetch, tryFetch } from '@/lib/api';
 import { requireUser } from '@/lib/auth';
 import { getPropertyContext } from '@/lib/property';
-import type { Room, RoomStatusSummary } from '@/lib/types';
+import type { Room, RoomOutageList, RoomStatusSummary } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,14 +41,22 @@ export default async function RoomsPage({
     );
   }
 
-  const [rooms, summary] = await Promise.all([
+  const [rooms, summary, outages, allRooms] = await Promise.all([
     tryFetch(
       apiFetch<Room[]>('be', '/api/rooms', {
         query: { propertyId, status: status || undefined },
       }),
     ),
     tryFetch(apiFetch<RoomStatusSummary>('be', '/api/rooms/summary', { query: { propertyId } })),
+    tryFetch(apiFetch<RoomOutageList>('be', '/api/room-outages', { query: { propertyId } })),
+    // 사용 불가 등록의 객실 선택은 화면 필터와 무관해야 한다. 청소 상태로 걸러
+    // 놓은 목록만 주면, 필터가 걸린 동안에는 나머지 객실을 고를 수 없다.
+    status
+      ? tryFetch(apiFetch<Room[]>('be', '/api/rooms', { query: { propertyId } }))
+      : Promise.resolve(null),
   ]);
+
+  const selectableRooms = allRooms?.ok ? allRooms.data : rooms.ok ? rooms.data : [];
 
   return (
     <main className="flex flex-col gap-6">
@@ -75,6 +84,20 @@ export default async function RoomsPage({
         <EmptyState message="등록된 객실이 없습니다. 먼저 예약 동기화를 실행해 주세요." />
       ) : (
         <RoomStatusPanel rooms={rooms.data} />
+      )}
+
+      {!outages.ok ? (
+        <ErrorNotice
+          title="사용 불가 객실을 불러오지 못했습니다"
+          message={outages.message}
+          status={outages.status}
+        />
+      ) : (
+        <RoomOutagePanel
+          propertyId={propertyId}
+          rooms={selectableRooms}
+          outages={outages.data.items}
+        />
       )}
 
       <p className="text-xs text-subtle">

@@ -100,6 +100,7 @@ src/
 │   ├── folio-panel.tsx           Folios · postings
 │   ├── payment-panel.tsx         Authorize · capture · void · refund
 │   ├── room-key-panel.tsx        Issue · revoke room keys
+│   ├── room-outage-panel.tsx     Out-of-order / out-of-service periods
 │   ├── block-form.tsx            Create · amend blocks
 │   ├── profile-editor.tsx        Preferences · membership · notes · merge
 │   ├── outlet-admin.tsx          POS outlet issue · rotate
@@ -158,21 +159,21 @@ the BE repository).
 
 ## Screens
 
-| Path                         | Description                                                               |
-| ---------------------------- | ------------------------------------------------------------------------- |
-| `/`                          | Dashboard — today's arrivals, departures, in-house, room status           |
-| `/reservations`              | Reservation list — search by number or name, filter by status and channel |
-| `/reservations/new`          | New reservation — check availability and rates, then create               |
-| `/reservations/[id]`         | Detail — amend · cancel, check-in/out, folio, room keys, payment          |
-| `/blocks` `/blocks/[id]`     | Group blocks — allotment vs pickup, per-date grid, rooming list           |
-| `/profiles` `/profiles/[id]` | Guest profiles — search, stay history, duplicate merge                    |
-| `/rooms`                     | Rooms — status changes (delegated to OPERA) and occupancy                 |
-| `/housekeeping`              | Housekeeping — assignment, progress, discrepancies                        |
-| `/night-audit`               | Night audit — close-of-day checklist, no-show handling                    |
-| `/reports`                   | Performance — occupancy, ADR, RevPAR, channel breakdown (manager)         |
-| `/pos-outlets`               | POS outlets — issue, rotate, deactivate keys (manager)                    |
-| `/users`                     | Account management — hire, role, leave (admin)                            |
-| `/account`                   | My account — change password                                              |
+| Path                         | Description                                                                  |
+| ---------------------------- | ---------------------------------------------------------------------------- |
+| `/`                          | Dashboard — today's arrivals, departures, in-house, room status              |
+| `/reservations`              | Reservation list — search by number or name, filter by status and channel    |
+| `/reservations/new`          | New reservation — check availability and rates, then create                  |
+| `/reservations/[id]`         | Detail — amend · cancel, check-in/out, folio, room keys, payment             |
+| `/blocks` `/blocks/[id]`     | Group blocks — allotment vs pickup, per-date grid, rooming list              |
+| `/profiles` `/profiles/[id]` | Guest profiles — search, stay history, duplicate merge                       |
+| `/rooms`                     | Rooms — status changes (delegated to OPERA), occupancy, out-of-order periods |
+| `/housekeeping`              | Housekeeping — assignment, progress, discrepancies                           |
+| `/night-audit`               | Night audit — close-of-day checklist, no-show handling                       |
+| `/reports`                   | Performance — occupancy, ADR, RevPAR, channel breakdown (manager)            |
+| `/pos-outlets`               | POS outlets — issue, rotate, deactivate keys (manager)                       |
+| `/users`                     | Account management — hire, role, leave (admin)                               |
+| `/account`                   | My account — change password                                                 |
 
 ---
 
