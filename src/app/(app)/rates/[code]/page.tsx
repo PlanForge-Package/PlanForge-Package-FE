@@ -6,6 +6,8 @@ import { PageHeader } from '@/components/page-header';
 import { RatePlanDetail } from '@/components/rate-plan-detail';
 import { ApiError, apiFetch, backendMessage, tryFetch } from '@/lib/api';
 import { requireUser } from '@/lib/auth';
+import { getDictionary } from '@/lib/i18n';
+import { fill } from '@/lib/i18n/format';
 import { getPropertyContext } from '@/lib/property';
 import type { RatePackageList, RatePlanConfig, RoomType } from '@/lib/types';
 
@@ -14,7 +16,7 @@ const CAN_MANAGE = ['ADMIN', 'MANAGER'];
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: '요금 코드 — PlanForge',
+  title: 'Rate code — PlanForge',
 };
 
 interface Props {
@@ -22,6 +24,7 @@ interface Props {
 }
 
 export default async function RatePlanPage({ params }: Props) {
+  const { t } = await getDictionary();
   const { code } = await params;
   const user = await requireUser(`/rates/${code}`);
   const property = await getPropertyContext(user);
@@ -30,8 +33,8 @@ export default async function RatePlanPage({ params }: Props) {
   if (!propertyId) {
     return (
       <main className="flex flex-col gap-6">
-        <PageHeader title="요금 코드" />
-        <EmptyState message="접근 가능한 호텔이 없습니다." />
+        <PageHeader title={t.rates.planDetailTitle} />
+        <EmptyState message={t.common.noAccess} />
       </main>
     );
   }
@@ -46,14 +49,14 @@ export default async function RatePlanPage({ params }: Props) {
 
     return (
       <main className="flex flex-col gap-6">
-        <PageHeader title="요금 코드" />
+        <PageHeader title={t.rates.planDetailTitle} />
         <ErrorNotice
-          title="요금 코드를 불러오지 못했습니다"
-          message={backendMessage(error, '요금 코드를 불러오지 못했습니다.')}
+          title={t.rates.loadPlansFailed}
+          message={backendMessage(error, t.rates.loadPlansFailed)}
           status={error instanceof ApiError ? error.status : 0}
         />
         <Link href="/rates" className="text-sm underline underline-offset-4 text-subtle">
-          ← 요금 목록으로
+          {t.rates.backToRatesLong}
         </Link>
       </main>
     );
@@ -68,11 +71,13 @@ export default async function RatePlanPage({ params }: Props) {
     <main className="flex flex-col gap-8">
       <div className="flex flex-col gap-2">
         <Link href="/rates" className="text-sm underline underline-offset-4 text-subtle">
-          ← 요금 목록
+          {t.rates.backToRates}
         </Link>
         <PageHeader
           title={plan.name}
-          description={`코드 ${plan.ratePlanCode}${plan.status === 'Active' ? '' : ' · 판매 중지'}`}
+          description={`${fill(t.rates.planCode, { code: plan.ratePlanCode })}${
+            plan.status === 'Active' ? '' : t.rates.planOffSale
+          }`}
         />
       </div>
 

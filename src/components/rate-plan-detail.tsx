@@ -7,16 +7,16 @@ import {
   updateRatePlanAction,
 } from '@/app/(app)/rates/actions';
 import { IDLE, type ActionState } from '@/lib/action-state';
+import { money } from '@/lib/i18n/format';
+import { useI18n, useLocale } from '@/lib/i18n/provider';
 import type { RatePackage, RatePlanConfig, RoomType } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
-import { AmountGrid, CALCULATION_LABELS, money } from './rate-panels';
+import { AmountGrid } from './rate-panels';
 
 const inputClass =
   'rounded-md border border-current/20 bg-transparent px-2 py-1.5 text-sm text-ink';
 const smallButton =
   'rounded-md border border-current/20 px-2.5 py-1 text-xs transition-colors hover:bg-current/5 disabled:cursor-not-allowed disabled:opacity-50';
-
-const DAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'];
 
 /**
  * Edits a single rate code.
@@ -37,6 +37,9 @@ export function RatePlanDetail({
   packages: RatePackage[];
   canManage: boolean;
 }) {
+  const t = useI18n();
+  const locale = useLocale();
+  const dayNames = t.rates.dayNames;
   const [planState, planAction] = useActionState<ActionState, FormData>(
     updateRatePlanAction.bind(null, plan.ratePlanCode),
     IDLE,
@@ -66,8 +69,10 @@ export function RatePlanDetail({
         <ActionMessage state={state} />
       </div>
 
-      <section aria-label="요금 설정" className="flex flex-col gap-3">
-        <h2 className="text-sm font-medium uppercase tracking-wide text-subtle">기본 설정</h2>
+      <section aria-label={t.rates.settings} className="flex flex-col gap-3">
+        <h2 className="text-sm font-medium uppercase tracking-wide text-subtle">
+          {t.rates.basicSettings}
+        </h2>
 
         {canManage ? (
           <form
@@ -76,12 +81,12 @@ export function RatePlanDetail({
             className="flex flex-col gap-3 rounded-lg border border-current/10 px-4 py-3"
           >
             <input type="hidden" name="propertyId" value={propertyId} />
-            {/* 패키지를 하나도 고르지 않은 것과 폼에 없는 것을 구분한다. */}
+            {/* Tells no package chosen apart from the field being absent from the form. */}
             <input type="hidden" name="packagesSubmitted" value="1" />
 
             <div className="flex flex-wrap items-end gap-2">
               <label className="flex flex-col gap-1 text-xs text-subtle">
-                이름
+                {t.rates.name}
                 <input
                   type="text"
                   name="name"
@@ -93,7 +98,7 @@ export function RatePlanDetail({
               </label>
 
               <label className="flex flex-col gap-1 text-xs text-subtle">
-                판매 시작
+                {t.rates.sellStart}
                 <input
                   type="date"
                   name="sellStartDate"
@@ -104,7 +109,7 @@ export function RatePlanDetail({
               </label>
 
               <label className="flex flex-col gap-1 text-xs text-subtle">
-                판매 종료
+                {t.rates.sellEnd}
                 <input
                   type="date"
                   name="sellEndDate"
@@ -115,23 +120,23 @@ export function RatePlanDetail({
               </label>
 
               <label className="flex flex-col gap-1 text-xs text-subtle">
-                상태
+                {t.rates.status}
                 <select name="status" defaultValue={plan.status} className={inputClass}>
-                  <option value="Active">판매 중</option>
-                  <option value="Inactive">중지</option>
+                  <option value="Active">{t.rates.onSale}</option>
+                  <option value="Inactive">{t.rates.offSale}</option>
                 </select>
               </label>
             </div>
 
             <AmountGrid
               roomTypes={roomTypes}
-              legend="객실 타입별 기준 요금"
+              legend={t.rates.baseAmountLegend}
               values={plan.baseAmounts}
             />
 
             {packages.length > 0 && (
               <fieldset className="flex flex-wrap items-center gap-3">
-                <legend className="text-xs text-subtle">붙일 패키지</legend>
+                <legend className="text-xs text-subtle">{t.rates.attachPackages}</legend>
                 {packages.map((pkg) => (
                   <label key={pkg.packageCode} className="flex items-center gap-1.5 text-sm">
                     <input
@@ -142,8 +147,12 @@ export function RatePlanDetail({
                     />
                     {pkg.name}
                     <span className="text-xs text-subtle">
-                      ({CALCULATION_LABELS[pkg.calculation] ?? pkg.calculation} {money(pkg.amount)}
-                      {pkg.includedInRate ? ' · 포함' : ''})
+                      (
+                      {t.rates.calculations[
+                        pkg.calculation as keyof typeof t.rates.calculations
+                      ] ?? pkg.calculation}{' '}
+                      {money(pkg.amount, locale)}
+                      {pkg.includedInRate ? t.rates.includedSuffix : ''})
                     </span>
                   </label>
                 ))}
@@ -151,47 +160,55 @@ export function RatePlanDetail({
             )}
 
             <div>
-              <SubmitButton pendingLabel="저장 중…">저장</SubmitButton>
+              <SubmitButton pendingLabel={t.rates.saving}>{t.rates.save}</SubmitButton>
             </div>
           </form>
         ) : (
           <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <Figure label="판매 기간" value={`${plan.sellStartDate} ~ ${plan.sellEndDate}`} />
-            <Figure label="상태" value={plan.status === 'Active' ? '판매 중' : '중지'} />
-            <Figure label="시장 구분" value={plan.marketCode} />
-            <Figure label="통화" value={plan.currency} />
+            <Figure
+              label={t.rates.sellPeriod}
+              value={`${plan.sellStartDate} ~ ${plan.sellEndDate}`}
+            />
+            <Figure
+              label={t.rates.status}
+              value={plan.status === 'Active' ? t.rates.onSale : t.rates.offSale}
+            />
+            <Figure label={t.rates.marketCode} value={plan.marketCode} />
+            <Figure label={t.rates.currency} value={plan.currency} />
           </dl>
         )}
       </section>
 
-      <section aria-label="시즌" className="flex flex-col gap-3">
-        <h2 className="text-sm font-medium uppercase tracking-wide text-subtle">시즌 요금</h2>
+      <section aria-label={t.rates.seasonSection} className="flex flex-col gap-3">
+        <h2 className="text-sm font-medium uppercase tracking-wide text-subtle">
+          {t.rates.seasonRates}
+        </h2>
 
         {plan.seasons.length === 0 ? (
           <p className="rounded-lg border border-dashed border-current/20 px-4 py-6 text-center text-sm text-subtle">
-            시즌이 없습니다. 모든 날짜에 기준 요금이 적용됩니다.
+            {t.rates.noSeasons}
           </p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[44rem] text-sm">
-              <caption className="sr-only">시즌 목록</caption>
+              <caption className="sr-only">{t.rates.seasonListCaption}</caption>
               <thead>
                 <tr className="border-b border-current/10 text-left">
                   <th scope="col" className="py-2 pr-4 font-medium">
-                    이름
+                    {t.rates.name}
                   </th>
                   <th scope="col" className="py-2 pr-4 font-medium">
-                    기간
+                    {t.rates.period}
                   </th>
                   <th scope="col" className="py-2 pr-4 font-medium">
-                    요일
+                    {t.rates.weekdays}
                   </th>
                   <th scope="col" className="py-2 pr-4 font-medium">
-                    요금
+                    {t.rates.rate}
                   </th>
                   {canManage && (
                     <th scope="col" className="py-2 font-medium">
-                      지우기
+                      {t.rates.remove}
                     </th>
                   )}
                 </tr>
@@ -205,12 +222,12 @@ export function RatePlanDetail({
                     </td>
                     <td className="py-2.5 pr-4 text-subtle">
                       {season.daysOfWeek?.length
-                        ? season.daysOfWeek.map((day) => DAY_LABELS[day]).join('·')
-                        : '매일'}
+                        ? season.daysOfWeek.map((day) => dayNames[day]).join('·')
+                        : t.rates.everyDay}
                     </td>
                     <td className="py-2.5 pr-4 text-xs tabular-nums text-subtle">
                       {Object.entries(season.amounts)
-                        .map(([code, amount]) => `${code} ${money(amount, plan.currency)}`)
+                        .map(([code, amount]) => `${code} ${money(amount, locale, plan.currency)}`)
                         .join(' · ')}
                     </td>
                     {canManage && (
@@ -219,7 +236,7 @@ export function RatePlanDetail({
                           <input type="hidden" name="propertyId" value={propertyId} />
                           <input type="hidden" name="seasonId" value={season.seasonId} />
                           <SubmitButton pendingLabel="…" className={smallButton}>
-                            지우기
+                            {t.rates.remove}
                           </SubmitButton>
                         </form>
                       </td>
@@ -241,20 +258,20 @@ export function RatePlanDetail({
 
             <div className="flex flex-wrap items-end gap-2">
               <label className="flex flex-col gap-1 text-xs text-subtle">
-                시즌 이름
+                {t.rates.seasonName}
                 <input
                   type="text"
                   name="name"
                   defaultValue={seasonState.values?.name ?? ''}
                   required
                   maxLength={120}
-                  placeholder="성수기 주말"
+                  placeholder={t.rates.seasonNamePlaceholder}
                   className={`w-48 ${inputClass}`}
                 />
               </label>
 
               <label className="flex flex-col gap-1 text-xs text-subtle">
-                시작
+                {t.rates.start}
                 <input
                   type="date"
                   name="startDate"
@@ -265,7 +282,7 @@ export function RatePlanDetail({
               </label>
 
               <label className="flex flex-col gap-1 text-xs text-subtle">
-                종료
+                {t.rates.end}
                 <input
                   type="date"
                   name="endDate"
@@ -277,8 +294,8 @@ export function RatePlanDetail({
             </div>
 
             <fieldset className="flex flex-wrap items-center gap-3">
-              <legend className="text-xs text-subtle">요일 (비우면 매일)</legend>
-              {DAY_LABELS.map((label, day) => (
+              <legend className="text-xs text-subtle">{t.rates.weekdaysLegend}</legend>
+              {dayNames.map((label, day) => (
                 <label key={label} className="flex items-center gap-1 text-sm">
                   <input type="checkbox" name="daysOfWeek" value={day} />
                   {label}
@@ -286,18 +303,15 @@ export function RatePlanDetail({
               ))}
             </fieldset>
 
-            <AmountGrid roomTypes={roomTypes} legend="시즌 요금" />
+            <AmountGrid roomTypes={roomTypes} legend={t.rates.seasonAmountLegend} />
 
             <div>
-              <SubmitButton pendingLabel="넣는 중…">시즌 넣기</SubmitButton>
+              <SubmitButton pendingLabel={t.rates.addingSeason}>{t.rates.addSeason}</SubmitButton>
             </div>
           </form>
         )}
 
-        <p className="text-xs text-subtle">
-          같은 날 같은 객실에 두 시즌을 걸 수 없습니다 — 성수기 주중·주말처럼 요일을 나눠 등록해
-          주세요. 겹치도록 두면 무엇이 이기는지가 등록 순서에 달립니다.
-        </p>
+        <p className="text-xs text-subtle">{t.rates.seasonsNote}</p>
       </section>
     </div>
   );

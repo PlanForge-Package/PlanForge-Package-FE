@@ -3,6 +3,8 @@
 import { revalidatePath } from 'next/cache';
 import { actionError, actionSuccess, formValues, type ActionState } from '@/lib/action-state';
 import { apiFetch, backendMessage } from '@/lib/api';
+import { getDictionary, type Dictionary } from '@/lib/i18n';
+import { fill } from '@/lib/i18n/format';
 
 /**
  * Reads the per-room-type amounts from the form.
@@ -10,7 +12,7 @@ import { apiFetch, backendMessage } from '@/lib/api';
  * Inputs carry the code in their name, like `amount:STDT`. A blank box means "this
  * type is not sold" and is omitted — sending 0 would sell it free.
  */
-function readAmounts(formData: FormData): Record<string, number> | string {
+function readAmounts(formData: FormData, t: Dictionary): Record<string, number> | string {
   const amounts: Record<string, number> = {};
 
   for (const [key, value] of formData.entries()) {
@@ -21,13 +23,13 @@ function readAmounts(formData: FormData): Record<string, number> | string {
 
     const parsed = Number(raw);
     if (!Number.isInteger(parsed) || parsed < 0) {
-      return `${code} 금액은 0 이상의 정수여야 합니다.`;
+      return fill(t.rates.msgAmountInvalid, { code });
     }
     amounts[code] = parsed;
   }
 
   if (Object.keys(amounts).length === 0) {
-    return '팔 객실 타입의 금액을 하나 이상 넣어 주세요.';
+    return t.rates.msgAmountRequired;
   }
   return amounts;
 }
@@ -36,25 +38,26 @@ export async function createRatePlanAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   const values = formValues(formData, ['ratePlanCode', 'name', 'sellStartDate', 'sellEndDate']);
 
   const propertyId = String(formData.get('propertyId') ?? '').trim();
-  if (!propertyId) return actionError('호텔을 선택해 주세요.', values);
+  if (!propertyId) return actionError(t.rates.msgSelectProperty, values);
 
   const ratePlanCode = String(formData.get('ratePlanCode') ?? '').trim();
-  if (!ratePlanCode) return actionError('요금 코드를 입력해 주세요.', values);
+  if (!ratePlanCode) return actionError(t.rates.msgCodeRequired, values);
 
   const name = String(formData.get('name') ?? '').trim();
-  if (!name) return actionError('요금 이름을 입력해 주세요.', values);
+  if (!name) return actionError(t.rates.msgNameRequired, values);
 
   const sellStartDate = String(formData.get('sellStartDate') ?? '');
   const sellEndDate = String(formData.get('sellEndDate') ?? '');
-  if (!sellStartDate || !sellEndDate) return actionError('판매 기간을 정해 주세요.', values);
+  if (!sellStartDate || !sellEndDate) return actionError(t.rates.msgPeriodRequired, values);
   if (sellEndDate < sellStartDate) {
-    return actionError('판매 종료일은 시작일보다 뒤여야 합니다.', values);
+    return actionError(t.rates.msgEndBeforeStart, values);
   }
 
-  const baseAmounts = readAmounts(formData);
+  const baseAmounts = readAmounts(formData, t);
   if (typeof baseAmounts === 'string') return actionError(baseAmounts, values);
 
   try {
@@ -71,11 +74,11 @@ export async function createRatePlanAction(
       },
     });
   } catch (error) {
-    return actionError(backendMessage(error, '요금 코드를 만들지 못했습니다.'), values);
+    return actionError(backendMessage(error, t.rates.msgCreateFailed), values);
   }
 
   revalidatePath('/rates');
-  return actionSuccess(`요금 코드 ${ratePlanCode.toUpperCase()} 를 만들었습니다.`);
+  return actionSuccess(fill(t.rates.msgCreated, { code: ratePlanCode.toUpperCase() }));
 }
 
 export async function updateRatePlanAction(
@@ -83,6 +86,7 @@ export async function updateRatePlanAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   const propertyId = String(formData.get('propertyId') ?? '').trim();
 
   const body: Record<string, unknown> = { propertyId };
@@ -94,7 +98,7 @@ export async function updateRatePlanAction(
   const sellEndDate = String(formData.get('sellEndDate') ?? '');
   if (sellStartDate && sellEndDate) {
     if (sellEndDate < sellStartDate) {
-      return actionError('판매 종료일은 시작일보다 뒤여야 합니다.');
+      return actionError(t.rates.msgEndBeforeStart);
     }
     body.sellStartDate = sellStartDate;
     body.sellEndDate = sellEndDate;
@@ -103,7 +107,7 @@ export async function updateRatePlanAction(
   // One amount box arriving resends the whole amount table. There is no partial edit —
   // which types are no longer sold is decided by this list as well.
   if ([...formData.keys()].some((key) => key.startsWith('amount:'))) {
-    const baseAmounts = readAmounts(formData);
+    const baseAmounts = readAmounts(formData, t);
     if (typeof baseAmounts === 'string') return actionError(baseAmounts);
     body.baseAmounts = baseAmounts;
   }
@@ -121,12 +125,12 @@ export async function updateRatePlanAction(
       json: body,
     });
   } catch (error) {
-    return actionError(backendMessage(error, '요금 코드를 고치지 못했습니다.'));
+    return actionError(backendMessage(error, t.rates.msgUpdateFailed));
   }
 
   revalidatePath(`/rates/${ratePlanCode}`);
   revalidatePath('/rates');
-  return actionSuccess(`${ratePlanCode} 를 저장했습니다.`);
+  return actionSuccess(fill(t.rates.msgUpdated, { code: ratePlanCode }));
 }
 
 export async function addSeasonAction(
@@ -134,18 +138,19 @@ export async function addSeasonAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   const values = formValues(formData, ['name', 'startDate', 'endDate']);
 
   const propertyId = String(formData.get('propertyId') ?? '').trim();
   const name = String(formData.get('name') ?? '').trim();
-  if (!name) return actionError('시즌 이름을 입력해 주세요.', values);
+  if (!name) return actionError(t.rates.msgSeasonNameRequired, values);
 
   const startDate = String(formData.get('startDate') ?? '');
   const endDate = String(formData.get('endDate') ?? '');
-  if (!startDate || !endDate) return actionError('시즌 기간을 정해 주세요.', values);
-  if (endDate < startDate) return actionError('종료일은 시작일보다 뒤여야 합니다.', values);
+  if (!startDate || !endDate) return actionError(t.rates.msgSeasonPeriodRequired, values);
+  if (endDate < startDate) return actionError(t.rates.msgSeasonEndBeforeStart, values);
 
-  const amounts = readAmounts(formData);
+  const amounts = readAmounts(formData, t);
   if (typeof amounts === 'string') return actionError(amounts, values);
 
   const daysOfWeek = formData.getAll('daysOfWeek').map(Number);
@@ -163,11 +168,11 @@ export async function addSeasonAction(
       },
     });
   } catch (error) {
-    return actionError(backendMessage(error, '시즌을 넣지 못했습니다.'), values);
+    return actionError(backendMessage(error, t.rates.msgSeasonFailed), values);
   }
 
   revalidatePath(`/rates/${ratePlanCode}`);
-  return actionSuccess(`시즌 ${name} 을 넣었습니다.`);
+  return actionSuccess(fill(t.rates.msgSeasonAdded, { name }));
 }
 
 export async function removeSeasonAction(
@@ -175,8 +180,9 @@ export async function removeSeasonAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   const seasonId = String(formData.get('seasonId') ?? '').trim();
-  if (!seasonId) return actionError('지울 시즌을 찾을 수 없습니다.');
+  if (!seasonId) return actionError(t.rates.msgSeasonMissing);
 
   const propertyId = String(formData.get('propertyId') ?? '').trim();
 
@@ -187,17 +193,18 @@ export async function removeSeasonAction(
       { method: 'DELETE', json: { propertyId } },
     );
   } catch (error) {
-    return actionError(backendMessage(error, '시즌을 지우지 못했습니다.'));
+    return actionError(backendMessage(error, t.rates.msgSeasonDeleteFailed));
   }
 
   revalidatePath(`/rates/${ratePlanCode}`);
-  return actionSuccess('시즌을 지웠습니다. 그 기간은 기준 요금으로 돌아갑니다.');
+  return actionSuccess(t.rates.msgSeasonDeleted);
 }
 
 export async function createPackageAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   const values = formValues(formData, [
     'packageCode',
     'name',
@@ -207,26 +214,26 @@ export async function createPackageAction(
   ]);
 
   const propertyId = String(formData.get('propertyId') ?? '').trim();
-  if (!propertyId) return actionError('호텔을 선택해 주세요.', values);
+  if (!propertyId) return actionError(t.rates.msgSelectProperty, values);
 
   const packageCode = String(formData.get('packageCode') ?? '').trim();
-  if (!packageCode) return actionError('패키지 코드를 입력해 주세요.', values);
+  if (!packageCode) return actionError(t.rates.msgPackageCodeRequired, values);
 
   const name = String(formData.get('name') ?? '').trim();
-  if (!name) return actionError('패키지 이름을 입력해 주세요.', values);
+  if (!name) return actionError(t.rates.msgPackageNameRequired, values);
 
   const amount = Number(String(formData.get('amount') ?? '').trim());
   if (!Number.isInteger(amount) || amount < 0) {
-    return actionError('금액은 0 이상의 정수여야 합니다.', values);
+    return actionError(t.rates.msgPackageAmountInvalid, values);
   }
 
   const calculation = String(formData.get('calculation') ?? '');
   if (!['PerNight', 'PerStay', 'PerPerson'].includes(calculation)) {
-    return actionError('계산 방식을 골라 주세요.', values);
+    return actionError(t.rates.msgCalculationRequired, values);
   }
 
   const transactionCode = String(formData.get('transactionCode') ?? '').trim();
-  if (!transactionCode) return actionError('거래 코드를 입력해 주세요.', values);
+  if (!transactionCode) return actionError(t.rates.msgTransactionCodeRequired, values);
 
   try {
     await apiFetch('be', '/api/rates/packages', {
@@ -242,25 +249,26 @@ export async function createPackageAction(
       },
     });
   } catch (error) {
-    return actionError(backendMessage(error, '패키지를 만들지 못했습니다.'), values);
+    return actionError(backendMessage(error, t.rates.msgPackageCreateFailed), values);
   }
 
   revalidatePath('/rates');
-  return actionSuccess(`패키지 ${packageCode.toUpperCase()} 를 만들었습니다.`);
+  return actionSuccess(fill(t.rates.msgPackageCreated, { code: packageCode.toUpperCase() }));
 }
 
 export async function updatePackageAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   const packageCode = String(formData.get('packageCode') ?? '').trim();
-  if (!packageCode) return actionError('고칠 패키지를 찾을 수 없습니다.');
+  if (!packageCode) return actionError(t.rates.msgPackageMissing);
 
   const propertyId = String(formData.get('propertyId') ?? '').trim();
 
   const amount = Number(String(formData.get('amount') ?? '').trim());
   if (!Number.isInteger(amount) || amount < 0) {
-    return actionError('금액은 0 이상의 정수여야 합니다.');
+    return actionError(t.rates.msgPackageAmountInvalid);
   }
 
   try {
@@ -273,9 +281,9 @@ export async function updatePackageAction(
       },
     });
   } catch (error) {
-    return actionError(backendMessage(error, '패키지를 고치지 못했습니다.'));
+    return actionError(backendMessage(error, t.rates.msgPackageUpdateFailed));
   }
 
   revalidatePath('/rates');
-  return actionSuccess(`${packageCode} 를 저장했습니다.`);
+  return actionSuccess(fill(t.rates.msgPackageUpdated, { code: packageCode }));
 }

@@ -4,6 +4,8 @@ import { PageHeader } from '@/components/page-header';
 import { PackagesPanel, RatePlansPanel } from '@/components/rate-panels';
 import { apiFetch, tryFetch } from '@/lib/api';
 import { requireUser } from '@/lib/auth';
+import { getDictionary } from '@/lib/i18n';
+import { fill } from '@/lib/i18n/format';
 import { getPropertyContext } from '@/lib/property';
 import type { RatePackageList, RatePlanConfigList, RoomType } from '@/lib/types';
 
@@ -13,10 +15,11 @@ const CAN_MANAGE = ['ADMIN', 'MANAGER'];
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: '요금 — PlanForge',
+  title: 'Rates — PlanForge',
 };
 
 export default async function RatesPage() {
+  const { t } = await getDictionary();
   const user = await requireUser('/rates');
   const property = await getPropertyContext(user);
   const propertyId = property.selected?.id;
@@ -24,8 +27,8 @@ export default async function RatesPage() {
   if (property.error) {
     return (
       <main className="flex flex-col gap-6">
-        <PageHeader title="요금" />
-        <ErrorNotice title="호텔 목록을 불러오지 못했습니다" message={property.error} />
+        <PageHeader title={t.rates.title} />
+        <ErrorNotice title={t.rates.loadPropertiesFailed} message={property.error} />
       </main>
     );
   }
@@ -33,8 +36,8 @@ export default async function RatesPage() {
   if (!propertyId) {
     return (
       <main className="flex flex-col gap-6">
-        <PageHeader title="요금" />
-        <EmptyState message="접근 가능한 호텔이 없습니다. 관리자에게 소속 지정을 요청해 주세요." />
+        <PageHeader title={t.rates.title} />
+        <EmptyState message={t.common.noAccess} />
       </main>
     );
   }
@@ -51,13 +54,13 @@ export default async function RatesPage() {
   return (
     <main className="flex flex-col gap-8">
       <PageHeader
-        title="요금"
-        description={`${property.selected?.name} — 요금 코드·시즌·패키지는 OPERA 가 기록의 원천입니다.`}
+        title={t.rates.title}
+        description={fill(t.rates.description, { property: property.selected?.name ?? '' })}
       />
 
       {!plans.ok ? (
         <ErrorNotice
-          title="요금 코드를 불러오지 못했습니다"
+          title={t.rates.loadPlansFailed}
           message={plans.message}
           status={plans.status}
         />
@@ -73,7 +76,7 @@ export default async function RatesPage() {
 
       {!packages.ok ? (
         <ErrorNotice
-          title="패키지를 불러오지 못했습니다"
+          title={t.rates.loadPackagesFailed}
           message={packages.message}
           status={packages.status}
         />
