@@ -9,21 +9,8 @@ import {
 } from '@/app/(app)/reservations/[id]/payment-actions';
 import { IDLE, type ActionState } from '@/lib/action-state';
 import type { PaymentListResponse, PaymentMethod, PaymentStatus } from '@/lib/types';
+import { useI18n } from '@/lib/i18n/provider';
 import { ActionMessage, SubmitButton } from './action-feedback';
-
-const METHOD_LABELS: Record<PaymentMethod, string> = {
-  CARD: '카드',
-  CASH: '현금',
-  TRANSFER: '계좌이체',
-};
-
-const STATUS_LABELS: Record<PaymentStatus, string> = {
-  AUTHORIZED: '승인',
-  CAPTURED: '매입 완료',
-  VOIDED: '승인 취소',
-  REFUNDED: '환불',
-  FAILED: '실패',
-};
 
 const STATUS_TONES: Record<PaymentStatus, string> = {
   AUTHORIZED: 'bg-amber-500/15 text-amber-700 dark:text-amber-300',
@@ -33,7 +20,8 @@ const STATUS_TONES: Record<PaymentStatus, string> = {
   FAILED: 'bg-red-500/15 text-red-700 dark:text-red-300',
 };
 
-const METHODS = Object.keys(METHOD_LABELS) as PaymentMethod[];
+/** 화면에 내는 순서. 표기는 사전이 정한다. */
+const METHODS: PaymentMethod[] = ['CARD', 'CASH', 'TRANSFER'];
 
 const inputClass = 'rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm';
 const smallButton =
@@ -67,6 +55,7 @@ export function PaymentPanel({
   /** 환불은 돈이 나가는 방향이다. 지배인 이상만 한다. */
   canRefund: boolean;
 }) {
+  const t = useI18n();
   const [authState, authorize] = useActionState<ActionState, FormData>(
     authorizePaymentAction,
     IDLE,
@@ -113,18 +102,16 @@ export function PaymentPanel({
   const kept = authState.status === 'error' ? authState.values : undefined;
 
   return (
-    <section aria-label="결제" className="flex flex-col gap-3">
-      <h2 className="text-sm font-medium">결제</h2>
+    <section aria-label={t.payments.title} className="flex flex-col gap-3">
+      <h2 className="text-sm font-medium">{t.payments.title}</h2>
 
       {data.driverMode === 'mock' && (
         <p
           role="status"
           className="rounded-lg border border-amber-500/30 bg-amber-500/5 px-4 py-3 text-sm"
         >
-          <span className="font-medium">결제 대행사가 모의 모드입니다.</span>{' '}
-          <span className="text-subtle">
-            승인·매입 흐름은 그대로 돌지만 실제로 돈이 오가지 않습니다.
-          </span>
+          <span className="font-medium">{t.payments.mockMode}</span>{' '}
+          <span className="text-subtle">{t.payments.mockNote}</span>
         </p>
       )}
 
@@ -145,7 +132,7 @@ export function PaymentPanel({
 
         <div className="flex flex-col gap-1">
           <label htmlFor={`${uid}-method`} className="text-xs text-subtle">
-            수단
+            {t.payments.method}
           </label>
           <select
             id={`${uid}-method`}
@@ -156,7 +143,7 @@ export function PaymentPanel({
           >
             {METHODS.map((value) => (
               <option key={value} value={value}>
-                {METHOD_LABELS[value]}
+                {t.payments.methods[value]}
               </option>
             ))}
           </select>
@@ -164,7 +151,7 @@ export function PaymentPanel({
 
         <div className="flex flex-col gap-1">
           <label htmlFor={`${uid}-amount`} className="text-xs text-subtle">
-            금액
+            {t.common.amount}
           </label>
           <input
             id={`${uid}-amount`}
@@ -181,7 +168,7 @@ export function PaymentPanel({
         {method === 'CARD' && (
           <div className="flex flex-col gap-1">
             <label htmlFor={`${uid}-token`} className="text-xs text-subtle">
-              결제 토큰
+              {t.payments.token}
             </label>
             <input
               id={`${uid}-token`}
@@ -195,48 +182,48 @@ export function PaymentPanel({
 
         <div className="flex flex-col gap-1">
           <label htmlFor={`${uid}-desc`} className="text-xs text-subtle">
-            적요 (선택)
+            {t.payments.memo}
           </label>
           <input
             id={`${uid}-desc`}
             name="description"
             maxLength={120}
-            placeholder="객실료 정산"
+            placeholder={t.payments.memoPlaceholder}
             defaultValue={kept?.description ?? ''}
             className={`w-40 ${inputClass}`}
           />
         </div>
 
-        <SubmitButton pendingLabel="처리 중…">{method === 'CARD' ? '승인' : '수납'}</SubmitButton>
+        <SubmitButton pendingLabel={t.common.processing}>
+          {method === 'CARD' ? t.payments.authorize : t.payments.collect}
+        </SubmitButton>
 
         <p className="w-full text-xs text-subtle">
-          {method === 'CARD'
-            ? '카드는 승인만 합니다. 매입해야 폴리오에 반영됩니다. 카드 번호는 저장하지 않습니다 — 단말이 PG 에서 받아 온 토큰만 씁니다.'
-            : '현금·이체는 받은 즉시 폴리오에 반영됩니다.'}
+          {method === 'CARD' ? t.payments.cardNote : t.payments.cashNote}
         </p>
       </form>
 
       {data.items.length === 0 ? (
-        <p className="text-sm text-subtle">결제 이력이 없습니다.</p>
+        <p className="text-sm text-subtle">{t.payments.empty}</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[48rem] text-sm">
             <thead>
               <tr className="border-b border-current/10 text-left">
                 <th scope="col" className="py-2 pr-4 font-medium">
-                  수단
+                  {t.payments.method}
                 </th>
                 <th scope="col" className="py-2 pr-4 text-right font-medium">
-                  금액
+                  {t.common.amount}
                 </th>
                 <th scope="col" className="py-2 pr-4 font-medium">
-                  카드
+                  {t.payments.card}
                 </th>
                 <th scope="col" className="py-2 pr-4 font-medium">
-                  상태
+                  {t.common.status}
                 </th>
                 <th scope="col" className="py-2 font-medium">
-                  처리
+                  {t.payments.action}
                 </th>
               </tr>
             </thead>
@@ -245,26 +232,28 @@ export function PaymentPanel({
                 const refundable = Number(item.amount) - Number(item.refundedAmount);
                 return (
                   <tr key={item.id} className="border-b border-current/5">
-                    <td className="py-2.5 pr-4">{METHOD_LABELS[item.method]}</td>
+                    <td className="py-2.5 pr-4">{t.payments.methods[item.method]}</td>
                     <td className="py-2.5 pr-4 text-right tabular-nums">
                       {money(item.amount, item.currency)}
                       {Number(item.refundedAmount) > 0 && (
                         <span className="ml-1.5 text-xs text-subtle">
-                          환불 {money(item.refundedAmount, item.currency)}
+                          {t.payments.refunded} {money(item.refundedAmount, item.currency)}
                         </span>
                       )}
                     </td>
                     <td className="py-2.5 pr-4 font-mono text-xs text-subtle">
                       {item.maskedCard ?? '—'}
                       {item.approvalNumber && (
-                        <span className="ml-1.5">승인 {item.approvalNumber}</span>
+                        <span className="ml-1.5">
+                          {t.payments.approvalNumber} {item.approvalNumber}
+                        </span>
                       )}
                     </td>
                     <td className="py-2.5 pr-4">
                       <span
                         className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_TONES[item.status]}`}
                       >
-                        {STATUS_LABELS[item.status]}
+                        {t.payments.statuses[item.status]}
                       </span>
                       {item.failureReason && (
                         <span className="ml-1.5 text-xs text-subtle">{item.failureReason}</span>
@@ -287,7 +276,7 @@ export function PaymentPanel({
                                 value={data.reservationId}
                               />
                               <SubmitButton pendingLabel="…" className={smallButton}>
-                                매입
+                                {t.payments.capture}
                               </SubmitButton>
                             </form>
                             <form
@@ -304,10 +293,10 @@ export function PaymentPanel({
                               />
                               <SubmitButton
                                 pendingLabel="…"
-                                confirm="승인을 취소합니다. 진행할까요?"
+                                confirm={t.payments.voidConfirm}
                                 className={smallButton}
                               >
-                                승인 취소
+                                {t.payments.void}
                               </SubmitButton>
                             </form>
                           </>
@@ -335,15 +324,15 @@ export function PaymentPanel({
                                 min={1}
                                 max={refundable}
                                 defaultValue={refundable}
-                                aria-label="환불 금액"
+                                aria-label={t.payments.refundAmount}
                                 className="w-24 rounded-md border border-current/20 bg-transparent px-2 py-1 text-xs tabular-nums"
                               />
                               <SubmitButton
                                 pendingLabel="…"
-                                confirm="환불합니다. 되돌리기 어렵습니다. 진행할까요?"
+                                confirm={t.payments.refundConfirm}
                                 className={smallButton}
                               >
-                                환불
+                                {t.payments.refund}
                               </SubmitButton>
                             </form>
                           )}

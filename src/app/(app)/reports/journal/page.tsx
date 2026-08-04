@@ -4,6 +4,7 @@ import { EmptyState, ErrorNotice, InfoNotice } from '@/components/notice';
 import { PageHeader, StatTile } from '@/components/page-header';
 import { apiFetch, tryFetch } from '@/lib/api';
 import { requireUser } from '@/lib/auth';
+import { getDictionary, type Dictionary } from '@/lib/i18n';
 import { getPropertyContext } from '@/lib/property';
 import type { JournalReport } from '@/lib/types';
 
@@ -14,13 +15,6 @@ export const metadata: Metadata = {
 };
 
 const fieldClass = 'rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm';
-
-const METHOD_LABELS: Record<string, string> = {
-  CARD: '카드',
-  CASH: '현금',
-  TRANSFER: '계좌이체',
-  VOUCHER: '바우처',
-};
 
 function day(offset: number): string {
   const date = new Date();
@@ -44,6 +38,7 @@ export default async function JournalPage({
   const date = params.date ?? day(-1);
 
   const user = await requireUser('/reports/journal');
+  const { t } = await getDictionary();
   const property = await getPropertyContext(user);
   const propertyId = property.selected?.id;
 
@@ -91,7 +86,7 @@ export default async function JournalPage({
           status={report.status}
         />
       ) : (
-        <Journal report={report.data} />
+        <Journal report={report.data} t={t} />
       )}
 
       <p className="text-xs text-subtle">
@@ -102,7 +97,7 @@ export default async function JournalPage({
   );
 }
 
-function Journal({ report }: { report: JournalReport }) {
+function Journal({ report, t }: { report: JournalReport; t: Dictionary }) {
   const { revenue, payments, ledger } = report;
 
   return (
@@ -240,7 +235,10 @@ function Journal({ report }: { report: JournalReport }) {
               <tbody>
                 {payments.methods.map((row) => (
                   <tr key={row.method} className="border-b border-current/5">
-                    <td className="py-2.5 pr-4">{METHOD_LABELS[row.method] ?? row.method}</td>
+                    <td className="py-2.5 pr-4">
+                      {/* BE 가 주는 수단 코드는 문자열이다. 사전에 없으면 코드 그대로 보여 준다. */}
+                      {(t.payments.methods as Record<string, string>)[row.method] ?? row.method}
+                    </td>
                     <td className="py-2.5 pr-4 text-right tabular-nums text-subtle">{row.count}</td>
                     <td className="py-2.5 text-right tabular-nums">{money(row.amount)}</td>
                   </tr>
