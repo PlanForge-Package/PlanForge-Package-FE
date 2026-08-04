@@ -17,7 +17,8 @@ import { PaymentPanel } from '@/components/payment-panel';
 import { RoomKeyPanel } from '@/components/room-key-panel';
 import { ReservationStatusBadge } from '@/components/status-badge';
 import { ApiError, apiFetch, backendMessage, tryFetch } from '@/lib/api';
-import { CHANNEL_LABELS, MARKET_LABELS, SOURCE_LABELS, label } from '@/lib/channel-labels';
+import { label } from '@/lib/channel-labels';
+import { getDictionary } from '@/lib/i18n';
 import type {
   ArAccountList,
   FolioRoutingList,
@@ -87,6 +88,7 @@ function guestName(reservation: ReservationDetail): string {
 export default async function ReservationDetailPage({ params }: Props) {
   const { id } = await params;
   const user = await requireUser(`/reservations/${id}`);
+  const { t } = await getDictionary();
   const result = await loadReservation(id);
 
   if (!result.ok) {
@@ -200,9 +202,9 @@ export default async function ReservationDetailPage({ params }: Props) {
         <Field
           label="예약 경로"
           value={[
-            label(SOURCE_LABELS, reservation.sourceCode),
-            label(CHANNEL_LABELS, reservation.channelCode),
-            label(MARKET_LABELS, reservation.marketCode),
+            label(t.sourceCodes, reservation.sourceCode),
+            label(t.channelCodes, reservation.channelCode),
+            label(t.marketCodes, reservation.marketCode),
           ]
             .filter((part) => part !== '—')
             .join(' · ')}

@@ -4,8 +4,8 @@ import { useActionState, useId, useState } from 'react';
 import { createBlockAction, updateBlockAction } from '@/app/(app)/blocks/actions';
 import { IDLE, type ActionState } from '@/lib/action-state';
 import type { BlockStatus, RoomType } from '@/lib/types';
+import { useI18n } from '@/lib/i18n/provider';
 import { ActionMessage, SubmitButton } from './action-feedback';
-import { BLOCK_LABELS } from './status-badge';
 
 const inputClass = 'rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm';
 
@@ -230,6 +230,7 @@ export function BlockEditor({
   /** 지금 잡혀 있는 객실 타입별 협의 요금. 빈 칸은 건드리지 않는다. */
   rates?: Array<{ roomTypeCode: string; amount: string | null }>;
 }) {
+  const t = useI18n();
   const [state, action] = useActionState<ActionState, FormData>(updateBlockAction, IDLE);
   const uid = useId();
 
@@ -260,7 +261,7 @@ export function BlockEditor({
           <select id={`${uid}-status`} name="status" defaultValue={status} className={inputClass}>
             {EDITABLE_STATUSES.map((value) => (
               <option key={value} value={value}>
-                {BLOCK_LABELS[value]}
+                {t.blockStatus[value]}
               </option>
             ))}
           </select>

@@ -5,9 +5,10 @@ import { updateRoomStatusAction } from '@/app/(app)/housekeeping/actions';
 import { IDLE, type ActionState } from '@/lib/action-state';
 import type { Room, RoomStatus } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
-import { ROOM_LABELS, RoomStatusBadge } from './status-badge';
+import { useI18n } from '@/lib/i18n/provider';
+import { RoomStatusBadge } from './status-badge';
 
-const STATUSES = Object.keys(ROOM_LABELS) as RoomStatus[];
+const STATUSES: RoomStatus[] = ['CLEAN', 'DIRTY', 'INSPECTED', 'OUT_OF_ORDER', 'OUT_OF_SERVICE'];
 
 /** 재실 중에는 고를 수 없는 상태. BE·OPERA 도 같은 규칙으로 거절한다. */
 const BLOCKING: RoomStatus[] = ['OUT_OF_ORDER', 'OUT_OF_SERVICE'];
@@ -19,6 +20,7 @@ const BLOCKING: RoomStatus[] = ['OUT_OF_ORDER', 'OUT_OF_SERVICE'];
  * 상태를 들고 있으면 결과 메시지가 함께 사라진다.
  */
 export function RoomStatusPanel({ rooms }: { rooms: Room[] }) {
+  const t = useI18n();
   const [state, action] = useActionState<ActionState, FormData>(updateRoomStatusAction, IDLE);
 
   return (
@@ -32,22 +34,22 @@ export function RoomStatusPanel({ rooms }: { rooms: Room[] }) {
           <thead>
             <tr className="border-b border-current/10 text-left">
               <th scope="col" className="py-2 pr-4 font-medium">
-                객실
+                {t.rooms.number}
               </th>
               <th scope="col" className="py-2 pr-4 font-medium">
-                층
+                {t.rooms.floor}
               </th>
               <th scope="col" className="py-2 pr-4 font-medium">
-                타입
+                {t.rooms.type}
               </th>
               <th scope="col" className="py-2 pr-4 font-medium">
-                상태
+                {t.common.status}
               </th>
               <th scope="col" className="py-2 pr-4 font-medium">
-                재실
+                {t.rooms.occupied}
               </th>
               <th scope="col" className="py-2 font-medium">
-                상태 변경
+                {t.rooms.changeStatus}
               </th>
             </tr>
           </thead>
@@ -60,7 +62,7 @@ export function RoomStatusPanel({ rooms }: { rooms: Room[] }) {
                 <td className="py-2.5 pr-4">
                   <RoomStatusBadge status={room.status} />
                 </td>
-                <td className="py-2.5 pr-4">{room.occupied ? '재실' : '공실'}</td>
+                <td className="py-2.5 pr-4">{room.occupied ? t.rooms.inUse : t.rooms.vacant}</td>
                 <td className="py-2.5">
                   <form action={action} className="flex items-center gap-1.5">
                     <input type="hidden" name="roomId" value={room.id} />
@@ -68,7 +70,7 @@ export function RoomStatusPanel({ rooms }: { rooms: Room[] }) {
                     <select
                       name="status"
                       defaultValue={room.status}
-                      aria-label={`${room.number} 상태`}
+                      aria-label={`${room.number} ${t.common.status}`}
                       className="rounded-md border border-current/20 bg-transparent px-2 py-1 text-sm"
                     >
                       {STATUSES.map((status) => (
@@ -78,7 +80,7 @@ export function RoomStatusPanel({ rooms }: { rooms: Room[] }) {
                           // 눌러도 거절될 조합은 애초에 고를 수 없게 한다.
                           disabled={room.occupied && BLOCKING.includes(status)}
                         >
-                          {ROOM_LABELS[status]}
+                          {t.roomStatus[status]}
                         </option>
                       ))}
                     </select>
@@ -86,7 +88,7 @@ export function RoomStatusPanel({ rooms }: { rooms: Room[] }) {
                       pendingLabel="…"
                       className="rounded-md border border-current/20 px-2.5 py-1 text-xs transition-colors hover:bg-current/5 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      변경
+                      {t.rooms.change}
                     </SubmitButton>
                   </form>
                 </td>
@@ -96,10 +98,7 @@ export function RoomStatusPanel({ rooms }: { rooms: Room[] }) {
         </table>
       </div>
 
-      <p className="text-xs text-subtle">
-        상태 변경은 OPERA 에 반영된 뒤 화면에 돌아옵니다. 재실 중인 객실은 판매 불가로 바꿀 수
-        없습니다.
-      </p>
+      <p className="text-xs text-subtle">{t.rooms.statusNote}</p>
     </div>
   );
 }

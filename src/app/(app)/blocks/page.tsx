@@ -3,9 +3,10 @@ import Link from 'next/link';
 import { CreateBlockForm } from '@/components/block-form';
 import { EmptyState, ErrorNotice } from '@/components/notice';
 import { PageHeader } from '@/components/page-header';
-import { BLOCK_LABELS, BlockStatusBadge } from '@/components/status-badge';
+import { BlockStatusBadge } from '@/components/status-badge';
 import { apiFetch, tryFetch } from '@/lib/api';
 import { requireUser } from '@/lib/auth';
+import { getDictionary } from '@/lib/i18n';
 import { getPropertyContext } from '@/lib/property';
 import type { Block, BlockStatus, RoomType } from '@/lib/types';
 
@@ -18,12 +19,8 @@ export const metadata: Metadata = {
 /** 블록 생성은 재고를 잡는 행위라 지배인 이상이 한다. BE 도 같은 규칙으로 막는다. */
 const CAN_CREATE = ['ADMIN', 'MANAGER'];
 
-const STATUS_FILTERS: Array<{ value: BlockStatus | ''; label: string }> = [
-  { value: '', label: '전체' },
-  { value: 'TENTATIVE', label: BLOCK_LABELS.TENTATIVE },
-  { value: 'DEFINITE', label: BLOCK_LABELS.DEFINITE },
-  { value: 'CANCELLED', label: BLOCK_LABELS.CANCELLED },
-];
+/** 필터에 쓰는 상태. 이름은 사전에서 꺼내 화면 언어를 따라간다. */
+const STATUS_FILTERS: Array<BlockStatus | ''> = ['', 'TENTATIVE', 'DEFINITE', 'CANCELLED'];
 
 function date(value: string): string {
   return value.slice(0, 10);
@@ -43,6 +40,7 @@ export default async function BlocksPage({
   const { status } = await searchParams;
 
   const user = await requireUser('/blocks');
+  const { t } = await getDictionary();
   const property = await getPropertyContext(user);
   const propertyId = property.selected?.id;
   const canCreate = CAN_CREATE.includes(user.role);
@@ -51,7 +49,7 @@ export default async function BlocksPage({
     return (
       <main className="flex flex-col gap-6">
         <PageHeader title="단체 블록" />
-        <EmptyState message="접근 가능한 호텔이 없습니다. 관리자에게 소속 지정을 요청해 주세요." />
+        <EmptyState message={t.common.noAccess} />
       </main>
     );
   }
@@ -77,7 +75,7 @@ export default async function BlocksPage({
 
       <form className="flex flex-wrap items-center gap-2">
         <label htmlFor="status" className="sr-only">
-          상태
+          {t.common.status}
         </label>
         <select
           id="status"
@@ -85,9 +83,9 @@ export default async function BlocksPage({
           defaultValue={status ?? ''}
           className="rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm"
         >
-          {STATUS_FILTERS.map((filter) => (
-            <option key={filter.value} value={filter.value}>
-              {filter.label}
+          {STATUS_FILTERS.map((value) => (
+            <option key={value} value={value}>
+              {value ? t.blockStatus[value] : t.common.all}
             </option>
           ))}
         </select>

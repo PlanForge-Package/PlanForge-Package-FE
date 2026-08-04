@@ -3,8 +3,9 @@
 import { useActionState, useId, useState } from 'react';
 import { createReservationAction } from '@/app/(app)/reservations/new/actions';
 import { IDLE, type ActionState } from '@/lib/action-state';
-import { MARKET_LABELS, SOURCE_LABELS } from '@/lib/channel-labels';
+
 import type { AvailabilityItem, RateOffer } from '@/lib/types';
+import { useI18n } from '@/lib/i18n/provider';
 import { ActionMessage, SubmitButton } from './action-feedback';
 
 const inputClass = 'rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm';
@@ -60,6 +61,7 @@ export function BookingForm({
   /** 이 기간에 걸리는 단체 블록. 고르면 그 블록의 픽업으로 잡힌다. */
   blocks?: Array<{ code: string; name: string }>;
 }) {
+  const t = useI18n();
   const [state, action] = useActionState<ActionState, FormData>(createReservationAction, IDLE);
   const [selected, setSelected] = useState<string | null>(null);
   const uid = useId();
@@ -242,7 +244,7 @@ export function BookingForm({
                 defaultValue={kept?.sourceCode ?? 'DIRECT'}
                 className={`w-32 ${inputClass}`}
               >
-                {Object.entries(SOURCE_LABELS).map(([code, name]) => (
+                {Object.entries(t.sourceCodes).map(([code, name]) => (
                   <option key={code} value={code}>
                     {name}
                   </option>
@@ -260,7 +262,7 @@ export function BookingForm({
                 defaultValue={kept?.marketCode ?? 'TRANSIENT'}
                 className={`w-28 ${inputClass}`}
               >
-                {Object.entries(MARKET_LABELS).map(([code, name]) => (
+                {Object.entries(t.marketCodes).map(([code, name]) => (
                   <option key={code} value={code}>
                     {name}
                   </option>

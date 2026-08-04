@@ -4,8 +4,9 @@ import { EmptyState, ErrorNotice } from '@/components/notice';
 import { PageHeader, StatTile } from '@/components/page-header';
 import { apiFetch, tryFetch } from '@/lib/api';
 import { requireUser } from '@/lib/auth';
+import { getDictionary, type Dictionary } from '@/lib/i18n';
 import { getPropertyContext } from '@/lib/property';
-import { CHANNEL_LABELS, MARKET_LABELS, SOURCE_LABELS, label } from '@/lib/channel-labels';
+import { label } from '@/lib/channel-labels';
 import type { BreakdownRow, DailyReport } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -51,6 +52,7 @@ export default async function ReportsPage({
   const to = params.to ?? day(-1);
 
   const user = await requireUser('/reports');
+  const { t } = await getDictionary();
   const property = await getPropertyContext(user);
   const propertyId = property.selected?.id;
 
@@ -107,7 +109,7 @@ export default async function ReportsPage({
           status={report.status}
         />
       ) : (
-        <Report data={report.data} />
+        <Report data={report.data} t={t} />
       )}
     </main>
   );
@@ -167,7 +169,7 @@ function BreakdownTable({
   );
 }
 
-function Report({ data }: { data: DailyReport }) {
+function Report({ data, t }: { data: DailyReport; t: Dictionary }) {
   const { currency } = data;
 
   return (
@@ -210,19 +212,19 @@ function Report({ data }: { data: DailyReport }) {
           <BreakdownTable
             title="판매 채널"
             rows={data.breakdown.channel}
-            labels={CHANNEL_LABELS}
+            labels={t.channelCodes}
             currency={currency}
           />
           <BreakdownTable
             title="예약 출처"
             rows={data.breakdown.source}
-            labels={SOURCE_LABELS}
+            labels={t.sourceCodes}
             currency={currency}
           />
           <BreakdownTable
             title="시장 구분"
             rows={data.breakdown.market}
-            labels={MARKET_LABELS}
+            labels={t.marketCodes}
             currency={currency}
           />
         </div>

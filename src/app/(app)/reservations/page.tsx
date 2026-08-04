@@ -3,25 +3,30 @@ import { EmptyState, ErrorNotice } from '@/components/notice';
 import { PageHeader } from '@/components/page-header';
 import { ReservationStatusBadge } from '@/components/status-badge';
 import { apiFetch, tryFetch } from '@/lib/api';
-import { CHANNEL_LABELS, SOURCE_LABELS, label } from '@/lib/channel-labels';
+import { label } from '@/lib/channel-labels';
 import { requireUser } from '@/lib/auth';
+import { getDictionary } from '@/lib/i18n';
 import { getPropertyContext } from '@/lib/property';
 import type { ReservationListResponse, ReservationStatus } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
-const STATUS_FILTERS: Array<{ value: ReservationStatus | ''; label: string }> = [
-  { value: '', label: '전체' },
-  { value: 'CONFIRMED', label: '확정' },
-  { value: 'IN_HOUSE', label: '재실' },
-  { value: 'CHECKED_OUT', label: '체크아웃' },
-  { value: 'CANCELLED', label: '취소' },
+/** 필터에 쓰는 상태. 이름은 사전에서 꺼내 화면 언어를 따라간다. */
+const STATUS_FILTERS: Array<ReservationStatus | ''> = [
+  '',
+  'CONFIRMED',
+  'IN_HOUSE',
+  'CHECKED_OUT',
+  'CANCELLED',
 ];
 
-function guestName(reservation: ReservationListResponse['items'][number]): string {
+function guestName(
+  reservation: ReservationListResponse['items'][number],
+  fallback: string,
+): string {
   const { lastName, firstName } = reservation.profile;
   const name = [lastName, firstName].filter(Boolean).join(' ');
-  return name || '(이름 없음)';
+  return name || fallback;
 }
 
 function formatDate(value: string): string {
@@ -37,6 +42,7 @@ export default async function ReservationsPage({
 
   // 선택된 호텔로 좁힌다. 본사 계정이 호텔을 고르지 않았다면 전 호텔을 본다.
   const user = await requireUser('/reservations');
+  const { t } = await getDictionary();
   const property = await getPropertyContext(user);
 
   const result = await tryFetch(
@@ -54,31 +60,31 @@ export default async function ReservationsPage({
   return (
     <main className="flex flex-col gap-6">
       <PageHeader
-        title="예약"
-        description={`${property.selected?.name ?? '전 호텔'} — Core 를 통해 OPERA 에서 동기화된 예약입니다.`}
+        title={t.reservations.title}
+        description={`${property.selected?.name ?? t.common.allProperties} — ${t.reservations.description}`}
         actions={
           <Link
             href="/reservations/new"
             className="btn-primary rounded-md px-3 py-1.5 text-sm font-medium"
           >
-            새 예약
+            {t.reservations.newReservation}
           </Link>
         }
       />
 
       <form className="flex flex-wrap items-center gap-2" role="search">
         <label htmlFor="q" className="sr-only">
-          확인 번호 또는 게스트 이름
+          {t.reservations.searchLabel}
         </label>
         <input
           id="q"
           name="q"
           defaultValue={q ?? ''}
-          placeholder="확인 번호 · 게스트 이름"
+          placeholder={t.reservations.searchPlaceholder}
           className="rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm"
         />
         <label htmlFor="status" className="sr-only">
-          상태
+          {t.common.status}
         </label>
         <select
           id="status"
@@ -86,14 +92,14 @@ export default async function ReservationsPage({
           defaultValue={status ?? ''}
           className="rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm"
         >
-          {STATUS_FILTERS.map((filter) => (
-            <option key={filter.value} value={filter.value}>
-              {filter.label}
+          {STATUS_FILTERS.map((value) => (
+            <option key={value} value={value}>
+              {value ? t.reservationStatus[value] : t.common.all}
             </option>
           ))}
         </select>
         <label htmlFor="channelCode" className="sr-only">
-          판매 채널
+          {t.reservations.channel}
         </label>
         <select
           id="channelCode"
@@ -101,56 +107,58 @@ export default async function ReservationsPage({
           defaultValue={channelCode ?? ''}
           className="rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm"
         >
-          <option value="">전체 채널</option>
-          {Object.entries(CHANNEL_LABELS).map(([code, name]) => (
+          <option value="">{t.reservations.allChannels}</option>
+          {Object.entries(t.channelCodes).map(([code, name]) => (
             <option key={code} value={code}>
               {name}
             </option>
           ))}
         </select>
         <button type="submit" className="btn-primary rounded-md px-3 py-1.5 text-sm font-medium">
-          조회
+          {t.common.search}
         </button>
       </form>
 
       {!result.ok ? (
         <ErrorNotice
-          title="예약을 불러오지 못했습니다"
+          title={t.reservations.loadFailed}
           message={result.message}
           status={result.status}
         />
       ) : result.data.items.length === 0 ? (
-        <EmptyState message="조건에 맞는 예약이 없습니다." />
+        <EmptyState message={t.reservations.empty} />
       ) : (
         <>
-          <p className="text-sm text-subtle">전체 {result.data.total.toLocaleString()}건</p>
+          <p className="text-sm text-subtle">
+            {t.common.all} {result.data.total.toLocaleString()}
+          </p>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[56rem] text-sm">
               <thead>
                 <tr className="border-b border-current/10 text-left">
                   <th scope="col" className="py-2 pr-4 font-medium">
-                    확인 번호
+                    {t.reservations.confirmationNumber}
                   </th>
                   <th scope="col" className="py-2 pr-4 font-medium">
-                    게스트
+                    {t.reservations.guest}
                   </th>
                   <th scope="col" className="py-2 pr-4 font-medium">
-                    도착
+                    {t.reservations.arrival}
                   </th>
                   <th scope="col" className="py-2 pr-4 font-medium">
-                    출발
+                    {t.reservations.departure}
                   </th>
                   <th scope="col" className="py-2 pr-4 font-medium">
-                    객실 타입
+                    {t.reservations.roomType}
                   </th>
                   <th scope="col" className="py-2 pr-4 font-medium">
-                    객실
+                    {t.reservations.room}
                   </th>
                   <th scope="col" className="py-2 pr-4 font-medium">
-                    경로
+                    {t.reservations.source}
                   </th>
                   <th scope="col" className="py-2 font-medium">
-                    상태
+                    {t.common.status}
                   </th>
                 </tr>
               </thead>
@@ -166,7 +174,7 @@ export default async function ReservationsPage({
                       </Link>
                     </td>
                     <td className="py-2.5 pr-4">
-                      {guestName(reservation)}
+                      {guestName(reservation, t.reservations.unnamed)}
                       {reservation.profile.vip && (
                         <span className="ml-1.5 text-xs text-amber-600 dark:text-amber-400">
                           VIP
@@ -184,9 +192,9 @@ export default async function ReservationsPage({
                       {reservation.assignedRoomNumber ?? '—'}
                     </td>
                     <td className="py-2.5 pr-4">
-                      {label(CHANNEL_LABELS, reservation.channelCode) === '—'
-                        ? label(SOURCE_LABELS, reservation.sourceCode)
-                        : label(CHANNEL_LABELS, reservation.channelCode)}
+                      {label(t.channelCodes, reservation.channelCode) === '—'
+                        ? label(t.sourceCodes, reservation.sourceCode)
+                        : label(t.channelCodes, reservation.channelCode)}
                     </td>
                     <td className="py-2.5">
                       <ReservationStatusBadge status={reservation.status} />
