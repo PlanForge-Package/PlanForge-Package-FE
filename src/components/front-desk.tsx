@@ -4,6 +4,7 @@ import { useActionState } from 'react';
 import { checkInAction, checkOutAction } from '@/app/(app)/reservations/[id]/actions';
 import { IDLE, type ActionState } from '@/lib/action-state';
 import type { ReservationStatus } from '@/lib/types';
+import { useI18n } from '@/lib/i18n/provider';
 import { ActionMessage, SubmitButton } from './action-feedback';
 
 /** BE 와 같은 규칙. 여기서 미리 걸러 불필요한 왕복을 줄이되, 판단의 근거는 BE 다. */
@@ -26,6 +27,7 @@ export function FrontDeskPanel({
   status: ReservationStatus;
   assignedRoomNumber: string | null;
 }) {
+  const t = useI18n();
   const [checkInState, checkIn] = useActionState<ActionState, FormData>(
     checkInAction.bind(null, reservationId),
     IDLE,
@@ -43,29 +45,27 @@ export function FrontDeskPanel({
 
   return (
     <section className="rounded-lg border border-current/10 px-4 py-3">
-      <h2 className="text-sm font-medium">프론트데스크</h2>
+      <h2 className="text-sm font-medium">{t.frontDesk.panelTitle}</h2>
 
       {canCheckIn && (
         <form action={checkIn} className="mt-3">
           <div className="flex flex-wrap items-end gap-2">
             <div className="flex flex-col gap-1">
               <label htmlFor="roomNumber" className="text-xs text-subtle">
-                객실 번호
+                {t.frontDesk.roomNumber}
               </label>
               <input
                 id="roomNumber"
                 name="roomNumber"
                 defaultValue={assignedRoomNumber ?? ''}
-                placeholder="예: 1501"
+                placeholder={t.frontDesk.roomPlaceholder}
                 inputMode="numeric"
                 className="rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm"
               />
             </div>
-            <SubmitButton pendingLabel="체크인 중…">체크인</SubmitButton>
+            <SubmitButton pendingLabel={t.frontDesk.checkingIn}>{t.frontDesk.checkIn}</SubmitButton>
           </div>
-          <p className="mt-1.5 text-xs text-subtle">
-            비워 두면 예약에 이미 배정된 객실을 사용합니다.
-          </p>
+          <p className="mt-1.5 text-xs text-subtle">{t.frontDesk.roomHint}</p>
         </form>
       )}
 
@@ -74,27 +74,28 @@ export function FrontDeskPanel({
           <div className="flex flex-wrap items-end gap-2">
             <div className="flex flex-col gap-1">
               <label htmlFor="notes" className="text-xs text-subtle">
-                메모 (선택)
+                {t.frontDesk.checkOutNote}
               </label>
               <input
                 id="notes"
                 name="notes"
-                placeholder="체크아웃 메모"
+                placeholder={t.frontDesk.checkOutPlaceholder}
                 className="w-64 rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm"
               />
             </div>
-            <SubmitButton pendingLabel="체크아웃 중…" confirm="체크아웃하시겠습니까?">
-              체크아웃
+            <SubmitButton
+              pendingLabel={t.frontDesk.checkingOut}
+              confirm={t.frontDesk.checkOutConfirm}
+            >
+              {t.frontDesk.checkOut}
             </SubmitButton>
           </div>
-          <p className="mt-1.5 text-xs text-subtle">
-            미결제 잔액이 남아 있으면 체크아웃할 수 없습니다.
-          </p>
+          <p className="mt-1.5 text-xs text-subtle">{t.frontDesk.balanceNote}</p>
         </form>
       )}
 
       {!canCheckIn && !canCheckOut && (
-        <p className="mt-1 text-sm text-subtle">현재 상태에서는 체크인·체크아웃할 수 없습니다.</p>
+        <p className="mt-1 text-sm text-subtle">{t.frontDesk.notAvailable}</p>
       )}
 
       <div data-testid="front-desk-feedback">

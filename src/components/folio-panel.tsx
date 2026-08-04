@@ -4,14 +4,16 @@ import { useActionState, useId } from 'react';
 import { addPostingAction, openFolioAction } from '@/app/(app)/reservations/[id]/actions';
 import { transferPostingAction } from '@/app/(app)/reservations/[id]/routing-actions';
 import { IDLE, type ActionState } from '@/lib/action-state';
+import { useI18n } from '@/lib/i18n/provider';
 import { ActionMessage, SubmitButton } from './action-feedback';
 import type { Folio, PostingType } from '@/lib/types';
 
-const POSTING_LABELS: Record<PostingType, string> = {
-  CHARGE: '청구',
-  PAYMENT: '결제',
-  ADJUSTMENT: '조정',
-  TAX: '세금',
+/** 거래 종류의 사전 키. 표기는 화면 언어를 따라간다. */
+const POSTING_KEYS: Record<PostingType, 'charge' | 'payment' | 'adjustment' | 'tax'> = {
+  CHARGE: 'charge',
+  PAYMENT: 'payment',
+  ADJUSTMENT: 'adjustment',
+  TAX: 'tax',
 };
 
 /** 자주 쓰는 OPERA transactionCode 기본값. 입력은 자유롭게 바꿀 수 있다. */
@@ -47,6 +49,7 @@ export function FolioPanel({
   folios: Folio[];
   currency: string;
 }) {
+  const t = useI18n();
   const [openState, openAction] = useActionState<ActionState, FormData>(
     openFolioAction.bind(null, reservationId),
     IDLE,
@@ -55,16 +58,20 @@ export function FolioPanel({
   return (
     <section className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-sm font-medium uppercase tracking-wide text-subtle">폴리오</h2>
+        <h2 className="text-sm font-medium uppercase tracking-wide text-subtle">
+          {t.frontDesk.folio}
+        </h2>
         <form action={openAction}>
-          <SubmitButton pendingLabel="여는 중…">윈도 추가</SubmitButton>
+          <SubmitButton pendingLabel={t.frontDesk.openingWindow}>
+            {t.frontDesk.addWindow}
+          </SubmitButton>
         </form>
       </div>
       <ActionMessage state={openState} />
 
       {folios.length === 0 ? (
         <p className="rounded-lg border border-dashed border-current/20 px-4 py-8 text-center text-sm text-subtle">
-          아직 폴리오가 없습니다. 체크인하면 자동으로 열리며, 위 버튼으로 직접 열 수도 있습니다.
+          {t.frontDesk.noFolio}
         </p>
       ) : (
         folios.map((folio) => (
@@ -92,6 +99,7 @@ function FolioCard({
   folios: Folio[];
   currency: string;
 }) {
+  const t = useI18n();
   const closed = folio.status === 'CLOSED';
   const balance = Number(folio.balance);
 
@@ -115,7 +123,9 @@ function FolioCard({
     <article className="rounded-lg border border-current/10">
       <header className="flex flex-wrap items-center justify-between gap-2 border-b border-current/10 px-4 py-3">
         <div className="flex items-center gap-2">
-          <h3 className="font-medium">윈도 {folio.window}</h3>
+          <h3 className="font-medium">
+            {t.frontDesk.window} {folio.window}
+          </h3>
           <span
             className={`rounded-full px-2 py-0.5 text-xs ${
               closed
@@ -123,11 +133,11 @@ function FolioCard({
                 : 'bg-blue-500/15 text-blue-700 dark:text-blue-300'
             }`}
           >
-            {closed ? '마감' : '진행'}
+            {closed ? t.frontDesk.closed : t.frontDesk.open}
           </span>
         </div>
         <p className="text-sm">
-          <span className="opacity-60">잔액 </span>
+          <span className="opacity-60">{t.frontDesk.balance} </span>
           <span
             className={`font-semibold tabular-nums ${
               balance > 0 ? 'text-red-700 dark:text-red-300' : ''
@@ -143,31 +153,33 @@ function FolioCard({
       </div>
 
       {folio.postings.length === 0 ? (
-        <p className="px-4 py-6 text-center text-sm text-subtle">등록된 거래가 없습니다.</p>
+        <p className="px-4 py-6 text-center text-sm text-subtle">{t.frontDesk.noPostings}</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[36rem] text-sm">
-            <caption className="sr-only">윈도 {folio.window} 거래 내역</caption>
+            <caption className="sr-only">
+              {t.frontDesk.window} {folio.window} — {t.frontDesk.posting}
+            </caption>
             <thead>
               <tr className="border-b border-current/5 text-left">
                 <th scope="col" className="px-4 py-2 font-medium">
-                  종류
+                  {t.frontDesk.kind}
                 </th>
                 <th scope="col" className="py-2 pr-4 font-medium">
-                  코드
+                  {t.frontDesk.transactionCode}
                 </th>
                 <th scope="col" className="py-2 pr-4 font-medium">
-                  적요
+                  {t.frontDesk.description}
                 </th>
                 <th scope="col" className="py-2 pr-4 text-right font-medium">
-                  금액
+                  {t.common.amount}
                 </th>
                 <th scope="col" className="py-2 pr-4 font-medium">
-                  일시
+                  {t.frontDesk.postedAt}
                 </th>
                 {targets.length > 0 && !closed && (
                   <th scope="col" className="py-2 pr-4 font-medium">
-                    이관
+                    {t.frontDesk.transfer}
                   </th>
                 )}
               </tr>
@@ -177,7 +189,9 @@ function FolioCard({
                 const value = Number(posting.amount);
                 return (
                   <tr key={posting.id} className="border-b border-current/5 last:border-0">
-                    <td className="px-4 py-2">{POSTING_LABELS[posting.type] ?? posting.type}</td>
+                    <td className="px-4 py-2">
+                      {t.frontDesk[POSTING_KEYS[posting.type]] ?? posting.type}
+                    </td>
                     <td className="py-2 pr-4 font-mono text-xs">{posting.transactionCode}</td>
                     <td className="py-2 pr-4">
                       <span className={posting.voidedById ? 'line-through text-subtle' : ''}>
@@ -190,12 +204,15 @@ function FolioCard({
                         </span>
                       )}
                       {posting.voidedById && (
-                        <span className="ml-1.5 text-xs text-subtle">취소됨</span>
+                        <span className="ml-1.5 text-xs text-subtle">{t.frontDesk.voided}</span>
                       )}
                       {/* 왜 이 창구에 있는지 설명해 준다. 감사에서 반드시 묻는다. */}
                       {posting.transferredFromWindow != null && (
                         <span className="ml-1.5 text-xs text-subtle">
-                          윈도 {posting.transferredFromWindow} 에서 이관
+                          {t.frontDesk.transferredFrom.replace(
+                            '{window}',
+                            String(posting.transferredFromWindow),
+                          )}
                         </span>
                       )}
                     </td>
@@ -224,12 +241,12 @@ function FolioCard({
                             <select
                               name="toWindow"
                               defaultValue={targets[0]?.window}
-                              aria-label={`${posting.description} 이관 대상`}
+                              aria-label={`${posting.description} ${t.frontDesk.transferTarget}`}
                               className="rounded-md border border-current/20 bg-transparent px-1.5 py-0.5 text-xs"
                             >
                               {targets.map((target) => (
                                 <option key={target.id} value={target.window}>
-                                  윈도 {target.window}
+                                  {t.frontDesk.window} {target.window}
                                 </option>
                               ))}
                             </select>
@@ -237,7 +254,7 @@ function FolioCard({
                               pendingLabel="…"
                               className="rounded-md border border-current/20 px-2 py-0.5 text-xs transition-colors hover:bg-current/5 disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                              이관
+                              {t.frontDesk.transfer}
                             </SubmitButton>
                           </form>
                         )}
@@ -253,7 +270,7 @@ function FolioCard({
 
       {closed ? (
         <p className="border-t border-current/10 px-4 py-3 text-xs text-subtle">
-          마감된 폴리오에는 거래를 등록할 수 없습니다.
+          {t.frontDesk.closedNote}
         </p>
       ) : (
         <PostingForm reservationId={reservationId} window={folio.window} />
@@ -263,6 +280,7 @@ function FolioCard({
 }
 
 function PostingForm({ reservationId, window }: { reservationId: string; window: number }) {
+  const t = useI18n();
   const [state, action] = useActionState<ActionState, FormData>(
     addPostingAction.bind(null, reservationId, window),
     IDLE,
@@ -272,11 +290,13 @@ function PostingForm({ reservationId, window }: { reservationId: string; window:
   return (
     <form action={action} className="border-t border-current/10 px-4 py-3">
       <fieldset className="flex flex-wrap items-end gap-2">
-        <legend className="sr-only">윈도 {window} 거래 등록</legend>
+        <legend className="sr-only">
+          {t.frontDesk.window} {window} — {t.frontDesk.register}
+        </legend>
 
         <div className="flex flex-col gap-1">
           <label htmlFor={`${uid}-type`} className="text-xs text-subtle">
-            종류
+            {t.frontDesk.kind}
           </label>
           <select
             id={`${uid}-type`}
@@ -284,9 +304,9 @@ function PostingForm({ reservationId, window }: { reservationId: string; window:
             defaultValue="CHARGE"
             className="rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm"
           >
-            {(Object.keys(POSTING_LABELS) as PostingType[]).map((type) => (
+            {(Object.keys(POSTING_KEYS) as PostingType[]).map((type) => (
               <option key={type} value={type}>
-                {POSTING_LABELS[type]}
+                {t.frontDesk[POSTING_KEYS[type]]}
               </option>
             ))}
           </select>
@@ -294,7 +314,7 @@ function PostingForm({ reservationId, window }: { reservationId: string; window:
 
         <div className="flex flex-col gap-1">
           <label htmlFor={`${uid}-code`} className="text-xs text-subtle">
-            코드
+            {t.frontDesk.transactionCode}
           </label>
           <input
             id={`${uid}-code`}
@@ -307,12 +327,12 @@ function PostingForm({ reservationId, window }: { reservationId: string; window:
 
         <div className="flex flex-col gap-1">
           <label htmlFor={`${uid}-desc`} className="text-xs text-subtle">
-            적요
+            {t.frontDesk.description}
           </label>
           <input
             id={`${uid}-desc`}
             name="description"
-            placeholder="객실료"
+            placeholder={t.frontDesk.descriptionPlaceholder}
             required
             className="w-40 rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm"
           />
@@ -320,7 +340,7 @@ function PostingForm({ reservationId, window }: { reservationId: string; window:
 
         <div className="flex flex-col gap-1">
           <label htmlFor={`${uid}-amount`} className="text-xs text-subtle">
-            금액
+            {t.common.amount}
           </label>
           <input
             id={`${uid}-amount`}
@@ -337,15 +357,13 @@ function PostingForm({ reservationId, window }: { reservationId: string; window:
 
         <label className="flex items-center gap-1.5 py-1.5 text-xs text-subtle">
           <input type="checkbox" name="negative" className="size-3.5" />
-          조정을 차감으로
+          {t.frontDesk.negative}
         </label>
 
-        <SubmitButton pendingLabel="등록 중…">등록</SubmitButton>
+        <SubmitButton pendingLabel={t.frontDesk.registering}>{t.frontDesk.register}</SubmitButton>
       </fieldset>
 
-      <p className="mt-1.5 text-xs text-subtle">
-        금액은 항상 양수로 입력합니다. 결제는 자동으로 잔액에서 차감됩니다.
-      </p>
+      <p className="mt-1.5 text-xs text-subtle">{t.frontDesk.amountNote}</p>
       <ActionMessage state={state} />
     </form>
   );
