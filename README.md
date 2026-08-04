@@ -116,6 +116,8 @@ src/
 │   ├── cashier-panel.tsx         근무조 시작 · 마감 · 지난 조
 │   ├── ar-panels.tsx             거래처 목록 · 입금 · 청구서
 │   ├── ar-transfer-panel.tsx     폴리오 잔액 → 거래처
+│   ├── ar-aging.tsx             연체 현황 (경과 구간)
+│   ├── invoice-document.tsx     청구서 문서 (인쇄·PDF)
 │   ├── trace-panel.tsx           예약별 지시 등록 · 처리
 │   ├── share-panel.tsx           객실 공유 · 해제
 │   ├── daily-traces.tsx          오늘의 지시 (대시보드)
@@ -186,6 +188,7 @@ pnpm dev -- -p 3200
 | `/night-audit`               | 야간 감사 — 마감 점검표, 노쇼 처리                           |
 | `/cashier`                   | 캐셔 마감 — 근무조별 수납·시재 대사                          |
 | `/ar` `/ar/[id]`             | 후불 거래처 — 미수·여신 한도, 입금, 청구서 발행·무효         |
+| `/ar/invoices/[id]`          | 청구서 문서 — 청구 내역·수금, 인쇄와 PDF 저장                |
 | `/reports`                   | 실적 — 점유율·ADR·RevPAR, 경로별 분해 (지배인)               |
 | `/reports/journal`           | 마감 분개 — 거래 코드별 매출·세금, 수납, 장부 대사 (지배인)  |
 | `/pos-outlets`               | POS 아웃렛 — 키 발급·재발급·사용 중지 (지배인)               |

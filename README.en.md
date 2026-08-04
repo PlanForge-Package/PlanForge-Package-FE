@@ -116,6 +116,8 @@ src/
 │   ├── cashier-panel.tsx         Open · close a shift · past shifts
 │   ├── ar-panels.tsx             Accounts · payments · invoices
 │   ├── ar-transfer-panel.tsx     Folio balance → account
+│   ├── ar-aging.tsx             Aging by bucket
+│   ├── invoice-document.tsx     Invoice document (print · PDF)
 │   ├── trace-panel.tsx           Traces on a reservation · complete
 │   ├── share-panel.tsx           Share a room · leave the group
 │   ├── daily-traces.tsx          Today's traces (dashboard)
@@ -186,6 +188,7 @@ the BE repository).
 | `/night-audit`               | Night audit — close-of-day checklist, no-show handling                       |
 | `/cashier`                   | Cashier close — per-shift collections and cash count                         |
 | `/ar` `/ar/[id]`             | City ledger — balances and credit limits, payments, invoices                 |
+| `/ar/invoices/[id]`          | Invoice document — lines and payments, print or save as PDF                  |
 | `/reports`                   | Performance — occupancy, ADR, RevPAR, channel breakdown (manager)            |
 | `/reports/journal`           | Closing journal — revenue by code, tax, payments, reconciliation (MANAGER)   |
 | `/pos-outlets`               | POS outlets — issue, rotate, deactivate keys (manager)                       |

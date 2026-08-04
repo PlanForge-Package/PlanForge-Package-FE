@@ -792,6 +792,11 @@ export interface ArInvoice {
   issuedAt: string;
   dueDate: string;
   note: string | null;
+  /** 이 청구서에 붙은 입금의 합 */
+  paid: string;
+  /** 아직 못 받은 금액. 독촉할 금액이다. */
+  outstanding: string;
+  overdue: boolean;
 }
 
 export interface ArAccountDetail {
@@ -802,4 +807,53 @@ export interface ArAccountDetail {
   unbilled: string;
   transactions: ArTransaction[];
   invoices: ArInvoice[];
+}
+
+/** 청구서 문서. 거래처에 그대로 보낼 수 있는 재료다. */
+export interface ArInvoiceDetail extends ArInvoice {
+  propertyId: string;
+  accountId: string;
+  sentAt: string | null;
+  paidAt: string | null;
+  voidedAt: string | null;
+  account: ArAccount;
+  property: { id: string; name: string; address: string | null; currency: string };
+  transactions: ArTransaction[];
+  allocations: Array<{
+    id: string;
+    amount: string;
+    createdAt: string;
+    payment: { id: string; description: string; postedAt: string };
+  }>;
+}
+
+export interface ArAgingBuckets {
+  current: string;
+  days30: string;
+  days60: string;
+  days90: string;
+  over90: string;
+}
+
+export interface ArAgingRow {
+  account: { id: string; code: string; name: string; billingEmail: string | null };
+  total: string;
+  overdue: string;
+  buckets: ArAgingBuckets;
+  invoices: Array<{
+    id: string;
+    number: string;
+    dueDate: string;
+    status: ArInvoiceStatus;
+    total: string;
+    paid: string;
+    outstanding: string;
+    daysOverdue: number;
+  }>;
+}
+
+export interface ArAging {
+  asOf: string;
+  items: ArAgingRow[];
+  totals: ArAgingBuckets & { total: string; overdue: string };
 }

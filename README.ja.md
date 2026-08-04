@@ -116,6 +116,8 @@ src/
 │   ├── cashier-panel.tsx         シフト開始・締め・過去のシフト
 │   ├── ar-panels.tsx             取引先一覧・入金・請求書
 │   ├── ar-transfer-panel.tsx     フォリオ残高 → 取引先
+│   ├── ar-aging.tsx             滞留状況（経過区分）
+│   ├── invoice-document.tsx     請求書ドキュメント（印刷・PDF）
 │   ├── trace-panel.tsx           予約ごとのトレース登録・処理
 │   ├── share-panel.tsx           客室シェア・解除
 │   ├── daily-traces.tsx          本日のトレース（ダッシュボード）
@@ -186,6 +188,7 @@ pnpm dev -- -p 3200
 | `/night-audit`               | ナイトオーディット —— 締めチェックリスト、ノーショー処理                 |
 | `/cashier`                   | キャッシャー締め —— シフト別の収納と現金照合                             |
 | `/ar` `/ar/[id]`             | 後払い取引先 — 残高と与信、入金、請求書の発行・無効                      |
+| `/ar/invoices/[id]`          | 請求書ドキュメント — 明細と入金、印刷・PDF 保存                          |
 | `/reports`                   | 実績 —— 稼働率・ADR・RevPAR、経路別内訳（支配人）                        |
 | `/reports/journal`           | 締め仕訳 — コード別売上と税額、収納、帳簿照合（支配人）                  |
 | `/pos-outlets`               | POS アウトレット —— キーの発行・再発行・停止（支配人）                   |

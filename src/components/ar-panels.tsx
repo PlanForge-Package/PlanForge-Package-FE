@@ -211,6 +211,12 @@ export function ArAccountDetailPanel({
    * 방금 한 일의 결과를 가린다 — 입금을 기록했는데 조금 전 청구서 오류가
    * 그대로 떠 있으면 입금이 실패한 것으로 읽힌다.
    */
+  // 아직 다 받지 못한 청구서. 입금을 붙일 수 있는 대상이다.
+  const open = data.invoices.filter(
+    (invoice) =>
+      invoice.status !== 'PAID' && invoice.status !== 'VOID' && Number(invoice.outstanding) > 0,
+  );
+
   const [last, setLast] = useState<'payment' | 'invoice' | 'status' | null>(null);
   const state =
     last === 'status'
@@ -268,6 +274,22 @@ export function ArAccountDetailPanel({
                 className="w-56 rounded-md border border-current/20 bg-transparent px-2 py-1.5 text-sm text-ink"
               />
             </label>
+            <label className="flex flex-col gap-1 text-xs text-subtle">
+              배분
+              <select
+                name="apply"
+                defaultValue="auto"
+                className="w-56 rounded-md border border-current/20 bg-transparent px-2 py-1.5 text-sm text-ink"
+              >
+                <option value="auto">만기 빠른 순으로 자동</option>
+                <option value="none">배분하지 않음</option>
+                {open.map((invoice) => (
+                  <option key={invoice.id} value={invoice.id}>
+                    {invoice.number} (남은 {money(invoice.outstanding)})
+                  </option>
+                ))}
+              </select>
+            </label>
             <SubmitButton pendingLabel="기록 중…">입금 기록</SubmitButton>
           </form>
 
@@ -308,6 +330,12 @@ export function ArAccountDetailPanel({
                   <th scope="col" className="py-2 pr-4 text-right font-medium">
                     금액
                   </th>
+                  <th scope="col" className="py-2 pr-4 text-right font-medium">
+                    받은 금액
+                  </th>
+                  <th scope="col" className="py-2 pr-4 text-right font-medium">
+                    남은 금액
+                  </th>
                   <th scope="col" className="py-2 pr-4 font-medium">
                     발행
                   </th>
@@ -327,13 +355,31 @@ export function ArAccountDetailPanel({
               <tbody>
                 {data.invoices.map((invoice) => (
                   <tr key={invoice.id} className="border-b border-current/5">
-                    <td className="py-2.5 pr-4 font-mono text-xs">{invoice.number}</td>
+                    <td className="py-2.5 pr-4 font-mono text-xs">
+                      <Link
+                        href={`/ar/invoices/${invoice.id}`}
+                        className="underline underline-offset-4"
+                      >
+                        {invoice.number}
+                      </Link>
+                    </td>
                     <td className="py-2.5 pr-4 text-right tabular-nums">{money(invoice.total)}</td>
+                    <td className="py-2.5 pr-4 text-right tabular-nums text-subtle">
+                      {money(invoice.paid)}
+                    </td>
+                    <td className="py-2.5 pr-4 text-right tabular-nums">
+                      {money(invoice.outstanding)}
+                    </td>
                     <td className="py-2.5 pr-4 tabular-nums text-subtle">
                       {invoice.issuedAt.slice(0, 10)}
                     </td>
-                    <td className="py-2.5 pr-4 tabular-nums text-subtle">
+                    <td
+                      className={`py-2.5 pr-4 tabular-nums ${
+                        invoice.overdue ? 'text-red-700 dark:text-red-300' : 'text-subtle'
+                      }`}
+                    >
                       {invoice.dueDate.slice(0, 10)}
+                      {invoice.overdue && <span className="ml-1.5 text-xs">연체</span>}
                     </td>
                     <td className="py-2.5 pr-4">{INVOICE_STATUS_LABELS[invoice.status]}</td>
                     {canManage && (

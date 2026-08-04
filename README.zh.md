@@ -114,6 +114,8 @@ src/
 │   ├── cashier-panel.tsx         开班 · 结班 · 历史班次
 │   ├── ar-panels.tsx             挂账客户 · 回款 · 账单
 │   ├── ar-transfer-panel.tsx     账夹余额 → 挂账客户
+│   ├── ar-aging.tsx             账龄（逾期区间）
+│   ├── invoice-document.tsx     账单文档（打印 · PDF）
 │   ├── trace-panel.tsx           预订指示登记 · 处理
 │   ├── share-panel.tsx           共享客房 · 解除
 │   ├── daily-traces.tsx          今日指示（仪表盘）
@@ -184,6 +186,7 @@ pnpm dev -- -p 3200
 | `/night-audit`               | 夜审 —— 结账检查表、No-show 处理                         |
 | `/cashier`                   | 结班 —— 按班次汇总收款与点钞                             |
 | `/ar` `/ar/[id]`             | 挂账客户 —— 余额与信用额度、回款、账单开具与作废         |
+| `/ar/invoices/[id]`          | 账单文档 —— 明细与回款，可打印或另存为 PDF               |
 | `/reports`                   | 经营 —— 出租率 · ADR · RevPAR、渠道拆解（经理）          |
 | `/reports/journal`           | 结账分录 —— 按代码的营收与税额、收款、账目对账（经理）   |
 | `/pos-outlets`               | POS 门店 —— 密钥发放 · 换发 · 停用（经理）               |

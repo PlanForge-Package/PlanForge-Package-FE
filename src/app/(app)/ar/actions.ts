@@ -69,10 +69,26 @@ export async function recordPaymentAction(
   const description = String(formData.get('description') ?? '').trim();
   if (!description) return actionError('적요를 입력해 주세요.', values);
 
+  /*
+   * 배분 방식.
+   *
+   * `auto` 는 만기가 빠른 청구서부터 채우고, `none` 은 잔액만 줄인다. 특정
+   * 청구서를 고르면 그 한 장에만 붙인다 — 거래처가 어느 건을 냈는지 알려 주는
+   * 경우가 흔하다.
+   */
+  const apply = String(formData.get('apply') ?? 'none');
+  const body: Record<string, unknown> = { amount, description };
+  if (apply === 'auto') {
+    body.autoApply = 'true';
+  } else if (apply !== 'none') {
+    body.allocations = [{ invoiceId: apply, amount }];
+  }
+
+  let result: { unapplied: string };
   try {
-    await apiFetch('be', `/api/ar/accounts/${encodeURIComponent(accountId)}/payments`, {
+    result = await apiFetch('be', `/api/ar/accounts/${encodeURIComponent(accountId)}/payments`, {
       method: 'POST',
-      json: { amount, description },
+      json: body,
     });
   } catch (error) {
     return actionError(backendMessage(error, '입금을 기록하지 못했습니다.'), values);
@@ -80,7 +96,15 @@ export async function recordPaymentAction(
 
   revalidatePath(`/ar/${accountId}`);
   revalidatePath('/ar');
-  return actionSuccess(`입금 ${amount.toLocaleString('ko-KR')}원을 기록했습니다.`);
+
+  const unapplied = Number(result.unapplied);
+  return actionSuccess(
+    unapplied > 0 && apply !== 'none'
+      ? `입금 ${amount.toLocaleString('ko-KR')}원을 기록했습니다. ${unapplied.toLocaleString(
+          'ko-KR',
+        )}원은 붙일 청구서가 없어 잔액으로 남았습니다.`
+      : `입금 ${amount.toLocaleString('ko-KR')}원을 기록했습니다.`,
+  );
 }
 
 export async function createInvoiceAction(

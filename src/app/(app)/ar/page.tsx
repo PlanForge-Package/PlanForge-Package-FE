@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
+import { ArAgingPanel } from '@/components/ar-aging';
 import { ArAccountsPanel } from '@/components/ar-panels';
 import { EmptyState, ErrorNotice } from '@/components/notice';
 import { PageHeader } from '@/components/page-header';
 import { apiFetch, tryFetch } from '@/lib/api';
 import { requireUser } from '@/lib/auth';
 import { getPropertyContext } from '@/lib/property';
-import type { ArAccountList } from '@/lib/types';
+import type { ArAccountList, ArAging } from '@/lib/types';
 
 /** 거래처 등록은 채권 관리라 지배인이 맡는다. */
 const CAN_MANAGE = ['ADMIN', 'MANAGER'];
@@ -39,9 +40,11 @@ export default async function ArPage() {
     );
   }
 
-  const accounts = await tryFetch(
-    apiFetch<ArAccountList>('be', '/api/ar/accounts', { query: { propertyId } }),
-  );
+  // 둘은 별개 호출이다. 하나가 실패해도 나머지는 보여준다.
+  const [accounts, aging] = await Promise.all([
+    tryFetch(apiFetch<ArAccountList>('be', '/api/ar/accounts', { query: { propertyId } })),
+    tryFetch(apiFetch<ArAging>('be', '/api/ar/aging', { query: { propertyId } })),
+  ]);
 
   return (
     <main className="flex flex-col gap-8">
@@ -62,6 +65,16 @@ export default async function ArPage() {
           data={accounts.data}
           canCreate={CAN_MANAGE.includes(user.role)}
         />
+      )}
+
+      {!aging.ok ? (
+        <ErrorNotice
+          title="연체 현황을 불러오지 못했습니다"
+          message={aging.message}
+          status={aging.status}
+        />
+      ) : (
+        <ArAgingPanel data={aging.data} />
       )}
     </main>
   );
