@@ -4,13 +4,13 @@ import { revalidatePath } from 'next/cache';
 import { actionError, actionSuccess, type ActionState } from '@/lib/action-state';
 import { apiFetch, backendMessage } from '@/lib/api';
 
-// 이 파일은 async 함수만 export 한다. 타입·상수는 @/lib/action-state 에 있다.
+// This file exports async functions only. Types and constants live in @/lib/action-state.
 
 /**
- * 노쇼 처리.
+ * No-show.
  *
- * 도착일이 지났는지·이미 들어온 손님은 아닌지 판단하는 것은 OPERA 다. 화면에서
- * 미리 막으면 규칙이 두 곳으로 갈라지고, 거절 사유도 OPERA 쪽이 더 정확하다.
+ * OPERA judges whether the arrival date has passed and whether the guest is already
+ * in. Blocking it on screen splits the rules, and OPERA's reason is more accurate.
  */
 export async function markNoShowAction(
   _prev: ActionState,

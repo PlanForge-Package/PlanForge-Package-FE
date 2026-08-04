@@ -67,9 +67,9 @@ export async function closeShiftAction(
   revalidatePath('/cashier');
 
   /*
-   * 차이가 있으면 성공 메시지에 그대로 적는다.
+   * A discrepancy is written into the success message as it is.
    *
-   * 마감은 됐지만 5천 원이 비었다는 사실이 화면 어딘가에만 있으면 그냥 넘어간다.
+   * If "closed, but 5,000 short" only lives somewhere on screen, it gets passed over.
    */
   const difference = Number(result.summary.difference ?? 0);
   if (difference === 0) {

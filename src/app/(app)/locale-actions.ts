@@ -5,11 +5,10 @@ import { revalidatePath } from 'next/cache';
 import { LOCALE_COOKIE, isLocale } from '@/lib/i18n/locales';
 
 /**
- * 화면 언어 변경.
+ * Screen language change.
  *
- * 쿠키에만 둔다 — 계정 설정으로 만들면 같은 계정을 함께 쓰는 프런트 데스크에서
- * 한 사람이 바꾼 언어가 다른 사람에게도 적용된다. 브라우저마다 다르게 두는 편이
- * 실제 사용에 맞는다.
+ * Kept in a cookie only — as an account setting, one person's choice would apply to
+ * everyone else sharing that front-desk account. Per browser fits actual use better.
  */
 export async function setLocaleAction(formData: FormData): Promise<void> {
   const locale = String(formData.get('locale') ?? '');

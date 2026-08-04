@@ -5,11 +5,11 @@ import { ApiError, apiFetch } from './api';
 import { getSessionToken, type SessionUser } from './session';
 
 /**
- * 현재 로그인한 사용자. 없거나 만료됐으면 로그인 화면으로 보낸다.
+ * The signed-in user. Missing or expired sends them to the login screen.
  *
- * 매 요청 BE 에 확인하는 이유: 토큰은 발급 후 8시간 유효하지만, 그 사이 계정이
- * 비활성화되거나 역할이 바뀔 수 있다. 토큰만 믿으면 해고된 직원이 남은 시간
- * 동안 계속 접근한다.
+ * Checked with BE on every request because a token is valid for eight hours, and in
+ * that time an account can be disabled or a role changed. Trusting the token alone
+ * lets a dismissed member of staff keep access for the rest of it.
  */
 export async function requireUser(returnTo?: string): Promise<SessionUser> {
   const token = await getSessionToken();
@@ -19,14 +19,14 @@ export async function requireUser(returnTo?: string): Promise<SessionUser> {
     return await apiFetch<SessionUser>('be', '/api/auth/me');
   } catch (error) {
     if (error instanceof ApiError && error.unauthorized) {
-      // 쿠키 삭제는 서버 컴포넌트에서 할 수 없다. /logout 핸들러가 지우고 넘긴다.
+      // A server component cannot delete cookies. The /logout handler clears them.
       redirect(logoutUrl(returnTo, 'expired'));
     }
     throw error;
   }
 }
 
-/** 로그인 여부만 필요한 곳. 리다이렉트하지 않는다. */
+/** For places that only need to know whether someone is signed in. No redirect. */
 export async function getUser(): Promise<SessionUser | null> {
   const token = await getSessionToken();
   if (!token) return null;
@@ -53,7 +53,7 @@ export function loginUrl(returnTo?: string, reason?: 'expired'): string {
   return withParams('/login', returnTo, reason);
 }
 
-/** 남아 있는 세션 쿠키까지 정리하고 로그인 화면으로 보낼 때 쓴다. */
+/** Used to clear a leftover session cookie and send them to the login screen. */
 export function logoutUrl(returnTo?: string, reason?: 'expired'): string {
   return withParams('/logout', returnTo, reason);
 }

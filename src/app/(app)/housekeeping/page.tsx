@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   title: '하우스키핑 — PlanForge',
 };
 
-/** 배정과 작업 생성은 매니저·프론트데스크가 한다. */
+/** Assignment and task creation are for managers and the front desk. */
 const CAN_MANAGE = ['ADMIN', 'MANAGER', 'FRONT_DESK'];
 
 const DISCREPANCY_LABELS: Record<Discrepancy['kind'], string> = {
@@ -53,7 +53,7 @@ export default async function HousekeepingPage({
     );
   }
 
-  // 담당자 목록은 배정 권한이 있을 때만 필요하다. 없으면 부르지 않는다.
+  // The assignee list is only needed with assignment rights. Without them it is not called.
   const [tasks, discrepancies, attendants] = await Promise.all([
     tryFetch(
       apiFetch<TaskListResponse>('be', '/api/housekeeping/tasks', {
@@ -67,8 +67,8 @@ export default async function HousekeepingPage({
           }),
         )
       : Promise.resolve(null),
-    // 계정 목록은 ADMIN 전용이라 매니저가 부를 수 없다. 배정에 필요한
-    // 최소 정보만 주는 전용 엔드포인트를 쓴다.
+    // The account list is admin-only and a manager cannot call it. A dedicated endpoint
+    // gives just the minimum needed to assign.
     canManage
       ? tryFetch(
           apiFetch<AttendantResponse>('be', '/api/housekeeping/attendants', {

@@ -11,13 +11,13 @@ import type { DailyTraceList, ReservationListResponse } from '@/lib/types';
 export const dynamic = 'force-dynamic';
 
 export default async function DashboardPage() {
-  // Property 를 고르는 UI 가 아직 없으므로, 전체 예약에서 상태별로 집계한다.
-  // Property 선택이 들어오면 BE 의 /api/reservations/summary 로 바꾼다.
+  // There is no property picker UI yet, so the counts come from all reservations by status.
+  // Once a property selection exists this moves to BE's /api/reservations/summary.
   const user = await requireUser('/');
   const property = await getPropertyContext(user);
   const { t } = await getDictionary();
 
-  // 지시 조회가 실패해도 현황은 보여야 한다. 별개 호출인 이유가 이것이다.
+  // A failed instruction read must not hide the overview. That is why they are separate calls.
   const [result, traces] = await Promise.all([
     tryFetch(
       apiFetch<ReservationListResponse>('be', '/api/reservations', {

@@ -10,13 +10,13 @@ import type { Folio, FolioRouting } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
 
 /**
- * 라우팅 지시.
+ * Routing instructions.
  *
- * 회사가 객실료를 내고 손님이 부대비용을 내는 편성이 흔하다. 요금이 붙을
- * 때마다 사람이 옮기면 반드시 빠뜨리는 것이 생기므로 목적지를 미리 정해 둔다.
+ * The company paying the room and the guest paying extras is a common split. Moving
+ * each charge by hand always misses some, so the destination is decided up front.
  *
- * 프런트가 창구를 지정해 올리는 거래에는 적용되지 않는다 — 지정한 곳으로
- * 간다. 적용 대상은 외부 POS 룸차지처럼 창구를 모르는 채 들어오는 요금이다.
+ * It does not apply to charges the front desk posts to a chosen window — those land
+ * where they were sent. It applies to charges that arrive without one, like POS.
  */
 export function FolioRoutingPanel({
   reservationId,
@@ -36,7 +36,7 @@ export function FolioRoutingPanel({
     IDLE,
   );
 
-  // 해제는 목록에서 줄이 사라지는 동작이라 확인이 더 필요하다.
+  // Releasing removes a row from the list and needs more confirmation.
   const state = removeState.status !== 'idle' ? removeState : setState;
 
   const openWindows = folios.filter((folio) => folio.status === 'OPEN');

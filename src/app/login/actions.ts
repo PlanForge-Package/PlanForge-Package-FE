@@ -11,7 +11,7 @@ interface LoginResponse {
   user: SessionUser;
 }
 
-/** 열린 리다이렉트를 막는다. 외부 주소나 프로토콜 상대 경로는 받지 않는다. */
+/** Guards against an open redirect. External addresses and protocol-relative paths are refused. */
 function safeNext(value: FormDataEntryValue | null): string {
   const next = String(value ?? '');
   return next.startsWith('/') && !next.startsWith('//') ? next : '/';
@@ -37,7 +37,7 @@ export async function loginAction(_prev: ActionState, formData: FormData): Promi
 
   await setSessionToken(result.accessToken, result.expiresAt);
 
-  // redirect 는 예외를 던져 흐름을 끊으므로 try 밖에서 부른다.
+  // redirect throws to break the flow, so it is called outside the try.
   redirect(safeNext(formData.get('next')));
 }
 

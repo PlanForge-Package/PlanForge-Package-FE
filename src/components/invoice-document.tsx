@@ -22,13 +22,13 @@ function date(value: string | null): string {
 }
 
 /**
- * 거래처에 보내는 청구서.
+ * The invoice sent to an account.
  *
- * 화면에서 바로 인쇄하거나 PDF 로 저장한다. 별도 문서 생성기를 두지 않은 이유는
- * 청구 내역이 이미 화면에 있는 것과 같은 값이어야 하기 때문이다 — 두 곳에서
- * 만들면 언젠가 다른 금액을 보낸다.
+ * Printed or saved as a PDF straight from the screen. There is no separate document
+ * generator because the billed lines have to be the same values already on screen —
+ * built in two places, they eventually send different amounts.
  *
- * 인쇄에서는 화면용 장식을 감춘다(`print:hidden`).
+ * Screen-only decoration is hidden when printing (`print:hidden`).
  */
 export function InvoiceDocument({ invoice }: { invoice: ArInvoiceDetail }) {
   const currency = invoice.currency || invoice.property.currency || 'KRW';

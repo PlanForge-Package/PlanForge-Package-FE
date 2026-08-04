@@ -5,11 +5,11 @@ import { actionError, actionSuccess, formValues, type ActionState } from '@/lib/
 import { apiFetch, backendMessage } from '@/lib/api';
 import type { PostingType } from '@/lib/types';
 
-// 이 파일은 async 함수만 export 한다. 타입·상수는 @/lib/action-state 에 있다.
+// This file exports async functions only. Types and constants live in @/lib/action-state.
 
 const POSTING_TYPES: PostingType[] = ['CHARGE', 'PAYMENT', 'ADJUSTMENT', 'TAX'];
 
-/** 폼 값은 전부 문자열로 오므로 서버에서도 한 번 더 검증한다. */
+/** Form values all arrive as strings, so the server validates them again. */
 function readAmount(raw: FormDataEntryValue | null): number | string {
   const text = String(raw ?? '').trim();
   if (!text) return '금액을 입력해 주세요.';
@@ -128,7 +128,7 @@ export async function openFolioAction(
   return actionSuccess('폴리오 윈도를 열었습니다.');
 }
 
-/** 폼 값에서 날짜를 읽는다. 비어 있으면 "변경 없음" 으로 본다. */
+/** Reads a date from the form. Empty is treated as "no change". */
 function optionalDate(
   raw: FormDataEntryValue | null,
   label: string,
@@ -229,7 +229,7 @@ export async function cancelReservationAction(
   revalidatePath(`/reservations/${reservationId}`);
   revalidatePath('/reservations');
 
-  // 물린 금액을 말하지 않으면 손님에게 설명할 수 없다.
+  // Without stating the amount charged there is nothing to tell the guest.
   const penalty = Number(cancelled.cancellationPenalty ?? 0);
   return actionSuccess(
     penalty > 0
@@ -238,7 +238,7 @@ export async function cancelReservationAction(
   );
 }
 
-/** 보증 방식 변경. 노쇼를 어떻게 다룰지가 여기서 갈린다. */
+/** Guarantee change. It decides how a no-show is handled. */
 export async function setGuaranteeAction(
   reservationId: string,
   _prev: ActionState,
@@ -261,10 +261,10 @@ export async function setGuaranteeAction(
 }
 
 /**
- * 보증금 수납.
+ * Deposit receipt.
  *
- * 도착 전이라 청구는 없지만 그 돈은 이미 우리에게 있다. 폴리오에 결제로 올려
- * 두어야 체크인 때 두 번 받지 않는다.
+ * There is no charge yet before arrival, but the money is already ours. Posting it
+ * as a folio payment is what stops us taking it twice at check-in.
  */
 export async function recordDepositAction(
   reservationId: string,
@@ -289,7 +289,7 @@ export async function recordDepositAction(
         amount,
         method,
         description: String(formData.get('description') ?? '').trim() || undefined,
-        // 같은 화면에서 두 번 눌러도 한 번만 받는다.
+        // Pressing twice on the same screen still takes it once.
         reference: `DEP-${reservationId}-${amount}-${String(formData.get('nonce') ?? '')}`,
       },
     });
@@ -302,10 +302,10 @@ export async function recordDepositAction(
 }
 
 /**
- * 대기 확정.
+ * Waitlist confirmation.
  *
- * 자리가 났는지는 확정하는 순간 OPERA 가 세어 본다. 그 사이 다른 대기 건이
- * 먼저 확정됐으면 여기서 거절이 돌아온다.
+ * OPERA counts availability at the moment of confirming. If another waitlisted
+ * booking was confirmed in between, the rejection comes back here.
  */
 export async function confirmWaitlistAction(
   reservationId: string,
@@ -331,10 +331,10 @@ export async function confirmWaitlistAction(
 }
 
 /**
- * 객실 공유.
+ * Room share.
  *
- * 겹치는 기간·같은 객실 타입인지, 이미 다른 방에 들어가 있지는 않은지는
- * OPERA 가 본다 — 재고와 객실 배정을 아는 쪽이 판단해야 한다.
+ * Whether the dates overlap, the room types match and neither is already in another
+ * room is OPERA's call — the side that knows inventory and assignment has to decide.
  */
 export async function shareReservationAction(
   reservationId: string,

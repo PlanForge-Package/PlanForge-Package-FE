@@ -9,10 +9,10 @@ import { ActionMessage, SubmitButton } from './action-feedback';
 import { DEPARTMENT_LABELS } from './trace-panel';
 
 /**
- * 오늘 처리해야 할 지시.
+ * Instructions due today.
  *
- * 예약 상세에만 두면 그 예약을 열어 보는 사람만 본다. 아침에 부서가 여는
- * 화면에 있어야 지시가 실제로 전달된다.
+ * On the reservation detail alone, only whoever opens that reservation sees them.
+ * They have to be on the screen a department opens in the morning to be delivered.
  */
 export function DailyTraces({ traces }: { traces: ReservationTrace[] }) {
   const [state, action] = useActionState<ActionState, FormData>(completeTraceAction, IDLE);

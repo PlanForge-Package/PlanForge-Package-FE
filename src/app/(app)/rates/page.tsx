@@ -7,7 +7,7 @@ import { requireUser } from '@/lib/auth';
 import { getPropertyContext } from '@/lib/property';
 import type { RatePackageList, RatePlanConfigList, RoomType } from '@/lib/types';
 
-/** 요금 설정은 매출에 직결된다. 지배인 이상만 고친다. */
+/** Rate setup moves revenue directly. Managers and above only. */
 const CAN_MANAGE = ['ADMIN', 'MANAGER'];
 
 export const dynamic = 'force-dynamic';
@@ -39,7 +39,7 @@ export default async function RatesPage() {
     );
   }
 
-  // 셋은 별개 호출이다. 하나가 실패해도 나머지는 보여준다.
+  // The three are separate calls. One failing still shows the rest.
   const [plans, packages, roomTypes] = await Promise.all([
     tryFetch(apiFetch<RatePlanConfigList>('be', '/api/rates/plans', { query: { propertyId } })),
     tryFetch(apiFetch<RatePackageList>('be', '/api/rates/packages', { query: { propertyId } })),

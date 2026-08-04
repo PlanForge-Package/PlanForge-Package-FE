@@ -34,7 +34,7 @@ export default async function JournalPage({
   searchParams: Promise<{ date?: string }>;
 }) {
   const params = await searchParams;
-  // 오늘은 아직 끝나지 않았다. 마감은 보통 어제 것을 본다.
+  // Today is not over yet. A close normally looks at yesterday.
   const date = params.date ?? day(-1);
 
   const user = await requireUser('/reports/journal');

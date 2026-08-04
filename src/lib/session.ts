@@ -3,10 +3,10 @@ import 'server-only';
 import { cookies } from 'next/headers';
 
 /**
- * 세션 쿠키.
+ * Session cookie.
  *
- * 토큰을 localStorage 가 아니라 httpOnly 쿠키에 둔다 — XSS 가 한 번이라도 성공하면
- * localStorage 의 토큰은 그대로 유출되지만, httpOnly 쿠키는 스크립트가 읽지 못한다.
+ * The token lives in an httpOnly cookie rather than localStorage — one successful XSS
+ * leaks a localStorage token outright, while a script cannot read an httpOnly cookie.
  */
 export const SESSION_COOKIE = 'planforge_session';
 
@@ -23,7 +23,7 @@ export async function getSessionToken(): Promise<string | null> {
   return store.get(SESSION_COOKIE)?.value ?? null;
 }
 
-/** 로그인 성공 시 호출. 서버 액션·라우트 핸들러에서만 쓸 수 있다. */
+/** Called on successful login. Usable only from server actions and route handlers. */
 export async function setSessionToken(token: string, expiresAt: string): Promise<void> {
   const store = await cookies();
   const expires = new Date(expiresAt);
@@ -31,7 +31,7 @@ export async function setSessionToken(token: string, expiresAt: string): Promise
   store.set(SESSION_COOKIE, token, {
     httpOnly: true,
     sameSite: 'lax',
-    // 로컬 개발은 http 라 secure 를 강제하면 쿠키가 아예 저장되지 않는다.
+    // Local development is http, and forcing secure would stop the cookie being stored at all.
     secure: process.env.NODE_ENV === 'production',
     path: '/',
     expires: Number.isNaN(expires.getTime()) ? undefined : expires,

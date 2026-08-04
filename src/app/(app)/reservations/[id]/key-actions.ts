@@ -5,7 +5,7 @@ import { actionError, actionSuccess, type ActionState } from '@/lib/action-state
 import { apiFetch, backendMessage } from '@/lib/api';
 import type { RoomKey } from '@/lib/types';
 
-// 이 파일은 async 함수만 export 한다. 타입·상수는 @/lib/action-state 에 있다.
+// This file exports async functions only. Types and constants live in @/lib/action-state.
 
 function text(formData: FormData, field: string): string {
   return String(formData.get(field) ?? '').trim();
@@ -15,7 +15,7 @@ export async function issueKeyAction(_prev: ActionState, formData: FormData): Pr
   const reservationId = text(formData, 'reservationId');
   if (!reservationId) return actionError('대상 예약을 찾을 수 없습니다.');
 
-  // 체크박스는 켜진 것만 온다. 기본은 이전 카드를 죽이는 쪽이다.
+  // Only checked boxes arrive. The default is to kill the previous card.
   const replaceExisting = formData.get('keepExisting') !== 'on';
 
   let key: RoomKey;

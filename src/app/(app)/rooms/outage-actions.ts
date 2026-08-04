@@ -8,7 +8,7 @@ import type { RoomOutageKind, RoomStatus } from '@/lib/types';
 const KINDS: RoomOutageKind[] = ['OUT_OF_ORDER', 'OUT_OF_SERVICE'];
 const RETURN_STATUSES: RoomStatus[] = ['CLEAN', 'DIRTY', 'INSPECTED'];
 
-/** 실패해도 입력을 되돌려 주기 위해 되짚는 필드. */
+/** Fields traced back so the input can be returned on failure. */
 const FIELDS = ['roomNumber', 'kind', 'startDate', 'endDate', 'reason', 'returnStatus'];
 
 export async function createOutageAction(
@@ -16,10 +16,10 @@ export async function createOutageAction(
   formData: FormData,
 ): Promise<ActionState> {
   /*
-   * 실패하면 입력값을 그대로 돌려준다.
+   * On failure the input comes back as it was.
    *
-   * React 19 는 폼 액션이 끝나면 비제어 입력을 초기화한다. 값을 돌려주지 않으면
-   * 날짜와 사유를 다 채운 폼이 오류 한 줄만 남기고 비워진다.
+   * React 19 resets uncontrolled inputs when a form action finishes. Without returning
+   * them, a form with dates and a reason filled in is emptied by a one-line error.
    */
   const values = formValues(formData, FIELDS);
 

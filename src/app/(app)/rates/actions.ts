@@ -5,10 +5,10 @@ import { actionError, actionSuccess, formValues, type ActionState } from '@/lib/
 import { apiFetch, backendMessage } from '@/lib/api';
 
 /**
- * 객실 타입별 금액을 폼에서 읽는다.
+ * Reads the per-room-type amounts from the form.
  *
- * 입력은 `amount:STDT` 처럼 코드를 이름에 담아 온다. 비운 칸은 "그 타입은 팔지
- * 않는다" 는 뜻이라 빼고 보낸다 — 0 으로 보내면 공짜로 파는 것이 된다.
+ * Inputs carry the code in their name, like `amount:STDT`. A blank box means "this
+ * type is not sold" and is omitted — sending 0 would sell it free.
  */
 function readAmounts(formData: FormData): Record<string, number> | string {
   const amounts: Record<string, number> = {};
@@ -100,8 +100,8 @@ export async function updateRatePlanAction(
     body.sellEndDate = sellEndDate;
   }
 
-  // 금액 칸이 하나라도 오면 금액을 통째로 다시 보낸다. 부분 수정은 없다 —
-  // 어떤 타입을 더 이상 팔지 않는지도 이 목록으로 정해진다.
+  // One amount box arriving resends the whole amount table. There is no partial edit —
+  // which types are no longer sold is decided by this list as well.
   if ([...formData.keys()].some((key) => key.startsWith('amount:'))) {
     const baseAmounts = readAmounts(formData);
     if (typeof baseAmounts === 'string') return actionError(baseAmounts);

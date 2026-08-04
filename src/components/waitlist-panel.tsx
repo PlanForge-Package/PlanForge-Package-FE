@@ -7,15 +7,15 @@ import type { ReservationStatus } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
 
 /**
- * 대기 확정.
+ * Waitlist confirmation.
  *
- * 대기 예약은 재고를 차지하지 않는다. 자리가 났는지는 확정하는 순간 OPERA 가
- * 세어 보므로, 여기서 미리 판단해 버튼을 감추지 않는다 — 그 사이 다른 대기
- * 건이 먼저 확정됐을 수도 있고, 그 사실은 눌러 봐야 알 수 있다.
+ * A waitlisted reservation holds no inventory. OPERA counts availability at the
+ * moment of confirming, so the button is not hidden on a guess here — another
+ * waitlisted booking may have been confirmed first, and only pressing it tells you.
  *
- * 확정하면 대기 상태가 풀려 이 패널을 감춰야 하는데, 그대로 사라지면 결과
- * 메시지도 함께 사라진다. 확정한 사람이 무엇이 일어났는지 알 수 없으므로,
- * 대기가 아니게 된 뒤에도 마지막 결과는 남긴다.
+ * Confirming clears the waitlist state and should hide this panel, but disappearing
+ * would take the result message with it. Whoever confirmed would not know what
+ * happened, so the last result stays even once it is no longer waitlisted.
  */
 export function WaitlistPanel({
   reservationId,

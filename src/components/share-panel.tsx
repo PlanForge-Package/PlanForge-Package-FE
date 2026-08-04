@@ -18,14 +18,14 @@ function guestName(reservation: Reservation): string {
 }
 
 /**
- * 객실 공유.
+ * Room share.
  *
- * 두 손님이 한 방을 쓰되 계산은 따로 하는 편성이다. 예약은 둘이어도 객실은
- * 하나이므로 재고도 하나만 차지한다.
+ * Two guests in one room settling separately. Two reservations but one room, so they
+ * consume a single unit of inventory.
  *
- * 묶을 수 있는지는 우리가 판단하지 않는다 — 겹치는 기간·같은 객실 타입인지,
- * 이미 다른 방에 들어가 있지는 않은지는 재고와 배정을 아는 OPERA 가 본다.
- * 여기서는 고를 만한 후보만 추려 보여 준다.
+ * We do not decide whether they can be grouped — overlapping dates, matching room
+ * types and whether either is already in another room are OPERA's call, since it
+ * knows inventory and assignment. This only shortlists the candidates.
  */
 export function SharePanel({
   reservationId,
@@ -48,8 +48,8 @@ export function SharePanel({
   );
 
   /*
-   * 해제하면 이 패널의 모습이 바뀌므로 그 결과를 우선 보여 준다.
-   * 묶기 결과는 목록이 늘어난 것으로도 확인되지만, 해제는 줄이 사라진다.
+   * Unsharing changes what this panel looks like, so its result takes priority.
+   * A share is also visible as a longer list, but an unshare makes a row disappear.
    */
   const state = unshareState.status !== 'idle' ? unshareState : shareState;
   const shared = Boolean(shareGroupId);

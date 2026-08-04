@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   title: '블록 상세 — PlanForge',
 };
 
-/** 수정은 재고를 잡는 행위라 지배인 이상이 한다. BE 도 같은 규칙으로 막는다. */
+/** Editing holds inventory, so managers and above. BE enforces the same rule. */
 const CAN_EDIT = ['ADMIN', 'MANAGER'];
 
 interface Props {
@@ -23,8 +23,8 @@ interface Props {
 }
 
 /**
- * 404 는 전용 화면으로 넘기고 나머지 실패는 페이지 안에서 안내한다.
- * BE 가 잠깐 죽었다고 "없는 블록" 으로 보이면 안 되기 때문이다.
+ * A 404 goes to its own screen; other failures are handled as a notice in the page.
+ * A brief BE outage must not look like "no such block".
  */
 async function loadBlock(
   id: string,
@@ -69,7 +69,7 @@ export default async function BlockDetailPage({ params }: Props) {
     );
   }
 
-  // 룸리스트는 실패해도 블록 정보는 보여준다. 별개 호출인 이유가 이것이다.
+  // A failed rooming list still shows the block. That is why they are separate calls.
   const rooming = await tryFetch(
     apiFetch<BlockRoomingList>('be', `/api/blocks/${encodeURIComponent(id)}/reservations`),
   );
@@ -114,7 +114,7 @@ export default async function BlockDetailPage({ params }: Props) {
           status={data.status}
           name={data.name}
           cutoffDate={data.cutoffDate}
-          // 객실 타입은 일자마다 반복된다. 조정은 타입 단위이므로 하나만 남긴다.
+          // Room types repeat per date. Adjustments are per type, so only one is kept.
           rates={[
             ...new Map(
               data.allotments.map((slot) => [

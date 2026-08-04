@@ -5,7 +5,7 @@ import { actionError, actionSuccess, formValues, type ActionState } from '@/lib/
 import { apiFetch, backendMessage } from '@/lib/api';
 import type { Payment } from '@/lib/types';
 
-// 이 파일은 async 함수만 export 한다. 타입·상수는 @/lib/action-state 에 있다.
+// This file exports async functions only. Types and constants live in @/lib/action-state.
 
 const KEEP = ['amount', 'description', 'paymentToken'];
 
@@ -39,10 +39,10 @@ export async function authorizePaymentAction(
   }
 
   /*
-   * 멱등키는 화면이 만든다.
+   * The screen makes the idempotency key.
    *
-   * 서버에서 만들면 재전송인지 새 결제인지 구분할 수 없다. 폼이 열려 있는 동안
-   * 같은 값을 유지해야 "결제" 를 두 번 눌러도 한 번만 긁힌다.
+   * Made on the server, a resend cannot be told from a new payment. Holding the same
+   * value while the form is open is what makes pressing "pay" twice charge once.
    */
   const idempotencyKey = text(formData, 'idempotencyKey');
   if (!idempotencyKey) return fail('요청 키가 없습니다. 화면을 새로 고친 뒤 다시 시도해 주세요.');

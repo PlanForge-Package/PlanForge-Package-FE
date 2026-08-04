@@ -19,12 +19,12 @@ export default async function UsersPage({
 }) {
   const { q, includeInactive } = await searchParams;
 
-  // 레이아웃에서 이미 인증은 끝났지만, 여기서는 "누가" 인지가 필요하다 —
-  // 자기 자신에게는 역할 변경·퇴사 버튼을 내주지 않기 위해서다.
+  // The layout already authenticated, but here we need to know *who* —
+  // so the role-change and deactivate buttons are not offered on your own row.
   const me = await requireUser('/users');
   const showInactive = includeInactive === '1';
 
-  // 소속을 지정하려면 고를 수 있는 호텔 목록이 필요하다.
+  // Assigning a property needs the list of hotels to choose from.
   const properties = await tryFetch(apiFetch<Property[]>('be', '/api/properties'));
   const propertyOptions = properties.ok ? properties.data : [];
 

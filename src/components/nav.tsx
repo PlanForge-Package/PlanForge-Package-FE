@@ -13,31 +13,31 @@ import { PropertySwitcher } from './property-switcher';
 
 interface NavLink {
   href: string;
-  /** 사전에서 이름을 찾을 키. 화면 언어에 따라 달라진다. */
+  /** Dictionary key for the label. It changes with the screen language. */
   key: keyof Dictionary['nav'];
-  /** 이 역할들만 메뉴에 보인다. 비우면 모두에게 보인다. */
+  /** Only these roles see the menu item. Empty shows it to everyone. */
   roles?: SessionUser['role'][];
 }
 
 const LINKS: NavLink[] = [
   { href: '/', key: 'dashboard' },
-  // 하우스키핑은 BE 에서 예약 접근이 403 이므로 메뉴에서도 감춘다.
-  // 감추는 것은 편의일 뿐이고, 실제 차단은 BE 가 한다.
+  // Housekeeping gets a 403 on reservations from BE, so it is hidden from the menu too.
+  // Hiding is only convenience; BE does the actual blocking.
   { href: '/reservations', key: 'reservations', roles: ['ADMIN', 'MANAGER', 'FRONT_DESK'] },
   { href: '/blocks', key: 'blocks', roles: ['ADMIN', 'MANAGER', 'FRONT_DESK'] },
   { href: '/profiles', key: 'profiles', roles: ['ADMIN', 'MANAGER', 'FRONT_DESK'] },
   { href: '/rooms', key: 'rooms' },
-  // 무엇을 얼마에 파는지. 프런트도 봐야 예약을 받는다.
+  // What sells at what price. The front desk needs it to take bookings.
   { href: '/rates', key: 'rates', roles: ['ADMIN', 'MANAGER', 'FRONT_DESK'] },
   { href: '/housekeeping', key: 'housekeeping' },
   { href: '/night-audit', key: 'nightAudit', roles: ['ADMIN', 'MANAGER', 'FRONT_DESK'] },
-  // 돈을 받는 사람이 자기 조를 마감한다.
+  // Whoever takes the money closes their own shift.
   { href: '/cashier', key: 'cashier', roles: ['ADMIN', 'MANAGER', 'FRONT_DESK'] },
-  // 후불 거래처의 미수와 청구. 프런트도 이관 대상을 확인해야 한다.
+  // Direct-bill receivables and invoices. The front desk checks what to transfer.
   { href: '/ar', key: 'ar', roles: ['ADMIN', 'MANAGER', 'FRONT_DESK'] },
-  // 매출 지표는 경영 정보다. 프런트데스크에게는 열지 않는다.
+  // Revenue metrics are management information. Not opened to the front desk.
   { href: '/reports', key: 'reports', roles: ['ADMIN', 'MANAGER'] },
-  // 아웃렛 키는 요금을 달 수 있는 자격이다. 지배인 이상만 다룬다.
+  // An outlet key is the right to post charges. Managers and above only.
   { href: '/pos-outlets', key: 'pos', roles: ['ADMIN', 'MANAGER'] },
   { href: '/users', key: 'users', roles: ['ADMIN'] },
 ];

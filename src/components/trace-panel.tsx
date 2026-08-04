@@ -22,11 +22,11 @@ const smallButton =
   'rounded-md border border-current/20 px-2.5 py-1 text-xs transition-colors hover:bg-current/5 disabled:cursor-not-allowed disabled:opacity-50';
 
 /**
- * 예약에 걸린 지시.
+ * Instructions attached to a reservation.
  *
- * "도착일 07:00 하우스키핑 — 유아용 침대" 처럼 특정 날짜에 특정 부서가 해야 할
- * 일이다. 예약 메모에 적어 두면 그 부서가 예약을 열어 보지 않는 한 아무도
- * 읽지 않는다.
+ * "07:00 on arrival, housekeeping — crib": work a given department must do on a
+ * given date. Written in the reservation notes, nobody reads it unless that
+ * department opens the reservation.
  */
 export function TracePanel({
   reservationId,
@@ -50,10 +50,10 @@ export function TracePanel({
   );
 
   /*
-   * 표시할 메시지는 마지막에 실행한 동작을 따른다.
+   * The message shown follows whichever action ran last.
    *
-   * 처리한 지시는 목록에서 상태만 바뀌고 거둔 지시는 사라지므로, 행이 상태를
-   * 들고 있으면 결과가 함께 사라진다.
+   * A completed instruction only changes status in the list while a withdrawn one
+   * disappears, so state held on the row would take the result with it.
    */
   const state =
     removeState.status !== 'idle'

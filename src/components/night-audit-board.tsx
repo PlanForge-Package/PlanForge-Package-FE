@@ -11,10 +11,10 @@ const smallButton =
   'rounded-md border border-current/20 px-2.5 py-1 text-xs transition-colors hover:bg-current/5 disabled:cursor-not-allowed disabled:opacity-50';
 
 /**
- * 마감 점검표.
+ * Close checklist.
  *
- * 노쇼 처리 액션 상태를 보드가 함께 들고 있다. 처리한 예약은 목록에서 빠지므로
- * 행에 상태를 묶으면 결과 메시지도 같이 사라진다.
+ * The board holds the no-show action state. A processed reservation leaves the list,
+ * so state tied to the row would take the result message with it.
  */
 export function NightAuditBoard({ sections }: { sections: AuditSection[] }) {
   const [state, action] = useActionState<ActionState, FormData>(markNoShowAction, IDLE);
@@ -171,7 +171,7 @@ export function NightAuditBoard({ sections }: { sections: AuditSection[] }) {
   );
 }
 
-/** 노쇼 말고는 이 화면에서 직접 처리하지 않는다. 어디서 하는지만 알려 준다. */
+/** Nothing but no-shows is handled from this screen. It only says where to do the rest. */
 const LINKS: Partial<Record<AuditSection['kind'], string>> = {
   DEPARTURE_PENDING: '예약 상세에서 체크아웃',
   IN_HOUSE_UNASSIGNED: '예약 상세에서 객실 배정',

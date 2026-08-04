@@ -3,10 +3,10 @@
 import { useEffect } from 'react';
 
 /**
- * 라우트 렌더링 중 처리되지 않은 예외를 받는 마지막 그물.
+ * The last net for unhandled exceptions while rendering a route.
  *
- * 프로덕션 빌드에서는 Next 가 메시지를 지우고 digest 만 남기므로, 사용자에게는
- * 다시 시도할 방법을 주고 digest 를 함께 보여 로그와 대조할 수 있게 한다.
+ * Production builds have the message stripped by Next, leaving a digest, so the user
+ * gets a way to retry and the digest to match against the logs.
  */
 export default function RouteError({
   error,

@@ -8,7 +8,7 @@ import { requireUser } from '@/lib/auth';
 import { getPropertyContext } from '@/lib/property';
 import type { ArAccountList, ArAging } from '@/lib/types';
 
-/** 거래처 등록은 채권 관리라 지배인이 맡는다. */
+/** Registering accounts is receivables management, so a manager owns it. */
 const CAN_MANAGE = ['ADMIN', 'MANAGER'];
 
 export const dynamic = 'force-dynamic';
@@ -40,7 +40,7 @@ export default async function ArPage() {
     );
   }
 
-  // 둘은 별개 호출이다. 하나가 실패해도 나머지는 보여준다.
+  // The two are separate calls. One failing still shows the other.
   const [accounts, aging] = await Promise.all([
     tryFetch(apiFetch<ArAccountList>('be', '/api/ar/accounts', { query: { propertyId } })),
     tryFetch(apiFetch<ArAging>('be', '/api/ar/aging', { query: { propertyId } })),

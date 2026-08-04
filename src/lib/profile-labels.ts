@@ -1,10 +1,10 @@
 import type { DuplicateReason, MembershipTier, ProfileType } from './types';
 
 /**
- * 선호 코드의 표기.
+ * Wording for preference codes.
  *
- * 코드는 BE 가 정하고 표기는 화면이 맡는다. 자유 텍스트로 저장하면 "고층"·
- * "높은 층"·"high floor" 가 뒤섞여 배정할 때 아무도 걸러낼 수 없다.
+ * BE defines the codes and the screen supplies the wording. Stored as free text,
+ * "high floor" and "upper floor" mix and nobody can filter at assignment time.
  */
 export const PREFERENCE_LABELS: Record<string, string> = {
   HIGH_FLOOR: '고층',

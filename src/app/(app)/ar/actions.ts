@@ -42,7 +42,7 @@ export async function createAccountAction(
         propertyId,
         code,
         name,
-        // 비우면 한도 없음이다. 0 과 구분해야 한다.
+        // Empty means no limit. It has to be distinguishable from 0.
         ...(rawLimit ? { creditLimit: Number(rawLimit) } : {}),
         ...(rawTerm ? { termDays: Number(rawTerm) } : {}),
         ...(billingEmail ? { billingEmail } : {}),
@@ -70,11 +70,11 @@ export async function recordPaymentAction(
   if (!description) return actionError('적요를 입력해 주세요.', values);
 
   /*
-   * 배분 방식.
+   * Allocation mode.
    *
-   * `auto` 는 만기가 빠른 청구서부터 채우고, `none` 은 잔액만 줄인다. 특정
-   * 청구서를 고르면 그 한 장에만 붙인다 — 거래처가 어느 건을 냈는지 알려 주는
-   * 경우가 흔하다.
+   * `auto` fills the earliest-due invoices first and `none` only lowers the balance.
+   * Naming one invoice applies it to that one alone — accounts commonly say which
+   * invoice they are settling.
    */
   const apply = String(formData.get('apply') ?? 'none');
   const body: Record<string, unknown> = { amount, description };
@@ -162,7 +162,7 @@ export async function updateInvoiceStatusAction(
   );
 }
 
-/** 폴리오 잔액을 거래처로 넘긴다. 예약 상세에서 쓴다. */
+/** Transfers a folio balance to an account. Used from the reservation detail. */
 export async function transferToArAction(
   reservationId: string,
   _prev: ActionState,

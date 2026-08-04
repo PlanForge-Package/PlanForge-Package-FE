@@ -35,7 +35,7 @@ function money(amount: string | null): string {
 const smallButton =
   'rounded-md border border-current/20 px-2.5 py-1 text-xs transition-colors hover:bg-current/5 disabled:cursor-not-allowed disabled:opacity-50';
 
-/** 거래처 목록과 등록. */
+/** Account list and registration. */
 export function ArAccountsPanel({
   propertyId,
   data,
@@ -89,8 +89,8 @@ export function ArAccountsPanel({
               type="number"
               name="creditLimit"
               min={0}
-              // 원 단위. step 을 크게 잡으면 그 배수가 아닌 금액이 브라우저 검증에
-              // 걸려 제출 자체가 조용히 막힌다.
+              // Won units. A large step makes any amount that is not a multiple fail
+              // browser validation and silently block submission.
               step={1}
               defaultValue={state.values?.creditLimit ?? ''}
               placeholder="비우면 한도 없음"
@@ -183,7 +183,7 @@ export function ArAccountsPanel({
   );
 }
 
-/** 거래처 상세 — 입금·청구서 발행과 원장. */
+/** Account detail — payments, invoicing and the ledger. */
 export function ArAccountDetailPanel({
   data,
   canManage,
@@ -205,13 +205,13 @@ export function ArAccountDetailPanel({
   );
 
   /*
-   * 마지막에 실행한 동작의 결과를 보여 준다.
+   * Shows the result of whichever action ran last.
    *
-   * 셋 다 같은 화면을 바꾸는데, 고정된 우선순위를 두면 앞선 동작의 오류가
-   * 방금 한 일의 결과를 가린다 — 입금을 기록했는데 조금 전 청구서 오류가
-   * 그대로 떠 있으면 입금이 실패한 것으로 읽힌다.
+   * All three change the same screen, and a fixed priority lets an earlier error hide
+   * what was just done — an invoice error still showing after a payment was recorded
+   * reads as if the payment failed.
    */
-  // 아직 다 받지 못한 청구서. 입금을 붙일 수 있는 대상이다.
+  // Invoices not yet fully paid. These are what a payment can be applied to.
   const open = data.invoices.filter(
     (invoice) =>
       invoice.status !== 'PAID' && invoice.status !== 'VOID' && Number(invoice.outstanding) > 0,

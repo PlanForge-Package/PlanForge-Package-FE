@@ -18,7 +18,7 @@ export function CreateOutletForm({ propertyId }: { propertyId: string }) {
   const [state, action] = useActionState<ActionState, FormData>(createOutletAction, IDLE);
   const [open, setOpen] = useState(false);
 
-  // 실패하면 액션이 돌려준 값을 다시 심는다. React 19 는 액션이 끝나면 비운다.
+  // On failure the values the action returned are re-seeded. React 19 clears them when it ends.
   const kept = state.status === 'error' ? state.values : undefined;
 
   if (!open) {
@@ -111,10 +111,10 @@ export function CreateOutletForm({ propertyId }: { propertyId: string }) {
 }
 
 /**
- * 아웃렛 목록.
+ * Outlet list.
  *
- * 재발급과 사용 중지의 액션 상태를 보드가 함께 들고 있다. 발급된 키는 이 메시지
- * 안에서만 볼 수 있으므로 행이 다시 그려져도 사라지면 안 된다.
+ * The board holds the reissue and deactivate action state. An issued key is visible
+ * only inside that message, so it must survive the row being redrawn.
  */
 export function OutletBoard({ outlets }: { outlets: PosOutlet[] }) {
   const [rotateState, rotate] = useActionState<ActionState, FormData>(rotateOutletKeyAction, IDLE);

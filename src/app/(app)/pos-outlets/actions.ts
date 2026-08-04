@@ -5,11 +5,11 @@ import { actionError, actionSuccess, formValues, type ActionState } from '@/lib/
 import { apiFetch, backendMessage } from '@/lib/api';
 import type { PosOutlet } from '@/lib/types';
 
-// 이 파일은 async 함수만 export 한다. 타입·상수는 @/lib/action-state 에 있다.
+// This file exports async functions only. Types and constants live in @/lib/action-state.
 
 interface IssuedKey {
   outlet: PosOutlet;
-  /** 발급 순간에만 존재한다. 저장은 해시로만 하므로 다시 볼 수 없다. */
+  /** Exists only at the moment of issue. Stored as a hash, it cannot be seen again. */
   apiKey: string;
 }
 
@@ -20,11 +20,11 @@ function text(formData: FormData, field: string): string {
 }
 
 /**
- * 발급된 키를 성공 메시지에 실어 보낸다.
+ * The issued key rides along in the success message.
  *
- * 다시 볼 수 없는 값이라 화면이 그 자리에서 보여 줘야 한다. 저장해 두었다가
- * 나중에 보여 주려면 평문으로 어딘가 남겨야 하고, 그러면 해시로 저장한 의미가
- * 사라진다.
+ * It cannot be seen again, so the screen has to show it there and then. Storing it to
+ * show later would mean keeping plaintext somewhere, which defeats hashing it in the
+ * first place.
  */
 export async function createOutletAction(
   _prev: ActionState,

@@ -5,10 +5,10 @@ import { actionError, actionSuccess, formValues, type ActionState } from '@/lib/
 import { apiFetch, backendMessage } from '@/lib/api';
 import type { Block, BlockStatus } from '@/lib/types';
 
-/** 실패했을 때 화면에 되돌려 줄 입력 필드. 수량은 배열이라 따로 다룬다. */
+/** Input fields handed back on failure. Counts are an array and handled separately. */
 const KEEP = ['code', 'name', 'startDate', 'endDate', 'cutoffDate', 'ratePlanCode'];
 
-// 이 파일은 async 함수만 export 한다. 타입·상수는 @/lib/action-state 에 있다.
+// This file exports async functions only. Types and constants live in @/lib/action-state.
 
 const BLOCK_STATUSES: BlockStatus[] = ['INQUIRY', 'TENTATIVE', 'DEFINITE', 'CANCELLED', 'ACTUAL'];
 
@@ -17,10 +17,10 @@ function text(formData: FormData, field: string): string {
 }
 
 /**
- * 객실 타입별 할당을 폼에서 읽는다.
+ * Reads the per-room-type allotments from the form.
  *
- * 0 은 "이 타입은 안 잡는다" 는 뜻이므로 보내지 않는다. 0 짜리 할당을 그대로
- * 넘기면 OPERA 에 빈 줄이 생기고 화면에도 의미 없는 행이 남는다.
+ * 0 means "do not hold this type", so it is not sent. Passing a zero allotment puts
+ * an empty line in OPERA and leaves a meaningless row on the screen.
  */
 function readAllotments(formData: FormData) {
   const codes = formData.getAll('roomTypeCode').map(String);
@@ -31,7 +31,7 @@ function readAllotments(formData: FormData) {
     .map((code, index) => ({
       roomTypeCode: code,
       blocked: counts[index] ?? 0,
-      // 협의 요금은 타입마다 다르다. 비우면 요금 코드가 정한 값으로 판다.
+      // Negotiated rates differ per type. Empty sells at the rate code's price.
       amount: Number(String(formData.get(`amount:${code}`) ?? '').trim()),
     }))
     .filter((slot) => slot.roomTypeCode && Number.isFinite(slot.blocked) && slot.blocked > 0)
@@ -46,10 +46,10 @@ export async function createBlockAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  // 실패는 전부 입력값을 되돌려 준다. 다시 채우게 하면 같은 실수를 반복한다.
+  // Every failure returns the input. Making them retype it repeats the same mistake.
   const kept = {
     ...formValues(formData, KEEP),
-    // 수량은 객실 타입 순서대로 온다. 화면이 같은 순서로 다시 심는다.
+    // Counts arrive in room-type order. The screen re-seeds them in the same order.
     blocked: formData.getAll('blocked').map(String).join(','),
   };
   const fail = (message: string) => actionError(message, kept);
@@ -116,10 +116,10 @@ export async function updateBlockAction(
   const cutoffDate = text(formData, 'cutoffDate');
 
   /*
-   * 협의 요금 조정.
+   * Negotiated rate change.
    *
-   * 비운 칸은 건드리지 않는다는 뜻이다. 0 으로 보내면 공짜로 파는 것이 되고,
-   * 이미 빠져나간 예약과 앞으로 빠질 예약의 값이 어긋난다.
+   * A blank box means leave it alone. Sending 0 would sell it free and split the price
+   * between bookings already picked up and those still to come.
    */
   const rates: Array<{ roomTypeCode: string; amount: number }> = [];
   for (const [key, value] of formData.entries()) {

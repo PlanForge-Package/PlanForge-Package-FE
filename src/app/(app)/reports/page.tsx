@@ -47,7 +47,7 @@ export default async function ReportsPage({
   searchParams: Promise<{ from?: string; to?: string }>;
 }) {
   const params = await searchParams;
-  // 기본은 지난 7일. 오늘은 아직 끝나지 않아 실적이 반쪽이라 어제까지 본다.
+  // Defaults to the last 7 days. Today is unfinished and only half counted, so it ends yesterday.
   const from = params.from ?? day(-7);
   const to = params.to ?? day(-1);
 

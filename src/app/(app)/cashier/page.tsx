@@ -36,7 +36,7 @@ export default async function CashierPage() {
     );
   }
 
-  // 지난 조 조회가 실패해도 지금 조는 다룰 수 있어야 한다. 별개 호출인 이유가 이것이다.
+  // A failed past-shift read must not block the current shift. That is why they are separate calls.
   const [current, history] = await Promise.all([
     tryFetch(apiFetch<CashierCurrent>('be', '/api/cashier/shifts/current')),
     tryFetch(

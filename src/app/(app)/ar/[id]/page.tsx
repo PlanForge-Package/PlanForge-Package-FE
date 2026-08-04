@@ -8,7 +8,7 @@ import { ApiError, apiFetch, backendMessage } from '@/lib/api';
 import { requireUser } from '@/lib/auth';
 import type { ArAccountDetail } from '@/lib/types';
 
-/** 입금 기록과 청구서 발행은 채권 관리라 지배인이 맡는다. */
+/** Recording payments and issuing invoices is receivables management, so a manager owns it. */
 const CAN_MANAGE = ['ADMIN', 'MANAGER'];
 
 export const dynamic = 'force-dynamic';

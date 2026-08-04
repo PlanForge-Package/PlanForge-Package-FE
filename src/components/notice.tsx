@@ -5,7 +5,7 @@ export function ErrorNotice({
 }: {
   title: string;
   message: string;
-  /** HTTP 상태. 안내 문구를 상황에 맞게 바꾼다. */
+  /** HTTP status. It tailors the wording to the situation. */
   status?: number;
 }) {
   return (
@@ -21,9 +21,9 @@ export function ErrorNotice({
 }
 
 /**
- * 상태별 다음 행동 안내.
+ * Suggests the next step per status.
  *
- * 권한 문제에 "BE 서버가 켜져 있는지 확인하세요" 라고 하면 엉뚱한 곳을 보게 된다.
+ * "Check that the BE server is running" on a permission problem sends them the wrong way.
  */
 function hintFor(status?: number): string {
   if (status === 403) return '이 화면에 접근할 권한이 없습니다. 관리자에게 문의해 주세요.';
@@ -34,10 +34,10 @@ function hintFor(status?: number): string {
 }
 
 /**
- * 오류가 아닌, 알아야 하는 상태.
+ * A state worth knowing about that is not an error.
  *
- * ErrorNotice 를 돌려쓰면 "BE 서버가 실행 중인지 확인하세요" 같은 복구 안내가
- * 따라붙어 정상 상태를 장애처럼 보이게 한다.
+ * Reusing ErrorNotice would attach recovery advice like "check that BE is running"
+ * and make a normal state look like an outage.
  */
 export function InfoNotice({ title, message }: { title: string; message: string }) {
   return (

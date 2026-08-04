@@ -10,14 +10,14 @@ import { RoomStatusBadge } from './status-badge';
 
 const STATUSES: RoomStatus[] = ['CLEAN', 'DIRTY', 'INSPECTED', 'OUT_OF_ORDER', 'OUT_OF_SERVICE'];
 
-/** 재실 중에는 고를 수 없는 상태. BE·OPERA 도 같은 규칙으로 거절한다. */
+/** Statuses unavailable while occupied. BE and OPERA refuse them by the same rule. */
 const BLOCKING: RoomStatus[] = ['OUT_OF_ORDER', 'OUT_OF_SERVICE'];
 
 /**
- * 객실 목록과 상태 변경.
+ * Room list and status change.
  *
- * 액션 상태를 표가 들고 있다. 상태를 바꾸면 목록이 다시 그려지는데, 각 행이
- * 상태를 들고 있으면 결과 메시지가 함께 사라진다.
+ * The table holds the action state. Changing a status redraws the list, and state on
+ * each row would take the result message with it.
  */
 export function RoomStatusPanel({ rooms }: { rooms: Room[] }) {
   const t = useI18n();
@@ -77,7 +77,7 @@ export function RoomStatusPanel({ rooms }: { rooms: Room[] }) {
                         <option
                           key={status}
                           value={status}
-                          // 눌러도 거절될 조합은 애초에 고를 수 없게 한다.
+                          // A combination that would be rejected is not offered in the first place.
                           disabled={room.occupied && BLOCKING.includes(status)}
                         >
                           {t.roomStatus[status]}

@@ -11,14 +11,14 @@ import { ActionMessage, SubmitButton } from './action-feedback';
 
 const inputClass = 'rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm';
 
-/** 이 상태에서만 예약 내용을 바꿀 수 있다. 체크인 이후는 프론트데스크 조작 영역이다. */
+/** Reservation details are editable only in these states. After check-in it is front-desk work. */
 const EDITABLE: ReservationStatus[] = ['RESERVED', 'CONFIRMED', 'WAITLISTED'];
 
 /**
- * 예약 수정·취소.
+ * Reservation edit and cancel.
  *
- * 두 액션의 상태를 이 컴포넌트가 함께 들고 있다. 취소에 성공하면 상태가 바뀌며
- * 폼이 사라지는데, 상태를 각 폼이 들고 있으면 결과 메시지도 함께 사라진다.
+ * Both action states live in this component. A successful cancel changes the status
+ * and removes the form; state on each form would take the result message with it.
  */
 export function ReservationEditPanel({
   reservationId,

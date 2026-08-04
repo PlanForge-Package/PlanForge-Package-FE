@@ -7,14 +7,14 @@ import type { ArAccount, Folio } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
 
 /**
- * 폴리오 잔액을 후불 거래처로 넘긴다.
+ * Transfers a folio balance to a direct-bill account.
  *
- * 회사가 내기로 한 요금은 손님에게 받지 않는다. 그 금액이 폴리오에서 빠져나와
- * 거래처 원장에 쌓이고, 월말에 청구한다.
+ * Charges the company agreed to pay are not taken from the guest. The amount leaves
+ * the folio, accumulates on the account ledger and is invoiced at month end.
  *
- * 넘기면 OPERA 폴리오에도 결제가 달려 잔액이 0 이 된다 — 폴리오만 비우고
- * 원장에 올리지 않으면 받을 돈이 사라지고, 원장에만 올리고 폴리오를 두면
- * 손님이 체크아웃하지 못한다.
+ * The transfer also posts a payment on the OPERA folio to bring it to zero —
+ * emptying only the folio loses the receivable, and raising only the ledger leaves
+ * the guest unable to check out.
  */
 export function ArTransferPanel({
   reservationId,
@@ -30,7 +30,7 @@ export function ArTransferPanel({
     IDLE,
   );
 
-  // 잔액이 남은 열린 창구만 넘길 수 있다. 없는 것을 고르게 두지 않는다.
+  // Only open windows with a balance can be transferred. Nothing else is offered.
   const transferable = folios.filter(
     (folio) => folio.status === 'OPEN' && Number(folio.balance) > 0,
   );

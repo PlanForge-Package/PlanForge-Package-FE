@@ -14,7 +14,7 @@ function readWindow(value: FormDataEntryValue | null): number | string {
   return parsed;
 }
 
-/** 거래를 다른 창구로 옮긴다. 양쪽 잔액은 BE 가 다시 센다. */
+/** Moves a transaction to another window. BE recounts both balances. */
 export async function transferPostingAction(
   reservationId: string,
   _prev: ActionState,
@@ -47,7 +47,7 @@ export async function setRoutingAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  // 실패해도 입력을 되돌려 준다. React 19 는 액션이 끝나면 비제어 입력을 비운다.
+  // The input comes back on failure. React 19 empties uncontrolled inputs when an action ends.
   const values = formValues(formData, ['transactionCode', 'targetWindow', 'note']);
 
   const transactionCode = String(formData.get('transactionCode') ?? '').trim();

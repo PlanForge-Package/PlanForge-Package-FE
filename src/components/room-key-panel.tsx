@@ -26,10 +26,10 @@ function moment(value: string): string {
 }
 
 /**
- * 객실 키.
+ * Room keys.
  *
- * 발급과 무효화의 액션 상태를 패널이 함께 들고 있다. 무효화한 카드는 표에서
- * 상태가 바뀌므로 행에 상태를 묶으면 결과 메시지가 사라진다.
+ * The panel holds both the issue and void action state. A voided card changes status
+ * in the table, so state tied to the row would take the result message with it.
  */
 export function RoomKeyPanel({ data }: { data: RoomKeyListResponse }) {
   const [issueState, issue] = useActionState<ActionState, FormData>(issueKeyAction, IDLE);

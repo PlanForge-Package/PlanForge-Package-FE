@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   title: '프로필 상세 — PlanForge',
 };
 
-/** 병합은 되돌리기 어렵다. 지배인 이상만 한다. BE 도 같은 규칙으로 막는다. */
+/** A merge is hard to undo. Managers and above only. BE enforces the same rule. */
 const CAN_MERGE = ['ADMIN', 'MANAGER'];
 
 interface Props {

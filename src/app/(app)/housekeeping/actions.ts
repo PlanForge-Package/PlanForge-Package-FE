@@ -5,7 +5,7 @@ import { actionError, actionSuccess, type ActionState } from '@/lib/action-state
 import { apiFetch, backendMessage } from '@/lib/api';
 import type { RoomStatus, TaskStatus } from '@/lib/types';
 
-// 이 파일은 async 함수만 export 한다. 타입·상수는 @/lib/action-state 에 있다.
+// This file exports async functions only. Types and constants live in @/lib/action-state.
 
 const TASK_STATUSES: TaskStatus[] = ['PENDING', 'IN_PROGRESS', 'DONE', 'INSPECTED'];
 const ROOM_STATUSES: RoomStatus[] = [
@@ -17,10 +17,10 @@ const ROOM_STATUSES: RoomStatus[] = [
 ];
 
 /**
- * 대상은 bind 가 아니라 폼 필드로 받는다.
+ * The target comes as a form field rather than through bind.
  *
- * bind 하면 액션 상태가 각 행에 묶이는데, 상태가 바뀌어 행이 목록에서 빠지면
- * 결과 메시지도 함께 사라진다.
+ * Binding ties the action state to each row, and a status change that drops the row
+ * from the list takes the result message with it.
  */
 function readId(formData: FormData, field: string): string | null {
   const value = String(formData.get(field) ?? '').trim();
@@ -61,7 +61,7 @@ export async function assignTaskAction(
   const taskId = readId(formData, 'taskId');
   if (!taskId) return actionError('대상 작업을 찾을 수 없습니다.');
 
-  // 빈 값은 배정 해제를 뜻한다. BE 도 같은 규칙으로 읽는다.
+  // An empty value means unassign. BE reads it the same way.
   const assignedToId = String(formData.get('assignedToId') ?? '');
   const roomNumber = String(formData.get('roomNumber') ?? '객실');
 

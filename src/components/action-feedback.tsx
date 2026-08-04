@@ -3,7 +3,7 @@
 import { useFormStatus } from 'react-dom';
 import type { ActionState } from '@/lib/action-state';
 
-/** 액션 결과를 스크린리더에도 전달되도록 알린다. */
+/** Announces an action result so screen readers get it too. */
 export function ActionMessage({ state }: { state: ActionState }) {
   if (state.status === 'idle') return null;
 
@@ -21,7 +21,7 @@ export function ActionMessage({ state }: { state: ActionState }) {
   );
 }
 
-/** 제출 중에는 비활성화해 중복 전송을 막는다. */
+/** Disabled while submitting, to stop a double send. */
 export function SubmitButton({
   children,
   pendingLabel,

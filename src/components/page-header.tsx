@@ -25,7 +25,7 @@ export function StatTile({
 }: {
   label: string;
   value: number | string;
-  /** 숫자만으로는 부족할 때의 한 줄. 맞는지 틀린지 같은 판단을 붙인다. */
+  /** One line for when the numbers are not enough. It adds a judgement, right or wrong. */
   hint?: string;
 }) {
   return (

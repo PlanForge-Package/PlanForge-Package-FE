@@ -58,11 +58,11 @@ export function GenerateTasksForm({ propertyId, date }: { propertyId: string; da
 }
 
 /**
- * 하우스키핑 보드.
+ * Housekeeping board.
  *
- * 배정과 진행 상태의 액션 상태를 이 컴포넌트가 함께 들고 있다. 상태가 바뀌어
- * 행이 목록에서 빠지면 결과 메시지도 사라지기 때문이다. 표시할 메시지는 고정
- * 우선순위가 아니라 마지막으로 실행한 액션을 따라간다.
+ * Assignment and progress action state both live in this component, because a status
+ * change can drop a row from the list and take the result message with it. The message
+ * shown follows whichever action ran last rather than a fixed priority.
  */
 export function HousekeepingBoard({
   tasks,
@@ -72,7 +72,7 @@ export function HousekeepingBoard({
 }: {
   tasks: HousekeepingTask[];
   attendants: Attendant[];
-  /** 배정은 매니저·프론트데스크만 한다. */
+  /** Assignment is for managers and the front desk only. */
   canAssign: boolean;
   myId: string;
 }) {

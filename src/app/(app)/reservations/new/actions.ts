@@ -6,20 +6,20 @@ import { actionError, formValues, type ActionState } from '@/lib/action-state';
 import { apiFetch, backendMessage } from '@/lib/api';
 
 /**
- * 실패했을 때 화면에 되돌려 줄 입력 필드.
+ * Input fields handed back to the screen on failure.
  *
- * React 19 는 액션이 끝나면 비제어 입력을 비운다. 게스트 이름을 다 넣고 OPERA
- * 가 거절했을 때 이름까지 사라지면 프런트가 같은 타이핑을 반복한다.
+ * React 19 empties uncontrolled inputs when an action ends. Losing the guest name
+ * after OPERA rejects makes the front desk retype the whole thing.
  */
 const KEEP = ['lastName', 'firstName', 'email', 'blockCode', 'sourceCode', 'marketCode'];
 
-// 이 파일은 async 함수만 export 한다. 타입·상수는 @/lib/action-state 에 있다.
+// This file exports async functions only. Types and constants live in @/lib/action-state.
 
 interface CreatedReservation {
   id: string;
 }
 
-/** 폼 값은 전부 문자열로 오므로 서버에서도 한 번 더 검증한다. */
+/** Form values all arrive as strings, so the server validates them again. */
 function readDate(raw: FormDataEntryValue | null, label: string): string | { error: string } {
   const value = String(raw ?? '').trim();
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
@@ -54,7 +54,7 @@ export async function createReservationAction(
   const departureDate = readDate(formData.get('departureDate'), '출발일');
   if (typeof departureDate !== 'string') return fail(departureDate.error);
 
-  // OPERA 도 거절하지만 여기서 먼저 막는다 — 명백히 틀린 요청까지 외부 호출을 태울 이유가 없다.
+  // OPERA rejects it too, but we stop it first — an obviously wrong request is not worth a call.
   if (departureDate <= arrivalDate) {
     return fail('출발일은 도착일보다 뒤여야 합니다.');
   }
@@ -77,12 +77,12 @@ export async function createReservationAction(
   const email = String(formData.get('email') ?? '').trim();
   const ratePlanCode = String(formData.get('ratePlanCode') ?? '').trim();
   const propertyId = String(formData.get('propertyId') ?? '').trim();
-  // 블록 코드를 넘기면 OPERA 가 그 단체의 픽업으로 잡는다. 빈 값은 일반 예약이다.
+  // A block code makes OPERA count it as that group's pickup. Empty is an ordinary booking.
   const blockCode = String(formData.get('blockCode') ?? '').trim();
 
   /*
-   * 예약 경로. 허용 코드 검증은 OPERA 가 한다 — 호텔마다 설정이 다르므로 화면에
-   * 목록을 박아 두면 설정이 바뀔 때마다 세 곳을 고쳐야 한다.
+   * Booking origin. OPERA validates the allowed codes — the setup differs per hotel,
+   * so a list baked into the screen would need fixing in three places on every change.
    */
   const sourceCode = String(formData.get('sourceCode') ?? '').trim();
   const marketCode = String(formData.get('marketCode') ?? '').trim();
@@ -101,7 +101,7 @@ export async function createReservationAction(
         adults,
         children,
         ...(blockCode ? { blockCode } : {}),
-        // 매진이어도 대기로 받는다. 대기 예약은 재고를 차지하지 않는다.
+        // Take a waitlist booking even when sold out. It holds no inventory.
         ...(formData.get('waitlist') ? { waitlist: true } : {}),
         ...(sourceCode ? { sourceCode } : {}),
         ...(marketCode ? { marketCode } : {}),
@@ -115,6 +115,6 @@ export async function createReservationAction(
 
   revalidatePath('/reservations');
 
-  // redirect 는 예외를 던져 흐름을 끊으므로 try 밖에서 부른다.
+  // redirect throws to break the flow, so it is called outside the try.
   redirect(`/reservations/${created.id}`);
 }

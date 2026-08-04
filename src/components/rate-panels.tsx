@@ -29,7 +29,7 @@ export function money(amount: number, currency = 'KRW'): string {
     : `${amount.toLocaleString('ko-KR')} ${currency}`;
 }
 
-/** 요금 코드 목록과 등록. */
+/** Rate code list and registration. */
 export function RatePlansPanel({
   propertyId,
   plans,
@@ -202,7 +202,7 @@ export function RatePlansPanel({
   );
 }
 
-/** 객실 타입 × 금액 입력. 등록과 수정이 같은 모양을 쓴다. */
+/** Room type and amount inputs. Registration and editing share one shape. */
 export function AmountGrid({
   roomTypes,
   legend,
@@ -234,7 +234,7 @@ export function AmountGrid({
   );
 }
 
-/** 패키지 목록·등록·수정. */
+/** Package list, registration and editing. */
 export function PackagesPanel({
   propertyId,
   packages,
@@ -253,7 +253,7 @@ export function PackagesPanel({
     IDLE,
   );
 
-  // 마지막에 실행한 쪽의 결과를 보여 준다. 고정 우선순위를 두면 방금 한 일이 가려진다.
+  // Shows whichever ran last. A fixed priority would hide what was just done.
   const [last, setLast] = useState<'create' | 'update' | null>(null);
   const state = last === 'update' ? updateState : last === 'create' ? createState : IDLE;
 

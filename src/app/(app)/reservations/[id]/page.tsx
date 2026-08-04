@@ -30,13 +30,13 @@ import type {
   TraceList,
 } from '@/lib/types';
 
-/** 환불은 돈이 나가는 방향이다. BE 도 같은 규칙으로 막는다. */
+/** A refund sends money out. BE enforces the same rule. */
 const CAN_REFUND = ['ADMIN', 'MANAGER'];
 
-/** 지시를 새로 거는 것은 프론트데스크와 지배인이 한다. 처리는 전 역할이 한다. */
+/** Raising an instruction is for the front desk and managers. Completing it is open to all. */
 const CAN_EDIT_TRACE = ['ADMIN', 'MANAGER', 'FRONT_DESK'];
 
-/** 보증 방식과 보증금은 돈에 직결된다. 프론트데스크까지 다룬다. */
+/** Guarantee and deposit move money directly. Open to the front desk. */
 const CAN_EDIT = ['ADMIN', 'MANAGER', 'FRONT_DESK'];
 
 export const dynamic = 'force-dynamic';
@@ -50,8 +50,8 @@ interface Props {
 }
 
 /**
- * 404 는 notFound() 로 넘겨 전용 화면을 띄우고, 나머지 실패는 페이지 안에서
- * 안내로 처리한다. BE 가 잠깐 죽었다고 "없는 예약" 으로 보이면 안 되기 때문이다.
+ * A 404 goes to notFound() for its own screen; other failures are handled as a notice
+ * inside the page. A brief BE outage must not look like "no such reservation".
  */
 async function loadReservation(
   id: string,
@@ -66,7 +66,7 @@ async function loadReservation(
     if (error instanceof ApiError && error.notFound) {
       notFound();
     }
-    // 세션이 요청 도중 끊겼다면 안내 대신 쿠키를 정리하고 로그인으로 보낸다.
+    // If the session dropped mid-request, clear the cookie and send them to login.
     if (error instanceof ApiError && error.unauthorized) {
       redirect(logoutUrl(`/reservations/${id}`, 'expired'));
     }
@@ -110,7 +110,7 @@ export default async function ReservationDetailPage({ params }: Props) {
   const reservation = result.data;
   const folios = reservation.folios ?? [];
 
-  // 키·결제·라우팅 조회가 실패해도 예약 화면 전체를 죽이지 않는다. 별개 호출인 이유가 이것이다.
+  // A failed key, payment or routing read must not kill the whole page. That is why they are separate calls.
   const [keys, payments, routings, traces, siblings, arAccounts, policies] = await Promise.all([
     tryFetch(
       apiFetch<RoomKeyListResponse>('be', `/api/reservations/${encodeURIComponent(id)}/keys`),
@@ -126,10 +126,10 @@ export default async function ReservationDetailPage({ params }: Props) {
     ),
     tryFetch(apiFetch<TraceList>('be', `/api/reservations/${encodeURIComponent(id)}/traces`)),
     /*
-     * 공유 후보와 상대를 한 번에 찾기 위해 같은 호텔의 예약을 읽는다.
+     * Reservations at the same hotel are read to find both share candidates and the partner.
      *
-     * 후보를 좁히는 조건(같은 객실 타입·겹치는 기간)은 화면에서 건다. 실제로
-     * 묶을 수 있는지는 OPERA 가 판단하므로 여기서는 고를 만한 것만 추린다.
+     * The narrowing conditions (same room type, overlapping dates) are applied here.
+     * OPERA decides what can actually be grouped, so this only shortlists.
      */
     tryFetch(
       apiFetch<ReservationListResponse>('be', '/api/reservations', {
@@ -141,7 +141,7 @@ export default async function ReservationDetailPage({ params }: Props) {
         query: { propertyId: reservation.property.id },
       }),
     ),
-    // 취소 조건과 보증금. OPERA 에 연결되지 않은 예약은 물을 수 없다.
+    // Cancellation terms and deposit. A reservation not linked to OPERA cannot be asked.
     tryFetch(
       apiFetch<ReservationPolicies>('be', `/api/reservations/${encodeURIComponent(id)}/policies`),
     ),
@@ -157,7 +157,7 @@ export default async function ReservationDetailPage({ params }: Props) {
       !r.shareGroupId &&
       r.roomType.code === reservation.roomType.code &&
       !['CANCELLED', 'NO_SHOW', 'CHECKED_OUT'].includes(r.status) &&
-      // 기간이 겹쳐야 한 방을 함께 쓸 수 있다.
+      // Dates have to overlap for a room to be shared.
       r.arrivalDate < reservation.departureDate &&
       reservation.arrivalDate < r.departureDate,
   );

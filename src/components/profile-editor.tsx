@@ -19,8 +19,8 @@ const TIERS = Object.keys(TIER_LABELS) as MembershipTier[];
 export function ProfileEditor({ profile }: { profile: ProfileDetail }) {
   const [state, action] = useActionState<ActionState, FormData>(updateProfileAction, IDLE);
 
-  // 실패하면 액션이 돌려준 값을 다시 심는다. React 19 는 액션이 끝나면 비제어
-  // 입력을 비우므로, 그대로 두면 고치던 내용이 통째로 사라진다.
+  // On failure the values the action returned are re-seeded. React 19 empties
+  // uncontrolled inputs when an action ends, losing the whole edit otherwise.
   const kept = state.status === 'error' ? state.values : undefined;
 
   return (
@@ -165,10 +165,10 @@ function Field({
 }
 
 /**
- * 중복 후보와 병합.
+ * Duplicate candidates and merging.
  *
- * 자동으로 합치지 않는다 — 이름이 같은 다른 사람은 흔하고, 잘못 합치면 남의
- * 투숙 이력과 선호가 섞인다. 근거를 보여 주고 판단은 사람이 한다.
+ * Nothing is merged automatically — different people share names often, and a bad
+ * merge mixes stay history and preferences. Evidence is shown; a person decides.
  */
 export function DuplicatePanel({
   profileId,
@@ -177,7 +177,7 @@ export function DuplicatePanel({
 }: {
   profileId: string;
   candidates: DuplicateCandidate[];
-  /** 병합은 되돌리기 어렵다. 지배인 이상만 한다. */
+  /** A merge is hard to undo. Managers and above only. */
   canMerge: boolean;
 }) {
   const [state, action] = useActionState<ActionState, FormData>(mergeProfileAction, IDLE);

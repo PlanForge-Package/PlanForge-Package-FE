@@ -8,7 +8,7 @@ import { useI18n } from '@/lib/i18n/provider';
 import { ActionMessage, SubmitButton } from './action-feedback';
 import type { Folio, PostingType } from '@/lib/types';
 
-/** 거래 종류의 사전 키. 표기는 화면 언어를 따라간다. */
+/** Dictionary keys for transaction kinds. The wording follows the screen language. */
 const POSTING_KEYS: Record<PostingType, 'charge' | 'payment' | 'adjustment' | 'tax'> = {
   CHARGE: 'charge',
   PAYMENT: 'payment',
@@ -16,7 +16,7 @@ const POSTING_KEYS: Record<PostingType, 'charge' | 'payment' | 'adjustment' | 't
   TAX: 'tax',
 };
 
-/** 자주 쓰는 OPERA transactionCode 기본값. 입력은 자유롭게 바꿀 수 있다. */
+/** Defaults for common OPERA transactionCodes. The input can be changed freely. */
 const DEFAULT_CODES: Record<PostingType, string> = {
   CHARGE: '1000',
   TAX: '9000',
@@ -35,7 +35,7 @@ function formatMoney(amount: string, currency: string): string {
       maximumFractionDigits: 0,
     }).format(value);
   } catch {
-    // 알 수 없는 통화 코드가 오면 Intl 이 던진다. 숫자만이라도 보여준다.
+    // Intl throws on an unknown currency code. At least show the number.
     return `${value.toLocaleString('ko-KR')} ${currency}`;
   }
 }
@@ -104,17 +104,17 @@ function FolioCard({
   const balance = Number(folio.balance);
 
   /*
-   * 이관 상태는 카드가 들고 있다.
+   * Transfer state lives on the card.
    *
-   * 옮긴 거래는 이 표에서 사라지므로, 상태를 행이 들고 있으면 결과 메시지도
-   * 함께 사라져 무엇이 일어났는지 알 수 없다.
+   * A transferred transaction leaves this table, so state on the row would take the
+   * result message with it and leave no sign of what happened.
    */
   const [transferState, transferAction] = useActionState<ActionState, FormData>(
     transferPostingAction.bind(null, reservationId),
     IDLE,
   );
 
-  // 옮길 수 있는 다른 창구. 마감된 곳으로는 옮길 수 없다.
+  // Other windows it can move to. A closed window is not a destination.
   const targets = folios.filter(
     (other) => other.window !== folio.window && other.status === 'OPEN',
   );

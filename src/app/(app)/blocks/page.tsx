@@ -16,17 +16,17 @@ export const metadata: Metadata = {
   title: '단체 블록 — PlanForge',
 };
 
-/** 블록 생성은 재고를 잡는 행위라 지배인 이상이 한다. BE 도 같은 규칙으로 막는다. */
+/** Creating a block holds inventory, so managers and above. BE enforces the same rule. */
 const CAN_CREATE = ['ADMIN', 'MANAGER'];
 
-/** 필터에 쓰는 상태. 이름은 사전에서 꺼내 화면 언어를 따라간다. */
+/** Statuses used in the filter. Names come from the dictionary and follow the screen language. */
 const STATUS_FILTERS: Array<BlockStatus | ''> = ['', 'TENTATIVE', 'DEFINITE', 'CANCELLED'];
 
 function date(value: string): string {
   return value.slice(0, 10);
 }
 
-/** 소진율. 컷오프 때 남은 객실을 풀지 판단하는 근거다. */
+/** Pickup rate. The basis for deciding whether to release rooms at cutoff. */
 function pickupRate(block: Block): string {
   if (block.totalBlocked === 0) return '—';
   return `${Math.round((block.totalPickedUp / block.totalBlocked) * 100)}%`;
@@ -54,7 +54,7 @@ export default async function BlocksPage({
     );
   }
 
-  // 객실 타입은 생성 폼에만 필요하다. 권한이 없으면 부르지 않는다.
+  // Room types are only needed by the create form. Without the right it is not called.
   const [blocks, roomTypes] = await Promise.all([
     tryFetch(
       apiFetch<Block[]>('be', '/api/blocks', {

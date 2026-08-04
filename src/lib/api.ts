@@ -1,18 +1,18 @@
 /**
- * PlanForge 백엔드 호출 헬퍼.
+ * Helpers for calling the PlanForge backends.
  *
- * - BE(업무 로직/DB)  : BE_BASE_URL 또는 NEXT_PUBLIC_BE_BASE_URL
- * - Core(OPERA 게이트웨이): CORE_BASE_URL 또는 NEXT_PUBLIC_CORE_BASE_URL
+ * - BE (business logic / DB): BE_BASE_URL or NEXT_PUBLIC_BE_BASE_URL
+ * - Core (OPERA gateway):     CORE_BASE_URL or NEXT_PUBLIC_CORE_BASE_URL
  *
- * 브라우저에서 직접 Core 를 호출하지 않고 BE 를 경유하는 것이 기본 경로다.
- * Core 직접 호출은 서버 컴포넌트/Route Handler 에서만 사용한다.
+ * The default path goes through BE rather than calling Core from the browser.
+ * Core is called directly only from server components and route handlers.
  */
 
 import 'server-only';
 
 import { getSessionToken } from './session';
 
-/** BE 의 표준 오류 응답. NestJS ValidationPipe 는 message 를 배열로 준다. */
+/** BE's standard error response. NestJS ValidationPipe gives message as an array. */
 interface BackendErrorBody {
   statusCode?: number;
   error?: string;
@@ -33,27 +33,27 @@ export class ApiError extends Error {
     return this.status === 404;
   }
 
-  /** 세션이 없거나 만료됨. 재로그인이 필요하다. */
+  /** No session or it expired. A new login is needed. */
   get unauthorized(): boolean {
     return this.status === 401;
   }
 
-  /** 로그인은 되어 있으나 권한이 없음. 재로그인해도 달라지지 않는다. */
+  /** Logged in but not permitted. Logging in again changes nothing. */
   get forbidden(): boolean {
     return this.status === 403;
   }
 
-  /** 사용자가 고칠 수 있는 입력·상태 문제인지. */
+  /** Whether this is an input or state problem the user can fix. */
   get userFixable(): boolean {
     return this.status >= 400 && this.status < 500;
   }
 }
 
 /**
- * BE 가 준 사람이 읽을 메시지를 꺼낸다.
+ * Pulls out the human-readable message BE sent.
  *
- * ValidationPipe 는 문자열 배열을 주므로 줄바꿈으로 합친다. 형태를 알 수 없으면
- * 원문 대신 상태 코드 기반 문구를 쓴다 — JSON 덩어리를 화면에 그대로 노출하지 않기 위해.
+ * ValidationPipe gives an array of strings, joined with newlines. When the shape is
+ * unknown, a status-based phrase is used instead — a blob of JSON never reaches the screen.
  */
 export function backendMessage(error: unknown, fallback = '요청을 처리하지 못했습니다.'): string {
   if (!(error instanceof ApiError)) {
@@ -72,7 +72,7 @@ export function backendMessage(error: unknown, fallback = '요청을 처리하�
 }
 
 function baseUrl(target: 'be' | 'core'): string {
-  // 서버 전용 변수를 먼저 본다 — 컨테이너 내부 주소를 브라우저에 노출하지 않기 위해.
+  // Server-only variables come first — a container-internal address must not reach the browser.
   const url =
     target === 'be'
       ? (process.env.BE_BASE_URL ?? process.env.NEXT_PUBLIC_BE_BASE_URL)
@@ -87,13 +87,13 @@ function baseUrl(target: 'be' | 'core'): string {
 }
 
 export interface ApiFetchOptions extends Omit<RequestInit, 'body'> {
-  /** 쿼리 스트링. undefined 인 값은 생략한다. */
+  /** Query string. Undefined values are omitted. */
   query?: Record<string, string | number | boolean | undefined>;
-  /** JSON 으로 직렬화할 본문. */
+  /** Body to serialise as JSON. */
   json?: unknown;
-  /** 응답 대기 상한. BE 가 멈춰 있을 때 요청이 영원히 매달리지 않게 한다. */
+  /** Response deadline, so a stalled BE never leaves a request hanging forever. */
   timeoutMs?: number;
-  /** 세션 토큰을 붙이지 않는다. 로그인처럼 인증 전에 부르는 요청에만 쓴다. */
+  /** Skips the session token. Only for pre-auth calls such as login. */
   anonymous?: boolean;
 }
 
@@ -113,13 +113,13 @@ export async function apiFetch<T>(
     }
   }
 
-  // 세션 토큰은 여기서 한 번만 붙인다. 호출부마다 챙기게 하면 언젠가 빠뜨린다.
+  // The session token is attached once, here. Left to each caller, it eventually gets missed.
   const token = anonymous ? null : await getSessionToken();
 
   let res: Response;
   try {
     res = await fetch(url, {
-      // 운영 화면은 항상 최신 상태여야 하므로 캐시하지 않는다.
+      // Operational screens must always be current, so nothing is cached.
       cache: 'no-store',
       signal: AbortSignal.timeout(timeoutMs),
       ...init,
@@ -131,7 +131,7 @@ export async function apiFetch<T>(
       },
     });
   } catch (cause) {
-    // fetch 는 네트워크 실패와 타임아웃 모두 예외로 던진다. 둘을 구분해 알린다.
+    // fetch throws for both network failure and timeout. The two are reported apart.
     const timedOut = cause instanceof Error && cause.name === 'TimeoutError';
     throw new ApiError(
       0,
@@ -148,7 +148,7 @@ export async function apiFetch<T>(
     try {
       body = JSON.parse(text);
     } catch {
-      // JSON 이 아닌 응답(프록시 오류 페이지 등)도 그대로 실어 보낸다.
+      // Non-JSON responses (a proxy error page, say) are passed along as they are.
       body = text;
     }
   }
@@ -161,8 +161,8 @@ export async function apiFetch<T>(
 }
 
 /**
- * 백엔드가 아직 안 떠 있어도 화면이 통째로 죽지 않도록 결과를 감싼다.
- * 서버 컴포넌트에서 예외를 던지면 라우트 전체가 에러 화면으로 바뀌기 때문이다.
+ * Wraps the result so the screen does not die entirely when the backend is not up yet.
+ * An exception in a server component turns the whole route into an error screen.
  */
 export type Result<T> = { ok: true; data: T } | { ok: false; message: string; status: number };
 

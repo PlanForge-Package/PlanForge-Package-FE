@@ -1,11 +1,11 @@
 /**
- * 한국어 사전 — 기준이 되는 사전.
+ * Korean dictionary — the reference dictionary.
  *
- * 다른 언어는 이 모양을 그대로 따른다. 키를 여기서만 늘리면 나머지 언어에서
- * 빠진 항목이 타입 오류로 드러난다.
+ * Every other language follows this shape. Adding a key only here surfaces the
+ * missing entries in the other languages as type errors.
  *
- * 용어는 GLOSSARY.md 를 따른다. 같은 개념이 화면마다 다른 말로 나오면 읽는
- * 사람이 다른 것으로 오해한다.
+ * Terminology follows GLOSSARY.md. One concept worded differently per screen reads
+ * as two different things.
  */
 export const ko = {
   common: {
@@ -78,7 +78,7 @@ export const ko = {
     shortcuts: '바로 가기',
     tracesFailed: '오늘의 지시를 불러오지 못했습니다',
   },
-  /** 예약 상태. 배지와 필터가 같은 말을 쓴다. */
+  /** Reservation status. Badges and filters use the same words. */
   reservationStatus: {
     RESERVED: '예약',
     CONFIRMED: '확정',
@@ -253,10 +253,10 @@ export const ko = {
 };
 
 /**
- * 사전의 모양.
+ * The shape of a dictionary.
  *
- * `as const` 를 쓰지 않는다 — 값까지 리터럴 타입이 되면 다른 언어의 번역문이
- * 한국어 문자열과 다르다는 이유로 타입 오류가 난다. 여기서 잡고 싶은 것은 값이
- * 아니라 빠진 키다.
+ * No `as const` — literal value types would make another language's translation a
+ * type error simply for differing from the Korean string. What this catches is
+ * missing keys, not values.
  */
 export type Dictionary = typeof ko;

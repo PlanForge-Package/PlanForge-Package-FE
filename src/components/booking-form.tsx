@@ -28,17 +28,17 @@ export interface BookingOption {
   offer?: RateOffer;
 }
 
-/** 같은 객실 타입이 요금 코드마다 한 줄씩 나오므로 둘을 합쳐 구분한다. */
+/** One room type appears once per rate code, so the two are combined to tell them apart. */
 function optionKey({ item, offer }: BookingOption): string {
   return `${item.roomTypeCode}::${offer?.ratePlanCode ?? item.ratePlanCode ?? ''}`;
 }
 
 /**
- * 재고 목록에서 객실 타입을 고르고 게스트 정보를 넣어 예약을 만든다.
+ * Pick a room type from the availability list, add guest details and create a booking.
  *
- * 요금과 재고는 이미 OPERA 가 준 값이므로 여기서 다시 계산하지 않는다. 화면은
- * 받은 값을 보여주고, 최종 확정도 OPERA 가 한다 — 조회 시점과 생성 시점 사이에
- * 재고가 팔릴 수 있어, 여기 숫자는 참고용이지 보장이 아니다.
+ * Rates and availability already came from OPERA and are not recomputed here. The
+ * screen shows what it was given and OPERA makes the final call — inventory can sell
+ * between the read and the create, so these numbers are a guide, not a guarantee.
  */
 export function BookingForm({
   options,
@@ -55,10 +55,10 @@ export function BookingForm({
   arrivalDate: string;
   departureDate: string;
   adults: number;
-  /** 게스트 인원. React 의 children 과 헷갈리지 않도록 이름을 달리한다. */
+  /** Guest count. Named differently so it is not confused with React's children. */
   childCount: number;
   nights: number;
-  /** 이 기간에 걸리는 단체 블록. 고르면 그 블록의 픽업으로 잡힌다. */
+  /** Group blocks covering this range. Choosing one counts as that block's pickup. */
   blocks?: Array<{ code: string; name: string }>;
 }) {
   const t = useI18n();
@@ -66,8 +66,8 @@ export function BookingForm({
   const [selected, setSelected] = useState<string | null>(null);
   const uid = useId();
 
-  // React 19 는 액션이 끝나면 비제어 입력을 비운다. 실패했을 때는 액션이
-  // 돌려준 값을 다시 심어야 게스트 정보를 처음부터 타이핑하지 않는다.
+  // React 19 empties uncontrolled inputs when an action ends. On failure the values
+  // the action returned are re-seeded so guest details are not retyped from scratch.
   const kept = state.status === 'error' ? state.values : undefined;
 
   const chosen = options.find((o) => optionKey(o) === selected);
@@ -103,7 +103,7 @@ export function BookingForm({
               const soldOut = item.availableRooms <= 0;
               const active = selected === key;
               const currency = offer?.currency ?? item.currency ?? 'KRW';
-              // 요금에 포함되지 않은 패키지는 총액에 이미 들어 있다. 무엇이 붙었는지는 밝힌다.
+              // Packages not included in the rate are already in the total. What was added is still stated.
               const added = (offer?.packages ?? []).filter((pkg) => !pkg.includedInRate);
               const included = (offer?.packages ?? []).filter((pkg) => pkg.includedInRate);
 

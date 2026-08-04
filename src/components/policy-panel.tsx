@@ -39,10 +39,10 @@ function when(iso: string): string {
 }
 
 /**
- * 보증 방식과 취소 조건, 보증금.
+ * Guarantee, cancellation terms and deposit.
  *
- * 취소하기 전에 얼마를 물게 되는지 여기서 먼저 보여 준다. 물리고 나서 통보하면
- * 그건 통보가 아니라 사후 정산이다.
+ * Shows what will be charged before cancelling. Telling the guest after charging is
+ * a settlement, not a notice.
  */
 export function PolicyPanel({
   reservationId,

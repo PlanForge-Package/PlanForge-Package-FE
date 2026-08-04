@@ -2,13 +2,13 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { SESSION_COOKIE } from '@/lib/session';
 
 /**
- * 세션 쿠키가 없으면 로그인 화면으로 보낸다.
+ * Sends requests without a session cookie to the login screen.
  *
- * 여기서는 쿠키 존재만 본다 — 서명 검증은 BE 가 한다. 미들웨어에 비밀키를 두면
- * 엣지 번들에 실려 노출 면이 늘어나고, 검증을 두 곳에서 하면 규칙이 어긋난다.
- * 이 단계는 어디까지나 빠른 안내이고, 실제 차단은 BE 의 가드가 책임진다.
+ * Only the cookie's presence is checked — BE verifies the signature. A secret in the
+ * middleware would ship in the edge bundle and widen exposure, and verifying in two
+ * places splits the rules. This is a fast redirect; BE's guards do the real blocking.
  */
-// `/logout` 은 쿠키가 있어야 의미가 있으므로 로그인 상태에서도 통과시킨다.
+// `/logout` only means anything with a cookie, so it passes even when signed in.
 const PUBLIC_PATHS = ['/login', '/logout'];
 const ALWAYS_ALLOWED = ['/logout'];
 
@@ -24,13 +24,13 @@ export function middleware(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     url.search = '';
-    // 로그인 후 원래 가려던 곳으로 돌려보낸다.
+    // Send them back to where they were heading after login.
     if (pathname !== '/') url.searchParams.set('next', `${pathname}${search}`);
     return NextResponse.redirect(url);
   }
 
-  // 이미 로그인한 사람이 로그인 화면에 오면 대시보드로 돌린다.
-  // /logout 은 예외 — 여기서 되돌리면 세션을 지울 방법이 없어진다.
+  // Someone already signed in who lands on login goes to the dashboard.
+  // /logout is the exception — redirecting it would leave no way to clear the session.
   if (isPublic && hasSession && !ALWAYS_ALLOWED.includes(pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = '/';
@@ -42,6 +42,6 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // 정적 자산과 Next 내부 경로는 건너뛴다.
+  // Static assets and Next's internal paths are skipped.
   matcher: ['/((?!_next/static|_next/image|favicon.ico|icon.svg).*)'],
 };

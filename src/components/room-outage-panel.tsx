@@ -18,11 +18,11 @@ const RETURN_LABELS: Record<string, string> = {
 };
 
 /**
- * 사용 불가 객실.
+ * Room outages.
  *
- * 등록 폼과 목록이 액션 상태를 함께 쓴다. 표시되는 메시지는 고정된 우선순위가
- * 아니라 **마지막에 실행한 동작**을 따른다 — 해제한 뒤에도 등록 성공 메시지가
- * 남아 있으면 무엇이 방금 일어났는지 알 수 없다.
+ * The registration form and the list share one action state. The message shown
+ * follows **whichever action ran last** rather than a fixed priority — a registration
+ * success still showing after a release hides what just happened.
  */
 export function RoomOutagePanel({
   propertyId,
@@ -42,8 +42,8 @@ export function RoomOutagePanel({
     IDLE,
   );
 
-  // 둘 다 idle 이 아니면 나중에 끝난 쪽을 보여줄 방법이 없으므로, 해제 결과를
-  // 우선한다 — 해제는 목록에서 줄이 사라지는 동작이라 확인이 더 필요하다.
+  // With neither idle there is no way to tell which finished later, so the release
+  // result wins — releasing removes a row from the list and needs more confirmation.
   const state = releaseState.status !== 'idle' ? releaseState : createState;
 
   const today = new Date().toISOString().slice(0, 10);

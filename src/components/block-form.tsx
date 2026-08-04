@@ -9,7 +9,7 @@ import { ActionMessage, SubmitButton } from './action-feedback';
 
 const inputClass = 'rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm';
 
-/** 취소는 별도 확인이 필요한 행위라 이 목록에서 뺀다. */
+/** Cancelling needs its own confirmation, so it is left out of this list. */
 const EDITABLE_STATUSES: BlockStatus[] = [
   'INQUIRY',
   'TENTATIVE',
@@ -19,9 +19,9 @@ const EDITABLE_STATUSES: BlockStatus[] = [
 ];
 
 /**
- * 블록 생성 폼.
+ * Block creation form.
  *
- * 접어 두는 이유는 목록이 주 화면이기 때문이다. 단체 등록은 자주 일어나지 않는다.
+ * Collapsed because the list is the main screen. Registering a group is not frequent.
  */
 export function CreateBlockForm({
   propertyId,
@@ -34,8 +34,8 @@ export function CreateBlockForm({
   const [open, setOpen] = useState(false);
   const uid = useId();
 
-  // React 19 는 액션이 끝나면 비제어 입력을 비운다. 실패했을 때는 액션이
-  // 돌려준 값을 defaultValue 로 다시 심어야 사용자가 처음부터 채우지 않는다.
+  // React 19 empties uncontrolled inputs when an action ends. On failure the values
+  // the action returned are re-seeded as defaultValue so nothing is retyped.
   const kept = state.status === 'error' ? state.values : undefined;
   const keptCounts = (kept?.blocked ?? '').split(',');
 
@@ -211,10 +211,10 @@ export function CreateBlockForm({
 }
 
 /**
- * 블록 상태·컷오프 수정.
+ * Block status and cutoff editing.
  *
- * 상태와 컷오프를 한 폼에 둔 이유는 둘 다 "이 단체를 언제까지 붙들지" 하나의
- * 결정이기 때문이다. 따로 두면 확정만 하고 컷오프를 잊는 일이 생긴다.
+ * Status and cutoff share one form because both are one decision: how long to hold
+ * this group. Kept apart, a block gets confirmed and its cutoff forgotten.
  */
 export function BlockEditor({
   blockId,
@@ -227,7 +227,7 @@ export function BlockEditor({
   status: BlockStatus;
   name: string;
   cutoffDate: string | null;
-  /** 지금 잡혀 있는 객실 타입별 협의 요금. 빈 칸은 건드리지 않는다. */
+  /** Current negotiated rates per room type. A blank box is left alone. */
   rates?: Array<{ roomTypeCode: string; amount: string | null }>;
 }) {
   const t = useI18n();

@@ -5,11 +5,11 @@ import { actionError, actionSuccess, type ActionState } from '@/lib/action-state
 import { apiFetch, backendMessage } from '@/lib/api';
 import type { UserRole } from '@/lib/types';
 
-// 이 파일은 async 함수만 export 한다. 타입·상수는 @/lib/action-state 에 있다.
+// This file exports async functions only. Types and constants live in @/lib/action-state.
 
 const ROLES: UserRole[] = ['ADMIN', 'MANAGER', 'FRONT_DESK', 'HOUSEKEEPING'];
 
-/** BE 와 같은 최소 길이. 왕복 전에 걸러 준다. */
+/** The same minimum length as BE. Caught before the round trip. */
 const MIN_PASSWORD_LENGTH = 8;
 
 function readRole(raw: FormDataEntryValue | null): UserRole | null {
@@ -58,11 +58,11 @@ export async function createUserAction(
 }
 
 /**
- * 대상 계정은 bind 가 아니라 폼 필드로 받는다.
+ * The target account comes as a form field rather than through bind.
  *
- * bind 하면 액션 상태가 각 행에 묶이는데, 퇴사 처리에 성공하면 그 행이 목록에서
- * 빠지며 언마운트되어 "퇴사 처리했습니다" 가 그대로 사라진다. 상태를 테이블
- * 하나로 모으려면 대상 id 가 폼에 실려 와야 한다.
+ * Binding ties the action state to each row, and a successful deactivation drops that
+ * row from the list and unmounts it, taking "account deactivated" with it. Collecting
+ * the state on the table means the target id has to travel in the form.
  */
 function readUserId(formData: FormData): string | null {
   const id = String(formData.get('userId') ?? '').trim();
@@ -79,7 +79,7 @@ export async function updateUserAction(
   const role = readRole(formData.get('role'));
   if (!role) return actionError('역할을 선택해 주세요.');
 
-  // 빈 문자열은 "소속 없음(본사)" 을 뜻한다. BE 도 같은 규칙으로 읽는다.
+  // An empty string means "no property (head office)". BE reads it the same way.
   const propertyId = String(formData.get('propertyId') ?? '');
 
   try {

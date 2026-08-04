@@ -24,7 +24,7 @@ const inputClass = 'rounded-md border border-current/20 bg-transparent px-3 py-1
 const smallButtonClass =
   'rounded-md border border-current/20 px-2.5 py-1 text-xs transition-colors hover:bg-current/5 disabled:cursor-not-allowed disabled:opacity-50';
 
-/** 소속 호텔 선택. 빈 값은 소속 없음(본사)이다. */
+/** Home hotel selection. Empty means no property (head office). */
 function PropertySelect({
   properties,
   defaultValue,
@@ -132,11 +132,11 @@ export function CreateUserForm({ properties }: { properties: Property[] }) {
 }
 
 /**
- * 계정 표.
+ * Account table.
  *
- * 세 액션의 상태를 행이 아니라 이 컴포넌트가 들고 있다. 퇴사 처리에 성공하면
- * 그 행이 목록에서 빠지며 언마운트되는데, 상태를 행이 들고 있으면 결과 메시지가
- * 함께 사라져 관리자는 무엇이 일어났는지 알 수 없다.
+ * The state of all three actions lives here rather than on the row. A successful
+ * deactivation drops that row from the list and unmounts it; with the state on the
+ * row, the result message goes too and the admin never learns what happened.
  */
 export function UserTable({
   users,
@@ -156,11 +156,11 @@ export function UserTable({
   const [openRow, setOpenRow] = useState<string | null>(null);
 
   /**
-   * 마지막으로 실행한 액션을 기억한다.
+   * Remembers the action that ran last.
    *
-   * 고정 우선순위로 "비어 있지 않은 첫 상태" 를 고르면, 먼저 실행한 액션의 메시지가
-   * 이후 액션의 결과를 계속 가린다. 비밀번호를 초기화한 뒤 퇴사 처리를 하면 관리자는
-   * 초기화 안내만 계속 보게 된다.
+   * Picking "the first non-empty state" by fixed priority lets an earlier action's
+   * message hide every later result. Resetting a password then deactivating would
+   * leave the admin staring at the reset notice.
    */
   const [lastAction, setLastAction] = useState<'role' | 'active' | 'password' | null>(null);
 
@@ -277,7 +277,7 @@ function UserRow({
 
         <td className="py-2.5 pr-4">
           {isSelf ? (
-            // 자기 역할은 BE 가 거절한다. 눌러도 안 되는 것을 활성처럼 보이게 두지 않는다.
+            // BE rejects changing your own role. A button that cannot work is not shown as active.
             <span title="자기 역할은 다른 관리자만 바꿀 수 있습니다.">
               {ROLE_LABELS[user.role]}
               <span className="ml-1.5 text-xs text-subtle">

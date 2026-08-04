@@ -20,7 +20,7 @@ const STATUS_TONES: Record<PaymentStatus, string> = {
   FAILED: 'bg-red-500/15 text-red-700 dark:text-red-300',
 };
 
-/** 화면에 내는 순서. 표기는 사전이 정한다. */
+/** Display order. The wording comes from the dictionary. */
 const METHODS: PaymentMethod[] = ['CARD', 'CASH', 'TRANSFER'];
 
 const inputClass = 'rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm';
@@ -42,17 +42,17 @@ function money(value: string, currency = 'KRW'): string {
 }
 
 /**
- * 결제.
+ * Payments.
  *
- * 네 액션의 상태를 패널이 함께 들고 있다. 매입하면 행의 버튼이 사라지므로 행에
- * 상태를 묶으면 결과 메시지도 같이 사라진다.
+ * The panel holds the state of all four actions. Capturing removes the row's button,
+ * so state tied to the row would take the result message with it.
  */
 export function PaymentPanel({
   data,
   canRefund,
 }: {
   data: PaymentListResponse;
-  /** 환불은 돈이 나가는 방향이다. 지배인 이상만 한다. */
+  /** A refund sends money out. Managers and above only. */
   canRefund: boolean;
 }) {
   const t = useI18n();
@@ -69,21 +69,21 @@ export function PaymentPanel({
   const uid = useId();
 
   /*
-   * 멱등키는 시도마다 새로 만든다.
+   * A fresh idempotency key per attempt.
    *
-   * useId 로 만들면 안 된다 — 컴포넌트 위치로 정해지는 값이라 페이지를 새로
-   * 열 때마다 같다. 그러면 새 결제가 이전 결제의 재전송으로 취급되어, 실제로는
-   * 긁히지 않았는데 **다른 금액이 성공으로 보고된다.**
+   * It must not come from useId — that value is fixed by component position and is
+   * the same every time the page is opened. A new payment would then count as a
+   * resend of the previous one and **a different amount is reported as succeeded**.
    *
-   * 서버 렌더에서는 비워 두고 마운트 후 채운다. 초기값을 난수로 두면 서버와
-   * 클라이언트가 달라 하이드레이션이 깨진다.
+   * Left empty on the server render and filled after mount. A random initial value
+   * would differ between server and client and break hydration.
    */
   const [idempotencyKey, setIdempotencyKey] = useState('');
   useEffect(() => {
     setIdempotencyKey(crypto.randomUUID());
   }, []);
 
-  // 성공한 키를 계속 들고 있으면 다음 결제가 그 결제로 취급된다.
+  // Holding on to a succeeded key makes the next payment count as that one.
   useEffect(() => {
     if (authState.status === 'success') setIdempotencyKey(crypto.randomUUID());
   }, [authState]);

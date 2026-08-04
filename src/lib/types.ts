@@ -1,4 +1,4 @@
-/** BE 가 내려주는 응답 형태. 원본은 BE 의 `prisma/schema.prisma` 및 Swagger(/docs). */
+/** Response shapes from BE. The source is BE's `prisma/schema.prisma` and Swagger (/docs). */
 
 export type ReservationStatus =
   'RESERVED' | 'CONFIRMED' | 'IN_HOUSE' | 'CHECKED_OUT' | 'CANCELLED' | 'NO_SHOW' | 'WAITLISTED';
@@ -17,7 +17,7 @@ export interface Profile {
   vip: boolean;
 }
 
-/** 목록·상세에서 쓰는 전체 프로필. 예약에 딸려 오는 Profile 보다 넓다. */
+/** The full profile used in lists and detail. Wider than the Profile on a reservation. */
 export interface GuestProfile extends Profile {
   operaProfileId: string | null;
   type: ProfileType;
@@ -26,7 +26,7 @@ export interface GuestProfile extends Profile {
   nationality: string | null;
   membershipNumber: string | null;
   membershipTier: MembershipTier;
-  /** 선호 코드. 자유 텍스트가 아니다 — 표기는 화면이 맡는다. */
+  /** Preference codes, not free text — the wording is the screen's job. */
   preferences: string[];
   notes: string | null;
   mergedIntoId: string | null;
@@ -70,7 +70,7 @@ export type DuplicateReason = 'SAME_EMAIL' | 'SAME_PHONE' | 'SAME_NAME' | 'SAME_
 
 export interface DuplicateCandidate {
   profile: GuestProfile;
-  /** 같은 사람으로 본 근거. 자동으로 합치지 않고 사람이 판단한다. */
+  /** Why they were matched. Nothing is merged automatically; a person decides. */
   reasons: DuplicateReason[];
 }
 
@@ -111,11 +111,11 @@ export interface Reservation {
   adults: number;
   children: number;
   assignedRoomNumber: string | null;
-  /** 단체 블록에서 빠져나온 예약이면 그 블록 코드 */
+  /** Block code, if the reservation was picked up from a group block */
   blockCode?: string | null;
-  /** 객실을 함께 쓰는 예약들의 묶음. 예약은 둘이어도 객실은 하나다. */
+  /** Group of reservations sharing a room. Two reservations, one room. */
   shareGroupId?: string | null;
-  /** 예약이 들어온 경로. 세 축을 따로 두어야 조합을 구분할 수 있다. */
+  /** Where the booking came from. Three separate axes keep combinations distinct. */
   sourceCode?: string | null;
   marketCode?: string | null;
   channelCode?: string | null;
@@ -127,7 +127,7 @@ export interface Reservation {
   property: Property;
 }
 
-/** BE 가 Core 를 거쳐 OPERA 에서 받아 온 재고. 우리가 계산한 값이 아니다. */
+/** Inventory BE fetched from OPERA through Core. Not a figure we computed. */
 export interface AvailabilityItem {
   roomTypeCode: string;
   roomTypeName?: string;
@@ -150,7 +150,7 @@ export interface RateOfferPackage {
   name: string;
   amount: number;
   calculation: string;
-  /** 요금에 포함이면 총액이 늘지 않는다. */
+  /** Included in the rate means the total does not grow. */
   includedInRate: boolean;
 }
 
@@ -174,23 +174,23 @@ export interface RateResponse {
   offers: RateOffer[];
 }
 
-// --- 요금 코드 설정. OPERA 가 원천이라 사본이 없다 ---------------------------
+// --- Rate code setup. OPERA owns it, so there is no local copy ---------------
 
 export interface RateSeason {
   seasonId: string;
   name: string;
   startDate: string;
   endDate: string;
-  /** 0=일요일. 비우면 기간 내 매일. */
+  /** 0=Sunday. Empty means every day in the range. */
   daysOfWeek?: number[];
   amounts: Record<string, number>;
 }
 
 /**
- * OPERA 의 요금 코드 설정.
+ * OPERA's rate code setup.
  *
- * 예약에 붙는 `RatePlan`(로컬 사본)과 다르다 — 이쪽은 무엇을 얼마에 파는지에
- * 대한 설정이고, 그쪽은 그 예약이 어느 요금으로 팔렸는지의 기록이다.
+ * Different from the `RatePlan` on a reservation (a local copy) — this is the setup
+ * for what sells at what price; that is a record of what a booking was sold on.
  */
 export interface RatePlanConfig {
   ratePlanCode: string;
@@ -217,20 +217,20 @@ export interface RatePackage {
   hotelId: string;
   name: string;
   amount: number;
-  /** PerNight = 1박당, PerStay = 투숙당 1회, PerPerson = 1인 1박당. */
+  /** PerNight = per night, PerStay = once per stay, PerPerson = per person per night. */
   calculation: string;
   transactionCode: string;
   includedInRate: boolean;
 }
 
-/** 예약의 보증 방식과 취소 조건, 보증금. 취소 전에 손님에게 알려야 하는 값이다. */
+/** A reservation's guarantee, cancellation terms and deposit. The guest hears this before we cancel. */
 export interface ReservationPolicies {
   reservationId: string;
   guaranteeCode: string;
   currency: string;
   cancellation: {
     policyName: string;
-    /** 이 시각까지는 무료로 취소할 수 있다. */
+    /** Cancelling is free until this moment. */
     freeUntil: string;
     withinFreeWindow: boolean;
     penaltyAmount: number;
@@ -242,19 +242,19 @@ export interface ReservationPolicies {
   };
 }
 
-// --- 마감 분개 ---------------------------------------------------------------
+// --- Close journal -----------------------------------------------------------
 
 export interface JournalCode {
   transactionCode: string;
   name: string;
   group: string;
   count: number;
-  /** 표시가격. 국내 호텔은 세금을 포함해 판다. */
+  /** Displayed price. Korean hotels sell tax-inclusive. */
   gross: string;
   net: string;
   serviceCharge: string;
   vat: string;
-  /** 거래 코드 설정에 없는 코드. 어디로 분개할지 사람이 정해야 한다. */
+  /** A code missing from the transaction code setup. A person has to place it. */
   unmapped: boolean;
 }
 
@@ -286,7 +286,7 @@ export interface JournalReport {
     charges: string;
     payments: string;
     closingBalance: string;
-    /** 열린 폴리오 잔액의 합. 마감 잔액과 같아야 한다. */
+    /** Sum of open folio balances. Must match the closing balance. */
     outstanding: string;
     balanced: boolean;
   };
@@ -303,9 +303,9 @@ export interface BlockAllotment {
   id: string;
   date: string;
   roomTypeCode: string;
-  /** 잡아 둔 객실 수 */
+  /** Rooms held */
   blocked: number;
-  /** 실제 예약으로 빠져나간 수 */
+  /** Rooms actually picked up */
   pickedUp: number;
   ratePlanCode: string | null;
   amount: string | null;
@@ -327,7 +327,7 @@ export interface Block {
   allotments: BlockAllotment[];
 }
 
-/** 룸리스트. 예약은 OPERA 에서 바로 읽으므로 로컬 예약 형태와 다르다. */
+/** Rooming list. Reservations are read straight from OPERA, so the shape differs from local ones. */
 export interface BlockReservation {
   reservationId: string;
   confirmationNumber?: string;
@@ -348,12 +348,12 @@ export interface BlockRoomingList {
   items: BlockReservation[];
 }
 
-/** 금액은 Prisma Decimal 이라 JSON 에서 문자열로 온다. 정밀도를 잃지 않기 위해서다. */
+/** Amounts are Prisma Decimal and arrive as strings in JSON, to keep the precision. */
 export interface DailyReportRow {
   date: string;
   roomsAvailable: number;
   roomsSold: number;
-  /** 아직 도착하지 않은 예약분. 실적과 섞지 않는다. */
+  /** Bookings not yet arrived. Kept apart from performance. */
   roomsBooked: number;
   occupancy: number;
   roomRevenue: string;
@@ -366,7 +366,7 @@ export interface BreakdownRow {
   roomsSold: number;
   roomRevenue: string;
   adr: string;
-  /** 전체 판매에서 차지하는 비중. 채널 의존도를 한눈에 본다. */
+  /** Share of total sales. Channel dependence at a glance. */
   share: number;
 }
 
@@ -386,13 +386,13 @@ export interface DailyReport {
     adr: string;
     revpar: string;
   };
-  /** 채널·출처·시장별 분해. 합계는 totals 와 같다. */
+  /** Breakdown by channel, source and market. Sums to totals. */
   breakdown: {
     channel: BreakdownRow[];
     source: BreakdownRow[];
     market: BreakdownRow[];
   };
-  /** 폴리오에 실제로 올라간 금액. 계약 기준 매출과 다른 값이다. */
+  /** What actually posted to the folio. Different from contracted revenue. */
   postings: {
     charges: string;
     payments: string;
@@ -416,7 +416,7 @@ export interface AuditItem {
   date: string | null;
   roomTypeCode: string | null;
   roomNumber: string | null;
-  /** Prisma Decimal 은 JSON 에서 문자열로 온다. */
+  /** Prisma Decimal arrives as a string in JSON. */
   amount: string | null;
 }
 
@@ -430,7 +430,7 @@ export interface AuditSection {
 export interface NightAuditReview {
   propertyId: string;
   businessDate: string;
-  /** false 면 OPERA 에 닿지 못해 달력 날짜로 대신한 것이다. */
+  /** False means OPERA was unreachable and the calendar date stood in. */
   businessDateFromOpera: boolean;
   calendarDate: string;
   outstanding: number;
@@ -505,24 +505,24 @@ export interface Posting {
   type: PostingType;
   transactionCode: string;
   description: string;
-  /** Prisma Decimal 은 JSON 에서 문자열로 온다. 부호가 붙어 있다. */
+  /** Prisma Decimal arrives as a string in JSON. It carries a sign. */
   amount: string;
   currency: string;
   postedAt: string;
-  /** 외부 POS 가 단 요금이면 그 아웃렛. 프런트가 직접 올린 것은 null. */
+  /** Outlet, if an outside POS posted the charge. Null when the front desk did. */
   outletId?: string | null;
-  /** POS 전표 번호 */
+  /** POS check number */
   reference?: string | null;
-  /** 취소되었으면 그 취소를 만든 조정 포스팅 ID */
+  /** Id of the adjustment that voided it, if voided */
   voidedById?: string | null;
-  /** PG 결제가 만든 거래면 그 결제 ID. 이관할 수 없다. */
+  /** Payment id, if a PSP payment created it. Such a posting cannot be transferred. */
   paymentId?: string | null;
-  /** 다른 창구에서 옮겨 왔으면 원래 창구 */
+  /** Original window, if transferred in */
   transferredFromWindow?: number | null;
   transferredAt?: string | null;
 }
 
-/** 트레이스를 받을 부서. 역할과는 다르다 — 정비는 역할이 없지만 지시는 간다. */
+/** Department a trace goes to. Not a role — maintenance has no role but still gets instructions. */
 export type TraceDepartment = 'FRONT_DESK' | 'HOUSEKEEPING' | 'MAINTENANCE' | 'FNB' | 'RESERVATION';
 
 export type TraceStatus = 'PENDING' | 'DONE';
@@ -554,15 +554,15 @@ export interface DailyTraceList extends TraceList {
   date: string;
 }
 
-/** 캐셔 근무조 집계. 금액은 모두 문자열이다 — Decimal 은 JSON 에서 문자열로 온다. */
+/** Cashier shift totals. Every amount is a string — Decimal arrives as a string in JSON. */
 export interface CashierSummary {
   openingFloat: string;
   byMethod: Record<PaymentMethod, string>;
   collected: string;
-  /** 금고에 있어야 할 현금 = 시작 시재 + 받은 현금 */
+  /** Cash that should be in the drawer = opening float + cash received */
   expectedCash: string;
   countedCash: string | null;
-  /** 센 것 − 있어야 할 것. 양수면 과잉, 음수면 부족. 마감 전에는 null. */
+  /** Counted minus expected. Positive is over, negative is short. Null before close. */
   difference: string | null;
   paymentCount: number;
 }
@@ -589,7 +589,7 @@ export interface CashierShiftList {
   total: number;
 }
 
-/** 라우팅 지시 — 거래 코드별로 요금을 보낼 창구. */
+/** Routing instruction — the window a transaction code's charges go to. */
 export interface FolioRouting {
   id: string;
   reservationId: string;
@@ -613,13 +613,13 @@ export interface Payment {
   folioId: string;
   method: PaymentMethod;
   status: PaymentStatus;
-  /** Prisma Decimal 은 JSON 에서 문자열로 온다. */
+  /** Prisma Decimal arrives as a string in JSON. */
   amount: string;
   refundedAmount: string;
   currency: string;
   vendorTxnId: string | null;
   approvalNumber: string | null;
-  /** 뒷 네 자리만. 전체 카드 번호는 저장하지 않는다. */
+  /** Last four only. The full card number is never stored. */
   maskedCard: string | null;
   cardBrand: string | null;
   failureReason: string | null;
@@ -631,7 +631,7 @@ export interface Payment {
 
 export interface PaymentListResponse {
   reservationId: string;
-  /** mock 이면 실제로 돈이 오가지 않는다. 화면이 알려야 한다. */
+  /** In mock mode no money actually moves. The screen has to say so. */
   driverMode: 'mock' | 'live';
   items: Payment[];
 }
@@ -641,12 +641,12 @@ export type RoomKeyStatus = 'ACTIVE' | 'REVOKED' | 'EXPIRED';
 export interface RoomKey {
   id: string;
   roomNumber: string;
-  /** 벤더 시스템의 카드 식별자 */
+  /** Vendor's card id */
   vendorKeyId: string;
   validFrom: string;
   validUntil: string;
   status: RoomKeyStatus;
-  /** 몇 번째 발급인지. 재발급이 잦으면 확인할 이유가 된다. */
+  /** Which issue this is. Frequent reissues are worth a look. */
   sequence: number;
   issuedAt: string;
   issuedByName: string | null;
@@ -657,7 +657,7 @@ export interface RoomKey {
 export interface RoomKeyListResponse {
   reservationId: string;
   roomNumber: string | null;
-  /** mock 이면 이 키로는 어떤 문도 열리지 않는다. 화면이 알려야 한다. */
+  /** In mock mode this key opens no door. The screen has to say so. */
   driverMode: 'mock' | 'live';
   items: RoomKey[];
 }
@@ -668,7 +668,7 @@ export interface PosOutlet {
   code: string;
   name: string;
   transactionCode: string;
-  /** 키 앞자리. 전체 키는 발급 순간에만 존재한다. */
+  /** Key prefix. The full key exists only at the moment it is issued. */
   apiKeyPrefix: string;
   keyIssuedAt: string;
   active: boolean;
@@ -711,10 +711,10 @@ export interface Room {
 }
 
 /**
- * 사용 불가 객실.
+ * Room outage.
  *
- * `OUT_OF_ORDER` 는 재고에서 빠져 점유율의 분모도 줄이고, `OUT_OF_SERVICE` 는
- * 팔지 않을 뿐 재고에는 남아 분모가 그대로다.
+ * `OUT_OF_ORDER` leaves inventory and so shrinks the occupancy denominator;
+ * `OUT_OF_SERVICE` is merely not for sale and the denominator holds.
  */
 export type RoomOutageKind = 'OUT_OF_ORDER' | 'OUT_OF_SERVICE';
 
@@ -759,7 +759,7 @@ export interface DailySummary {
   inHouse: number;
 }
 
-// --- AR / 시티레저 ----------------------------------------------------------
+// --- AR / city ledger --------------------------------------------------------
 
 export type ArTransactionType = 'CHARGE' | 'PAYMENT' | 'ADJUSTMENT';
 export type ArInvoiceStatus = 'DRAFT' | 'SENT' | 'PAID' | 'VOID';
@@ -770,7 +770,7 @@ export interface ArAccount {
   code: string;
   name: string;
   profileId: string | null;
-  /** 여신 한도. null 이면 한도 없음. */
+  /** Credit limit. Null means none. */
   creditLimit: string | null;
   termDays: number;
   billingEmail: string | null;
@@ -792,7 +792,7 @@ export interface ArAccountList {
 export interface ArTransaction {
   id: string;
   type: ArTransactionType;
-  /** 부호가 붙은 값. 청구는 양수, 입금은 음수다. */
+  /** Signed value. Charges are positive, payments negative. */
   amount: string;
   currency: string;
   description: string;
@@ -811,24 +811,24 @@ export interface ArInvoice {
   issuedAt: string;
   dueDate: string;
   note: string | null;
-  /** 이 청구서에 붙은 입금의 합 */
+  /** Total payments applied to this invoice */
   paid: string;
-  /** 아직 못 받은 금액. 독촉할 금액이다. */
+  /** Still unpaid. This is the amount to chase. */
   outstanding: string;
   overdue: boolean;
 }
 
 export interface ArAccountDetail {
   account: ArAccount;
-  /** 미수 잔액. 거래 합계다. */
+  /** Outstanding balance. The sum of transactions. */
   balance: string;
-  /** 아직 청구서에 묶이지 않은 금액 */
+  /** Amount not yet on an invoice */
   unbilled: string;
   transactions: ArTransaction[];
   invoices: ArInvoice[];
 }
 
-/** 청구서 문서. 거래처에 그대로 보낼 수 있는 재료다. */
+/** Invoice document. The material for what is sent to the account as is. */
 export interface ArInvoiceDetail extends ArInvoice {
   propertyId: string;
   accountId: string;

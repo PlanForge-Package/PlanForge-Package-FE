@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   title: '새 예약 — PlanForge',
 };
 
-/** 오늘 기준 상대 날짜. 폼 기본값으로 쓴다. */
+/** A date relative to today, used as a form default. */
 function day(offset: number): string {
   const date = new Date();
   date.setUTCDate(date.getUTCDate() + offset);
@@ -42,7 +42,7 @@ export default async function NewReservationPage({
   const adults = Number(params.adults ?? 1) || 1;
   const children = Number(params.children ?? 0) || 0;
 
-  // 검색 조건을 URL 에 두어 새로고침·뒤로가기가 자연스럽게 동작한다.
+  // Search criteria live in the URL so refresh and back behave naturally.
   const searched = Boolean(params.arrivalDate && params.departureDate);
   const invalidRange = departureDate <= arrivalDate;
 
@@ -95,7 +95,7 @@ function SearchForm({
   arrivalDate: string;
   departureDate: string;
   adults: number;
-  /** 게스트 인원. React 의 children 과 헷갈리지 않도록 이름을 달리한다. */
+  /** Guest count. Named differently so it is not confused with React's children. */
   childCount: number;
 }) {
   const fieldClass = 'rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm';
@@ -182,7 +182,7 @@ async function Results({
 }) {
   const query = { propertyId, arrivalDate, departureDate, adults, children: childCount };
 
-  // 재고·요금·블록은 별개 호출이다. 하나가 실패해도 나머지는 보여준다.
+  // Availability, rates and blocks are separate calls. One failing still shows the rest.
   const [availability, rates, blocks] = await Promise.all([
     tryFetch(apiFetch<AvailabilityResponse>('be', '/api/reservations/availability', { query })),
     tryFetch(apiFetch<RateResponse>('be', '/api/reservations/rates', { query })),
@@ -208,15 +208,15 @@ async function Results({
   }
 
   /*
-   * 객실 타입 × 요금 코드로 한 줄씩 만든다.
+   * One row per room type and rate code.
    *
-   * 같은 방이라도 기준 요금과 법인 협약가는 값이 다르다. 타입당 한 줄만 두면
-   * 어느 요금으로 파는지 고를 수 없고, 늘 하나만 팔리게 된다.
+   * The same room costs differently on a rack rate and a corporate agreement. One row
+   * per type would leave no way to choose, and only ever sell one of them.
    */
   const offers = rates.ok ? rates.data.offers : [];
   const options: BookingOption[] = availability.data.items.flatMap((item) => {
     const matching = offers.filter((offer) => offer.roomTypeCode === item.roomTypeCode);
-    // 요금을 못 받아 왔어도 재고는 보여 준다 — 대기로는 받을 수 있어야 한다.
+    // Availability is shown even when the rates failed — a waitlist booking must stay possible.
     return matching.length === 0 ? [{ item }] : matching.map((offer) => ({ item, offer }));
   });
 
@@ -239,7 +239,7 @@ async function Results({
         adults={adults}
         childCount={childCount}
         nights={nights}
-        // 확정된 블록만 고를 수 있다. 가예약 단계에서는 재고가 잡혀 있지 않다.
+        // Only confirmed blocks can be chosen. Tentative ones hold no inventory.
         blocks={
           blocks.ok
             ? blocks.data

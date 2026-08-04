@@ -1,8 +1,8 @@
 'use client';
 
 /**
- * 루트 레이아웃 자체가 터졌을 때만 쓰인다. 이 경계는 layout 을 대체하므로
- * html·body 를 직접 만들어야 하고, 앱 스타일에 기댈 수 없어 인라인으로 그린다.
+ * Used only when the root layout itself blows up. This boundary replaces the layout,
+ * so it builds html and body itself and draws inline, unable to rely on app styles.
  */
 export default function GlobalError({
   error,

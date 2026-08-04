@@ -11,7 +11,7 @@ import type { ReservationListResponse, ReservationStatus } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
-/** 필터에 쓰는 상태. 이름은 사전에서 꺼내 화면 언어를 따라간다. */
+/** Statuses used in the filter. Names come from the dictionary and follow the screen language. */
 const STATUS_FILTERS: Array<ReservationStatus | ''> = [
   '',
   'CONFIRMED',
@@ -40,7 +40,7 @@ export default async function ReservationsPage({
 }) {
   const { status, q, channelCode } = await searchParams;
 
-  // 선택된 호텔로 좁힌다. 본사 계정이 호텔을 고르지 않았다면 전 호텔을 본다.
+  // Narrowed to the selected hotel. A head-office account with none chosen sees them all.
   const user = await requireUser('/reservations');
   const { t } = await getDictionary();
   const property = await getPropertyContext(user);

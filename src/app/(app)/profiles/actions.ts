@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { actionError, actionSuccess, formValues, type ActionState } from '@/lib/action-state';
 import { apiFetch, backendMessage } from '@/lib/api';
 
-// 이 파일은 async 함수만 export 한다. 타입·상수는 @/lib/action-state 에 있다.
+// This file exports async functions only. Types and constants live in @/lib/action-state.
 
 const KEEP = [
   'lastName',
@@ -49,7 +49,7 @@ export async function updateProfileAction(
         vip: formData.get('vip') === 'on',
         membershipNumber: text(formData, 'membershipNumber'),
         membershipTier: text(formData, 'membershipTier') || 'NONE',
-        // 체크박스는 켜진 것만 온다. 하나도 없으면 빈 배열이라 전부 해제된다.
+        // Only checked boxes arrive. None at all is an empty array, clearing them all.
         preferences: formData.getAll('preferences').map(String),
         notes: text(formData, 'notes'),
       },
@@ -64,10 +64,10 @@ export async function updateProfileAction(
 }
 
 /**
- * 중복 병합.
+ * Duplicate merge.
  *
- * 되돌리기 어려운 작업이라 대상을 폼 필드로 명시적으로 받는다. 원본은 지우지
- * 않고 어디로 합쳐졌는지만 남으므로 이력은 추적할 수 있다.
+ * Hard to undo, so the target comes explicitly as a form field. The source is not
+ * deleted and records where it was merged into, so the history stays traceable.
  */
 export async function mergeProfileAction(
   _prev: ActionState,

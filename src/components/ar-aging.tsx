@@ -16,10 +16,10 @@ function money(value: string): string {
 }
 
 /**
- * 연체 현황.
+ * Aging.
  *
- * 오래된 미수일수록 받기 어려워진다. 총액만 보면 어디부터 손대야 하는지 알 수
- * 없어, 경과 구간으로 나눠 보여 준다.
+ * The older a receivable, the harder it is to collect. A total alone hides where to
+ * start, so it is broken out by how long each is past due.
  */
 export function ArAgingPanel({ data }: { data: ArAging }) {
   if (data.items.length === 0) {

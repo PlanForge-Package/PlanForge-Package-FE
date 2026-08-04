@@ -7,16 +7,16 @@ import type { ReservationStatus } from '@/lib/types';
 import { useI18n } from '@/lib/i18n/provider';
 import { ActionMessage, SubmitButton } from './action-feedback';
 
-/** BE 와 같은 규칙. 여기서 미리 걸러 불필요한 왕복을 줄이되, 판단의 근거는 BE 다. */
+/** The same rule as BE. Filtering here saves a round trip, but BE decides. */
 const CHECK_IN_ALLOWED: ReservationStatus[] = ['RESERVED', 'CONFIRMED'];
 
 /**
- * 체크인·체크아웃 패널.
+ * Check-in and check-out panel.
  *
- * 두 액션 상태를 모두 이 컴포넌트가 들고 있는 이유: 체크인에 성공하면 상태가
- * IN_HOUSE 로 바뀌어 체크인 폼이 체크아웃 폼으로 교체된다. 상태를 각 폼이 들고
- * 있으면 폼이 언마운트되면서 "체크인했습니다" 가 그대로 사라져, 사용자는 성공
- * 여부를 알 수 없다.
+ * Both action states live in this component because a successful check-in flips the
+ * status to IN_HOUSE and swaps the check-in form for the check-out one. With state
+ * on each form, unmounting would take "checked in" away with it and leave the user
+ * unable to tell whether it worked.
  */
 export function FrontDeskPanel({
   reservationId,
@@ -40,7 +40,7 @@ export function FrontDeskPanel({
   const canCheckIn = CHECK_IN_ALLOWED.includes(status);
   const canCheckOut = status === 'IN_HOUSE';
 
-  // 가장 최근에 일어난 일을 보여준다. 체크아웃을 시도했다면 그 결과가 우선한다.
+  // Shows whatever happened most recently. A check-out attempt takes priority.
   const feedback = checkOutState.status !== 'idle' ? checkOutState : checkInState;
 
   return (

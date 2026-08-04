@@ -11,7 +11,7 @@ import type { Room, RoomOutageList, RoomStatus, RoomStatusSummary } from '@/lib/
 
 export const dynamic = 'force-dynamic';
 
-/** 화면 아래에 코드-이름 대응을 적어 둔다. OPERA 코드를 그대로 보는 사람이 있다. */
+/** A code-to-name key at the foot of the screen. Some people read OPERA codes directly. */
 const ROOM_STATUSES: RoomStatus[] = [
   'CLEAN',
   'DIRTY',
@@ -27,8 +27,8 @@ export default async function RoomsPage({
 }) {
   const { status } = await searchParams;
 
-  // 호텔은 URL 이 아니라 선택기가 정한다. 쿼리스트링으로 받으면 주소만 고치면
-  // 남의 호텔을 볼 수 있다는 인상을 주는데, 실제로는 BE 가 403 을 낸다.
+  // The hotel comes from the picker, not the URL. Taking it from the query string
+  // suggests editing the address shows another hotel; in reality BE returns 403.
   const user = await requireUser('/rooms');
   const { t } = await getDictionary();
   const property = await getPropertyContext(user);
@@ -60,8 +60,8 @@ export default async function RoomsPage({
     ),
     tryFetch(apiFetch<RoomStatusSummary>('be', '/api/rooms/summary', { query: { propertyId } })),
     tryFetch(apiFetch<RoomOutageList>('be', '/api/room-outages', { query: { propertyId } })),
-    // 사용 불가 등록의 객실 선택은 화면 필터와 무관해야 한다. 청소 상태로 걸러
-    // 놓은 목록만 주면, 필터가 걸린 동안에는 나머지 객실을 고를 수 없다.
+    // Room selection for an outage must not depend on the screen filter. Offering only
+    // the filtered list would make the other rooms unpickable while a filter is on.
     status
       ? tryFetch(apiFetch<Room[]>('be', '/api/rooms', { query: { propertyId } }))
       : Promise.resolve(null),

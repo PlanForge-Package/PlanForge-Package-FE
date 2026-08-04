@@ -19,10 +19,10 @@ const smallButton =
 const DAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'];
 
 /**
- * 요금 코드 하나를 고친다.
+ * Edits a single rate code.
  *
- * 기준 요금·판매 기간·중지는 한 폼에서, 시즌은 따로 넣고 뺀다. 시즌이 기준
- * 요금을 덮어쓰므로 둘을 같은 폼에 두면 무엇을 바꾸는지 흐려진다.
+ * Base rate, selling period and deactivation share one form; seasons are added and
+ * removed separately. A season overrides the base rate, so one form would blur what changes.
  */
 export function RatePlanDetail({
   propertyId,

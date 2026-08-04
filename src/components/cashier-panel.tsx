@@ -24,10 +24,10 @@ function time(iso: string): string {
 }
 
 /**
- * 캐셔 근무조.
+ * Cashier shift.
  *
- * 조가 열려 있으면 지금까지 받은 돈과 금고에 있어야 할 현금을 보여 주고,
- * 없으면 시작 시재를 받아 연다.
+ * With a shift open it shows what has been taken and what should be in the drawer;
+ * without one it takes an opening float and opens a shift.
  */
 export function CashierPanel({
   propertyId,
@@ -42,11 +42,11 @@ export function CashierPanel({
   const [closeState, closeAction] = useActionState<ActionState, FormData>(closeShiftAction, IDLE);
 
   /*
-   * 지금 화면에 맞는 결과를 보여준다.
+   * Shows the result that fits the current screen.
    *
-   * 마감하면 조가 사라지므로 마감 메시지는 남겨야 한다. 그런데 곧바로 새 조를
-   * 열면 이번엔 개설 메시지가 맞다 — 마감 결과를 계속 붙들고 있으면 방금
-   * 시작한 근무가 마감된 것처럼 읽힌다.
+   * Closing removes the shift, so the close message has to stay. But opening a new
+   * shift right after makes the open message the right one — holding on to the close
+   * result would read as if the shift just started had been closed.
    */
   const state =
     shift && openState.status === 'success'
@@ -133,7 +133,7 @@ export function CashierPanel({
                 type="number"
                 name="countedCash"
                 min={0}
-                // 실제로 센 금액을 그대로 넣는다. 1000 단위 배수만 받으면 마감을 못 한다.
+                // The counted amount goes in as is. Accepting only multiples of 1000 makes closing impossible.
                 step={1}
                 defaultValue={closeState.values?.countedCash ?? ''}
                 required
@@ -178,7 +178,7 @@ function Figure({ label, value }: { label: string; value: string }) {
   );
 }
 
-/** 지난 근무조. 차이가 났던 조를 되짚을 때 본다. */
+/** Past shifts. Consulted when tracing a discrepancy. */
 export function CashierHistory({
   shifts,
 }: {

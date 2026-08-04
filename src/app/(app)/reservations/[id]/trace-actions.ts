@@ -20,7 +20,7 @@ export async function createTraceAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  // React 19 는 액션이 끝나면 비제어 입력을 비운다. 실패하면 되돌려 준다.
+  // React 19 empties uncontrolled inputs when an action ends. On failure they come back.
   const values = formValues(formData, ['department', 'dueDate', 'note']);
 
   const department = String(formData.get('department') ?? '');
@@ -63,7 +63,7 @@ export async function completeTraceAction(
     return actionError(backendMessage(error, '처리하지 못했습니다.'));
   }
 
-  // 예약 상세와 대시보드 양쪽에서 쓰는 동작이라 둘 다 새로 그린다.
+  // Used from both the reservation detail and the dashboard, so both are revalidated.
   revalidatePath('/');
   const reservationId = String(formData.get('reservationId') ?? '').trim();
   if (reservationId) revalidatePath(`/reservations/${reservationId}`);

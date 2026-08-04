@@ -21,7 +21,7 @@ const ROOM_TONES: Record<RoomStatus, string> = {
   OUT_OF_SERVICE: 'bg-zinc-500/15 text-zinc-600 dark:text-zinc-400',
 };
 
-/** 확정(DEFINITE)부터 재고를 실제로 잡는다. 색으로도 그 경계가 보이게 한다. */
+/** Inventory is actually held from DEFINITE onwards. The colour shows that boundary. */
 const BLOCK_TONES: Record<BlockStatus, string> = {
   INQUIRY: 'bg-slate-500/15 text-slate-700 dark:text-slate-300',
   TENTATIVE: 'bg-amber-500/15 text-amber-700 dark:text-amber-300',
