@@ -225,3 +225,32 @@ export async function cancelReservationAction(
   revalidatePath('/reservations');
   return actionSuccess('예약을 취소했습니다.');
 }
+
+/**
+ * 대기 확정.
+ *
+ * 자리가 났는지는 확정하는 순간 OPERA 가 세어 본다. 그 사이 다른 대기 건이
+ * 먼저 확정됐으면 여기서 거절이 돌아온다.
+ */
+export async function confirmWaitlistAction(
+  reservationId: string,
+  _prev: ActionState,
+  _formData: FormData,
+): Promise<ActionState> {
+  try {
+    await apiFetch(
+      'be',
+      `/api/reservations/${encodeURIComponent(reservationId)}/confirm-waitlist`,
+      {
+        method: 'POST',
+        json: {},
+      },
+    );
+  } catch (error) {
+    return actionError(backendMessage(error, '대기를 확정하지 못했습니다.'));
+  }
+
+  revalidatePath(`/reservations/${reservationId}`);
+  revalidatePath('/reservations');
+  return actionSuccess('대기를 확정했습니다.');
+}

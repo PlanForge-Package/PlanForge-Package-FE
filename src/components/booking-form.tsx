@@ -114,16 +114,20 @@ export function BookingForm({
                     {formatMoney(offer?.totalAmount ?? item.amount, currency)}
                   </td>
                   <td className="py-2.5">
+                    {/*
+                      매진이어도 고를 수 있게 둔다.
+                      손님을 그냥 돌려보내지 않으려면 대기로 받아야 하고,
+                      고를 수 없으면 대기 자체가 불가능하다.
+                    */}
                     <button
                       type="button"
-                      disabled={soldOut}
                       aria-pressed={active}
                       onClick={() => setSelected(active ? null : item.roomTypeCode)}
-                      className={`rounded-md px-2.5 py-1 text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+                      className={`rounded-md px-2.5 py-1 text-xs transition-colors ${
                         active ? 'btn-primary' : 'border border-current/20 hover:bg-current/5'
                       }`}
                     >
-                      {active ? '선택됨' : '선택'}
+                      {active ? '선택됨' : soldOut ? '대기로 선택' : '선택'}
                     </button>
                   </td>
                 </tr>
@@ -148,6 +152,11 @@ export function BookingForm({
           />
           {/* 이 화면에서 만든 예약은 언제나 프런트 채널이다. 고르게 할 이유가 없다. */}
           <input type="hidden" name="channelCode" value="FRONTDESK" />
+          {/*
+            매진인 타입을 골랐으면 대기로 보낸다.
+            OPERA 는 자리가 없으면 예약 자체를 거절하고, 대기로 받으라고 알려 준다.
+          */}
+          {chosen.item.availableRooms <= 0 && <input type="hidden" name="waitlist" value="true" />}
 
           <fieldset className="flex flex-wrap items-end gap-2">
             <legend className="mb-2 text-sm font-medium">
@@ -258,11 +267,14 @@ export function BookingForm({
               </div>
             )}
 
-            <SubmitButton pendingLabel="예약 중…">예약 확정</SubmitButton>
+            <SubmitButton pendingLabel="예약 중…">
+              {chosen.item.availableRooms <= 0 ? '대기 등록' : '예약 확정'}
+            </SubmitButton>
           </fieldset>
 
           <p className="mt-1.5 text-xs text-subtle">
-            최종 확정은 OPERA 가 합니다. 조회 이후 재고가 팔렸다면 거절될 수 있습니다.
+            최종 확정은 OPERA 가 합니다. 조회 이후 재고가 팔렸다면 거절됩니다 — 그때는 대기로 받을
+            수 있습니다. 대기 예약은 재고를 차지하지 않고, 자리가 나면 예약 상세에서 확정합니다.
           </p>
           <ActionMessage state={state} />
         </form>

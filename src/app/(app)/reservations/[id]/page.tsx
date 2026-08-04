@@ -5,6 +5,7 @@ import { logoutUrl, requireUser } from '@/lib/auth';
 import { FolioPanel } from '@/components/folio-panel';
 import { FolioRoutingPanel } from '@/components/folio-routing-panel';
 import { TracePanel } from '@/components/trace-panel';
+import { WaitlistPanel } from '@/components/waitlist-panel';
 import { FrontDeskPanel } from '@/components/front-desk';
 import { ReservationEditPanel } from '@/components/reservation-edit';
 import { ErrorNotice } from '@/components/notice';
@@ -165,6 +166,9 @@ export default async function ReservationDetailPage({ params }: Props) {
         {reservation.profile.email && <Field label="이메일" value={reservation.profile.email} />}
         {reservation.notes && <Field label="메모" value={reservation.notes} />}
       </section>
+
+      {/* 확정한 뒤에도 결과가 보여야 하므로 패널이 스스로 숨는다. */}
+      <WaitlistPanel reservationId={reservation.id} status={reservation.status} />
 
       <ReservationEditPanel
         reservationId={reservation.id}

@@ -101,6 +101,8 @@ export async function createReservationAction(
         adults,
         children,
         ...(blockCode ? { blockCode } : {}),
+        // 매진이어도 대기로 받는다. 대기 예약은 재고를 차지하지 않는다.
+        ...(formData.get('waitlist') ? { waitlist: true } : {}),
         ...(sourceCode ? { sourceCode } : {}),
         ...(marketCode ? { marketCode } : {}),
         ...(channelCode ? { channelCode } : {}),
