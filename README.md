@@ -97,7 +97,8 @@ src/
 │   ├── nav.tsx                   역할별 메뉴 · 호텔 선택기
 │   ├── booking-form.tsx          재고 선택 → 게스트 입력 → 예약
 │   ├── front-desk.tsx            체크인 · 체크아웃
-│   ├── folio-panel.tsx           폴리오 · 거래 등록
+│   ├── folio-panel.tsx           폴리오 · 거래 등록 · 창구 간 이관
+│   ├── folio-routing-panel.tsx   라우팅 지시 (거래 코드 → 창구)
 │   ├── payment-panel.tsx         승인 · 매입 · 승인취소 · 환불
 │   ├── room-key-panel.tsx        카드 발급 · 무효화
 │   ├── room-outage-panel.tsx     사용 불가 객실 등록 · 해제

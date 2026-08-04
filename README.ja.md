@@ -97,7 +97,8 @@ src/
 │   ├── nav.tsx                   役割別メニュー・ホテル切替
 │   ├── booking-form.tsx          在庫選択 → ゲスト情報 → 予約
 │   ├── front-desk.tsx            チェックイン・チェックアウト
-│   ├── folio-panel.tsx           フォリオ・取引登録
+│   ├── folio-panel.tsx           フォリオ・取引登録・ウィンドウ間移管
+│   ├── folio-routing-panel.tsx   ルーティング指示（取引コード → ウィンドウ）
 │   ├── payment-panel.tsx         オーソリ・売上確定・取消・返金
 │   ├── room-key-panel.tsx        カード発行・無効化
 │   ├── room-outage-panel.tsx     使用不可客室の登録・解除

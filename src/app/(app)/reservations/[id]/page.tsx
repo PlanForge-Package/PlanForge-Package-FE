@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { logoutUrl, requireUser } from '@/lib/auth';
 import { FolioPanel } from '@/components/folio-panel';
+import { FolioRoutingPanel } from '@/components/folio-routing-panel';
 import { FrontDeskPanel } from '@/components/front-desk';
 import { ReservationEditPanel } from '@/components/reservation-edit';
 import { ErrorNotice } from '@/components/notice';
@@ -12,7 +13,12 @@ import { RoomKeyPanel } from '@/components/room-key-panel';
 import { ReservationStatusBadge } from '@/components/status-badge';
 import { ApiError, apiFetch, backendMessage, tryFetch } from '@/lib/api';
 import { CHANNEL_LABELS, MARKET_LABELS, SOURCE_LABELS, label } from '@/lib/channel-labels';
-import type { PaymentListResponse, ReservationDetail, RoomKeyListResponse } from '@/lib/types';
+import type {
+  FolioRoutingList,
+  PaymentListResponse,
+  ReservationDetail,
+  RoomKeyListResponse,
+} from '@/lib/types';
 
 /** 환불은 돈이 나가는 방향이다. BE 도 같은 규칙으로 막는다. */
 const CAN_REFUND = ['ADMIN', 'MANAGER'];
@@ -87,13 +93,19 @@ export default async function ReservationDetailPage({ params }: Props) {
   const reservation = result.data;
   const folios = reservation.folios ?? [];
 
-  // 키·결제 조회가 실패해도 예약 화면 전체를 죽이지 않는다. 별개 호출인 이유가 이것이다.
-  const [keys, payments] = await Promise.all([
+  // 키·결제·라우팅 조회가 실패해도 예약 화면 전체를 죽이지 않는다. 별개 호출인 이유가 이것이다.
+  const [keys, payments, routings] = await Promise.all([
     tryFetch(
       apiFetch<RoomKeyListResponse>('be', `/api/reservations/${encodeURIComponent(id)}/keys`),
     ),
     tryFetch(
       apiFetch<PaymentListResponse>('be', `/api/reservations/${encodeURIComponent(id)}/payments`),
+    ),
+    tryFetch(
+      apiFetch<FolioRoutingList>(
+        'be',
+        `/api/reservations/${encodeURIComponent(id)}/folios/routings`,
+      ),
     ),
   ]);
 
@@ -185,6 +197,20 @@ export default async function ReservationDetailPage({ params }: Props) {
       )}
 
       <FolioPanel reservationId={reservation.id} folios={folios} currency={reservation.currency} />
+
+      {routings.ok ? (
+        <FolioRoutingPanel
+          reservationId={reservation.id}
+          folios={folios}
+          routings={routings.data.items}
+        />
+      ) : (
+        <ErrorNotice
+          title="라우팅 지시를 불러오지 못했습니다"
+          message={routings.message}
+          status={routings.status}
+        />
+      )}
     </main>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useActionState, useId } from 'react';
 import { addPostingAction, openFolioAction } from '@/app/(app)/reservations/[id]/actions';
+import { transferPostingAction } from '@/app/(app)/reservations/[id]/routing-actions';
 import { IDLE, type ActionState } from '@/lib/action-state';
 import { ActionMessage, SubmitButton } from './action-feedback';
 import type { Folio, PostingType } from '@/lib/types';
@@ -71,6 +72,7 @@ export function FolioPanel({
             key={folio.id}
             reservationId={reservationId}
             folio={folio}
+            folios={folios}
             currency={currency}
           />
         ))
@@ -82,14 +84,32 @@ export function FolioPanel({
 function FolioCard({
   reservationId,
   folio,
+  folios,
   currency,
 }: {
   reservationId: string;
   folio: Folio;
+  folios: Folio[];
   currency: string;
 }) {
   const closed = folio.status === 'CLOSED';
   const balance = Number(folio.balance);
+
+  /*
+   * 이관 상태는 카드가 들고 있다.
+   *
+   * 옮긴 거래는 이 표에서 사라지므로, 상태를 행이 들고 있으면 결과 메시지도
+   * 함께 사라져 무엇이 일어났는지 알 수 없다.
+   */
+  const [transferState, transferAction] = useActionState<ActionState, FormData>(
+    transferPostingAction.bind(null, reservationId),
+    IDLE,
+  );
+
+  // 옮길 수 있는 다른 창구. 마감된 곳으로는 옮길 수 없다.
+  const targets = folios.filter(
+    (other) => other.window !== folio.window && other.status === 'OPEN',
+  );
 
   return (
     <article className="rounded-lg border border-current/10">
@@ -118,6 +138,10 @@ function FolioCard({
         </p>
       </header>
 
+      <div aria-live="polite" className="px-4 pt-3 empty:hidden">
+        <ActionMessage state={transferState} />
+      </div>
+
       {folio.postings.length === 0 ? (
         <p className="px-4 py-6 text-center text-sm text-subtle">등록된 거래가 없습니다.</p>
       ) : (
@@ -141,6 +165,11 @@ function FolioCard({
                 <th scope="col" className="py-2 pr-4 font-medium">
                   일시
                 </th>
+                {targets.length > 0 && !closed && (
+                  <th scope="col" className="py-2 pr-4 font-medium">
+                    이관
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -163,6 +192,12 @@ function FolioCard({
                       {posting.voidedById && (
                         <span className="ml-1.5 text-xs text-subtle">취소됨</span>
                       )}
+                      {/* 왜 이 창구에 있는지 설명해 준다. 감사에서 반드시 묻는다. */}
+                      {posting.transferredFromWindow != null && (
+                        <span className="ml-1.5 text-xs text-subtle">
+                          윈도 {posting.transferredFromWindow} 에서 이관
+                        </span>
+                      )}
                     </td>
                     <td
                       className={`py-2 pr-4 text-right tabular-nums ${
@@ -174,6 +209,40 @@ function FolioCard({
                     <td className="py-2 pr-4 tabular-nums text-subtle">
                       {posting.postedAt.slice(0, 16).replace('T', ' ')}
                     </td>
+                    {targets.length > 0 && !closed && (
+                      <td className="py-2 pr-4">
+                        {/*
+                          결제·취소가 얽힌 거래는 옮길 수 없다. 눌러도 거절될
+                          것을 눌러 보게 두면 원인을 찾느라 시간을 쓴다.
+                        */}
+                        {posting.voidedById || posting.paymentId ? (
+                          <span className="text-xs text-subtle">—</span>
+                        ) : (
+                          <form action={transferAction} className="flex items-center gap-1">
+                            <input type="hidden" name="postingId" value={posting.id} />
+                            <input type="hidden" name="description" value={posting.description} />
+                            <select
+                              name="toWindow"
+                              defaultValue={targets[0]?.window}
+                              aria-label={`${posting.description} 이관 대상`}
+                              className="rounded-md border border-current/20 bg-transparent px-1.5 py-0.5 text-xs"
+                            >
+                              {targets.map((target) => (
+                                <option key={target.id} value={target.window}>
+                                  윈도 {target.window}
+                                </option>
+                              ))}
+                            </select>
+                            <SubmitButton
+                              pendingLabel="…"
+                              className="rounded-md border border-current/20 px-2 py-0.5 text-xs transition-colors hover:bg-current/5 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              이관
+                            </SubmitButton>
+                          </form>
+                        )}
+                      </td>
+                    )}
                   </tr>
                 );
               })}

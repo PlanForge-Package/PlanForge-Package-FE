@@ -97,7 +97,8 @@ src/
 │   ├── nav.tsx                   Role-aware menu · property switcher
 │   ├── booking-form.tsx          Pick availability → guest details → book
 │   ├── front-desk.tsx            Check-in · check-out
-│   ├── folio-panel.tsx           Folios · postings
+│   ├── folio-panel.tsx           Folios · postings · transfer between windows
+│   ├── folio-routing-panel.tsx   Routing instructions (code → window)
 │   ├── payment-panel.tsx         Authorize · capture · void · refund
 │   ├── room-key-panel.tsx        Issue · revoke room keys
 │   ├── room-outage-panel.tsx     Out-of-order / out-of-service periods

@@ -379,6 +379,26 @@ export interface Posting {
   reference?: string | null;
   /** 취소되었으면 그 취소를 만든 조정 포스팅 ID */
   voidedById?: string | null;
+  /** PG 결제가 만든 거래면 그 결제 ID. 이관할 수 없다. */
+  paymentId?: string | null;
+  /** 다른 창구에서 옮겨 왔으면 원래 창구 */
+  transferredFromWindow?: number | null;
+  transferredAt?: string | null;
+}
+
+/** 라우팅 지시 — 거래 코드별로 요금을 보낼 창구. */
+export interface FolioRouting {
+  id: string;
+  reservationId: string;
+  transactionCode: string;
+  targetWindow: number;
+  note: string | null;
+  createdAt: string;
+}
+
+export interface FolioRoutingList {
+  items: FolioRouting[];
+  total: number;
 }
 
 export type PaymentMethod = 'CARD' | 'CASH' | 'TRANSFER';

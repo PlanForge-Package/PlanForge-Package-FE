@@ -95,7 +95,8 @@ src/
 │   ├── nav.tsx                   按角色显示的菜单 · 酒店选择器
 │   ├── booking-form.tsx          选择房况 → 填写客人信息 → 预订
 │   ├── front-desk.tsx            入住 · 退房
-│   ├── folio-panel.tsx           账单 · 入账
+│   ├── folio-panel.tsx           账单 · 入账 · 账窗间转移
+│   ├── folio-routing-panel.tsx   路由指令（交易码 → 账窗）
 │   ├── payment-panel.tsx         授权 · 请款 · 撤销 · 退款
 │   ├── room-key-panel.tsx        房卡制卡 · 作废
 │   ├── room-outage-panel.tsx     房间停用登记 · 解除
