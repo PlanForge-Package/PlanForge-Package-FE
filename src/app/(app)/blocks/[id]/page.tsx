@@ -114,6 +114,15 @@ export default async function BlockDetailPage({ params }: Props) {
           status={data.status}
           name={data.name}
           cutoffDate={data.cutoffDate}
+          // 객실 타입은 일자마다 반복된다. 조정은 타입 단위이므로 하나만 남긴다.
+          rates={[
+            ...new Map(
+              data.allotments.map((slot) => [
+                slot.roomTypeCode,
+                { roomTypeCode: slot.roomTypeCode, amount: slot.amount },
+              ]),
+            ).values(),
+          ]}
         />
       )}
 

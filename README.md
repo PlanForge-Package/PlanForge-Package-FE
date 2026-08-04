@@ -86,6 +86,7 @@ src/
 │       ├── blocks/               단체 블록 목록 · 상세(할당 그리드·룸리스트)
 │       ├── profiles/             게스트 프로필 검색 · 상세(이력·중복 병합)
 │       ├── rooms/                객실 상태
+│       ├── rates/               요금 코드 · 시즌 · 패키지
 │       ├── housekeeping/         작업 배정 · 진행 · 불일치
 │       ├── night-audit/          마감 점검표 · 노쇼 처리
 │       ├── cashier/             근무조 수납 집계 · 마감
@@ -104,6 +105,8 @@ src/
 │   ├── payment-panel.tsx         승인 · 매입 · 승인취소 · 환불
 │   ├── room-key-panel.tsx        카드 발급 · 무효화
 │   ├── room-outage-panel.tsx     사용 불가 객실 등록 · 해제
+│   ├── rate-panels.tsx          요금 코드 목록 · 패키지
+│   ├── rate-plan-detail.tsx     기준 요금 · 시즌 편집
 │   ├── block-form.tsx            블록 생성 · 수정
 │   ├── profile-editor.tsx        선호·멤버십·메모 · 중복 병합
 │   ├── outlet-admin.tsx          POS 아웃렛 발급 · 재발급
@@ -177,6 +180,7 @@ pnpm dev -- -p 3200
 | `/blocks` `/blocks/[id]`     | 단체 블록 — 확보·픽업, 일자별 할당 그리드, 룸리스트          |
 | `/profiles` `/profiles/[id]` | 게스트 프로필 — 검색, 투숙 이력, 중복 병합                   |
 | `/rooms`                     | 객실 — 상태 변경(OPERA 위임), 재실 현황, 사용 불가 등록·해제 |
+| `/rates` `/rates/[code]`     | 요금 — 요금 코드·판매 기간, 시즌 요금, 패키지                |
 | `/housekeeping`              | 하우스키핑 — 작업 배정·진행, 불일치 확인                     |
 | `/night-audit`               | 야간 감사 — 마감 점검표, 노쇼 처리                           |
 | `/cashier`                   | 캐셔 마감 — 근무조별 수납·시재 대사                          |

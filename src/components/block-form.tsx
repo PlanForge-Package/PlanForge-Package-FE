@@ -170,6 +170,26 @@ export function CreateBlockForm({
           ))}
         </div>
 
+        <div className="flex flex-wrap items-end gap-3">
+          <span className="text-xs text-subtle">협의 요금 — 비우면 요금제 값으로 팝니다</span>
+          {roomTypes.map((type) => (
+            <div key={type.id} className="flex flex-col gap-1">
+              <label htmlFor={`${uid}-amount-${type.code}`} className="text-xs text-subtle">
+                {type.code}
+              </label>
+              <input
+                id={`${uid}-amount-${type.code}`}
+                name={`amount:${type.code}`}
+                type="number"
+                min={0}
+                step={1}
+                placeholder="요금제 값"
+                className={`w-28 tabular-nums ${inputClass}`}
+              />
+            </div>
+          ))}
+        </div>
+
         <div className="flex items-center gap-2">
           <SubmitButton pendingLabel="만드는 중…">블록 생성</SubmitButton>
           <button
@@ -201,11 +221,14 @@ export function BlockEditor({
   status,
   name,
   cutoffDate,
+  rates = [],
 }: {
   blockId: string;
   status: BlockStatus;
   name: string;
   cutoffDate: string | null;
+  /** 지금 잡혀 있는 객실 타입별 협의 요금. 빈 칸은 건드리지 않는다. */
+  rates?: Array<{ roomTypeCode: string; amount: string | null }>;
 }) {
   const [state, action] = useActionState<ActionState, FormData>(updateBlockAction, IDLE);
   const uid = useId();
@@ -256,11 +279,29 @@ export function BlockEditor({
           />
         </div>
 
+        {rates.map((rate) => (
+          <div key={rate.roomTypeCode} className="flex flex-col gap-1">
+            <label htmlFor={`${uid}-rate-${rate.roomTypeCode}`} className="text-xs text-subtle">
+              {rate.roomTypeCode} 협의가
+            </label>
+            <input
+              id={`${uid}-rate-${rate.roomTypeCode}`}
+              name={`rate:${rate.roomTypeCode}`}
+              type="number"
+              min={0}
+              step={1}
+              placeholder={rate.amount ? Number(rate.amount).toLocaleString('ko-KR') : '요금제 값'}
+              className={`w-28 tabular-nums ${inputClass}`}
+            />
+          </div>
+        ))}
+
         <SubmitButton pendingLabel="반영 중…">저장</SubmitButton>
       </fieldset>
 
       <p className="mt-1.5 text-xs text-subtle">
         확정(DEFINITE)부터 재고를 실제로 잡습니다. 이미 픽업된 예약이 있으면 취소할 수 없습니다.
+        협의 요금을 바꿔도 이미 빠져나간 예약의 금액은 그대로입니다.
       </p>
       <ActionMessage state={state} />
     </form>

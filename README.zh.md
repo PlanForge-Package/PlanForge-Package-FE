@@ -84,6 +84,7 @@ src/
 │       ├── blocks/               团队房控 · 详情（配额表 · 房单）
 │       ├── profiles/             客史检索 · 详情（住店记录 · 重复合并）
 │       ├── rooms/                房态
+│       ├── rates/               房价代码 · 季节 · 套餐
 │       ├── housekeeping/         任务分配 · 进度 · 差异
 │       ├── night-audit/          夜审检查表 · No-show
 │       ├── cashier/             班次收款汇总 · 结班
@@ -102,6 +103,8 @@ src/
 │   ├── payment-panel.tsx         授权 · 请款 · 撤销 · 退款
 │   ├── room-key-panel.tsx        房卡制卡 · 作废
 │   ├── room-outage-panel.tsx     房间停用登记 · 解除
+│   ├── rate-panels.tsx          房价代码列表 · 套餐
+│   ├── rate-plan-detail.tsx     基准房价 · 季节编辑
 │   ├── block-form.tsx            房控创建 · 修改
 │   ├── profile-editor.tsx        偏好 · 会员 · 备注 · 合并
 │   ├── outlet-admin.tsx          POS 门店发放 · 换发
@@ -175,6 +178,7 @@ pnpm dev -- -p 3200
 | `/blocks` `/blocks/[id]`     | 团队房控 —— 配额与实收、按日配额表、房单                 |
 | `/profiles` `/profiles/[id]` | 客史档案 —— 检索、住店记录、重复合并                     |
 | `/rooms`                     | 房间 —— 房态变更（委托 OPERA）、在住情况、停用登记与解除 |
+| `/rates` `/rates/[code]`     | 房价 —— 房价代码与销售期间、季节房价、套餐               |
 | `/housekeeping`              | 客房 —— 任务分配 · 进度、差异确认                        |
 | `/night-audit`               | 夜审 —— 结账检查表、No-show 处理                         |
 | `/cashier`                   | 结班 —— 按班次汇总收款与点钞                             |

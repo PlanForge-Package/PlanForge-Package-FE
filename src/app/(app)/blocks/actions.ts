@@ -28,9 +28,18 @@ function readAllotments(formData: FormData) {
   const ratePlan = text(formData, 'ratePlanCode');
 
   return codes
-    .map((code, index) => ({ roomTypeCode: code, blocked: counts[index] ?? 0 }))
+    .map((code, index) => ({
+      roomTypeCode: code,
+      blocked: counts[index] ?? 0,
+      // 협의 요금은 타입마다 다르다. 비우면 요금 코드가 정한 값으로 판다.
+      amount: Number(String(formData.get(`amount:${code}`) ?? '').trim()),
+    }))
     .filter((slot) => slot.roomTypeCode && Number.isFinite(slot.blocked) && slot.blocked > 0)
-    .map((slot) => ({ ...slot, ...(ratePlan ? { ratePlanCode: ratePlan } : {}) }));
+    .map(({ amount, ...slot }) => ({
+      ...slot,
+      ...(ratePlan ? { ratePlanCode: ratePlan } : {}),
+      ...(Number.isInteger(amount) && amount > 0 ? { amount } : {}),
+    }));
 }
 
 export async function createBlockAction(
@@ -106,7 +115,27 @@ export async function updateBlockAction(
   const name = text(formData, 'name');
   const cutoffDate = text(formData, 'cutoffDate');
 
-  if (!status && !name && !cutoffDate) {
+  /*
+   * 협의 요금 조정.
+   *
+   * 비운 칸은 건드리지 않는다는 뜻이다. 0 으로 보내면 공짜로 파는 것이 되고,
+   * 이미 빠져나간 예약과 앞으로 빠질 예약의 값이 어긋난다.
+   */
+  const rates: Array<{ roomTypeCode: string; amount: number }> = [];
+  for (const [key, value] of formData.entries()) {
+    if (!key.startsWith('rate:')) continue;
+    const raw = String(value).trim();
+    if (!raw) continue;
+
+    const amount = Number(raw);
+    const roomTypeCode = key.slice('rate:'.length);
+    if (!Number.isInteger(amount) || amount < 0) {
+      return actionError(`${roomTypeCode} 협의 요금은 0 이상의 정수여야 합니다.`);
+    }
+    rates.push({ roomTypeCode, amount });
+  }
+
+  if (!status && !name && !cutoffDate && rates.length === 0) {
     return actionError('바꿀 내용이 없습니다.');
   }
 
@@ -117,6 +146,7 @@ export async function updateBlockAction(
         ...(name ? { name } : {}),
         ...(status ? { status } : {}),
         ...(cutoffDate ? { cutoffDate } : {}),
+        ...(rates.length ? { rates } : {}),
       },
     });
   } catch (error) {

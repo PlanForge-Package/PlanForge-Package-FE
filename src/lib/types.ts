@@ -145,12 +145,23 @@ export interface AvailabilityResponse {
   items: AvailabilityItem[];
 }
 
+export interface RateOfferPackage {
+  packageCode: string;
+  name: string;
+  amount: number;
+  calculation: string;
+  /** 요금에 포함이면 총액이 늘지 않는다. */
+  includedInRate: boolean;
+}
+
 export interface RateOffer {
   ratePlanCode: string;
+  ratePlanName?: string;
   roomTypeCode: string;
   roomTypeName?: string;
   currency: string;
-  nightlyRates: Array<{ date: string; amount: number }>;
+  nightlyRates: Array<{ date: string; amount: number; packageAmount?: number }>;
+  packages?: RateOfferPackage[];
   totalAmount: number;
 }
 
@@ -161,6 +172,60 @@ export interface RateResponse {
   departureDate: string;
   nights: number;
   offers: RateOffer[];
+}
+
+// --- 요금 코드 설정. OPERA 가 원천이라 사본이 없다 ---------------------------
+
+export interface RateSeason {
+  seasonId: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  /** 0=일요일. 비우면 기간 내 매일. */
+  daysOfWeek?: number[];
+  amounts: Record<string, number>;
+}
+
+/**
+ * OPERA 의 요금 코드 설정.
+ *
+ * 예약에 붙는 `RatePlan`(로컬 사본)과 다르다 — 이쪽은 무엇을 얼마에 파는지에
+ * 대한 설정이고, 그쪽은 그 예약이 어느 요금으로 팔렸는지의 기록이다.
+ */
+export interface RatePlanConfig {
+  ratePlanCode: string;
+  hotelId: string;
+  name: string;
+  description?: string;
+  currency: string;
+  marketCode: string;
+  sellStartDate: string;
+  sellEndDate: string;
+  baseAmounts: Record<string, number>;
+  seasons: RateSeason[];
+  packageCodes: string[];
+  status: string;
+}
+
+export interface RatePlanConfigList {
+  propertyId: string;
+  items: RatePlanConfig[];
+}
+
+export interface RatePackage {
+  packageCode: string;
+  hotelId: string;
+  name: string;
+  amount: number;
+  /** PerNight = 1박당, PerStay = 투숙당 1회, PerPerson = 1인 1박당. */
+  calculation: string;
+  transactionCode: string;
+  includedInRate: boolean;
+}
+
+export interface RatePackageList {
+  propertyId: string;
+  items: RatePackage[];
 }
 
 export type BlockStatus = 'INQUIRY' | 'TENTATIVE' | 'DEFINITE' | 'CANCELLED' | 'ACTUAL';

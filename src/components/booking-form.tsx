@@ -27,6 +27,11 @@ export interface BookingOption {
   offer?: RateOffer;
 }
 
+/** 같은 객실 타입이 요금 코드마다 한 줄씩 나오므로 둘을 합쳐 구분한다. */
+function optionKey({ item, offer }: BookingOption): string {
+  return `${item.roomTypeCode}::${offer?.ratePlanCode ?? item.ratePlanCode ?? ''}`;
+}
+
 /**
  * 재고 목록에서 객실 타입을 고르고 게스트 정보를 넣어 예약을 만든다.
  *
@@ -63,7 +68,7 @@ export function BookingForm({
   // 돌려준 값을 다시 심어야 게스트 정보를 처음부터 타이핑하지 않는다.
   const kept = state.status === 'error' ? state.values : undefined;
 
-  const chosen = options.find((o) => o.item.roomTypeCode === selected);
+  const chosen = options.find((o) => optionKey(o) === selected);
 
   return (
     <section className="flex flex-col gap-4">
@@ -90,14 +95,19 @@ export function BookingForm({
             </tr>
           </thead>
           <tbody>
-            {options.map(({ item, offer }) => {
+            {options.map((option) => {
+              const { item, offer } = option;
+              const key = optionKey(option);
               const soldOut = item.availableRooms <= 0;
-              const active = selected === item.roomTypeCode;
+              const active = selected === key;
               const currency = offer?.currency ?? item.currency ?? 'KRW';
+              // 요금에 포함되지 않은 패키지는 총액에 이미 들어 있다. 무엇이 붙었는지는 밝힌다.
+              const added = (offer?.packages ?? []).filter((pkg) => !pkg.includedInRate);
+              const included = (offer?.packages ?? []).filter((pkg) => pkg.includedInRate);
 
               return (
                 <tr
-                  key={item.roomTypeCode}
+                  key={key}
                   className={`border-b border-current/5 ${soldOut ? 'text-subtle' : ''}`}
                 >
                   <td className="py-2.5 pr-4">
@@ -106,7 +116,19 @@ export function BookingForm({
                       <span className="ml-1.5 text-subtle">{item.roomTypeName}</span>
                     )}
                   </td>
-                  <td className="py-2.5 pr-4">{offer?.ratePlanCode ?? item.ratePlanCode ?? '—'}</td>
+                  <td className="py-2.5 pr-4">
+                    {offer?.ratePlanCode ?? item.ratePlanCode ?? '—'}
+                    {offer?.ratePlanName && (
+                      <span className="ml-1.5 text-xs text-subtle">{offer.ratePlanName}</span>
+                    )}
+                    {(added.length > 0 || included.length > 0) && (
+                      <span className="block text-xs text-subtle">
+                        {included.map((pkg) => `${pkg.name} 포함`).join(' · ')}
+                        {included.length > 0 && added.length > 0 ? ' · ' : ''}
+                        {added.map((pkg) => `${pkg.name} 추가`).join(' · ')}
+                      </span>
+                    )}
+                  </td>
                   <td className="py-2.5 pr-4 tabular-nums">
                     {soldOut ? '매진' : `${item.availableRooms}실`}
                   </td>
@@ -122,7 +144,7 @@ export function BookingForm({
                     <button
                       type="button"
                       aria-pressed={active}
-                      onClick={() => setSelected(active ? null : item.roomTypeCode)}
+                      onClick={() => setSelected(active ? null : key)}
                       className={`rounded-md px-2.5 py-1 text-xs transition-colors ${
                         active ? 'btn-primary' : 'border border-current/20 hover:bg-current/5'
                       }`}

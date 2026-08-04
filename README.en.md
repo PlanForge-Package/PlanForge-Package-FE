@@ -86,6 +86,7 @@ src/
 │       ├── blocks/               Group blocks · detail (allotment grid · rooming list)
 │       ├── profiles/             Guest search · detail (history · duplicate merge)
 │       ├── rooms/                Room status
+│       ├── rates/               Rate plans · seasons · packages
 │       ├── housekeeping/         Task assignment · progress · discrepancies
 │       ├── night-audit/          Close-of-day checklist · no-show
 │       ├── cashier/             Per-shift collections · close
@@ -104,6 +105,8 @@ src/
 │   ├── payment-panel.tsx         Authorize · capture · void · refund
 │   ├── room-key-panel.tsx        Issue · revoke room keys
 │   ├── room-outage-panel.tsx     Out-of-order / out-of-service periods
+│   ├── rate-panels.tsx          Rate plans · packages
+│   ├── rate-plan-detail.tsx     Base amounts · season editor
 │   ├── block-form.tsx            Create · amend blocks
 │   ├── profile-editor.tsx        Preferences · membership · notes · merge
 │   ├── outlet-admin.tsx          POS outlet issue · rotate
@@ -177,6 +180,7 @@ the BE repository).
 | `/blocks` `/blocks/[id]`     | Group blocks — allotment vs pickup, per-date grid, rooming list              |
 | `/profiles` `/profiles/[id]` | Guest profiles — search, stay history, duplicate merge                       |
 | `/rooms`                     | Rooms — status changes (delegated to OPERA), occupancy, out-of-order periods |
+| `/rates` `/rates/[code]`     | Rates — plans and sell windows, seasons, packages                            |
 | `/housekeeping`              | Housekeeping — assignment, progress, discrepancies                           |
 | `/night-audit`               | Night audit — close-of-day checklist, no-show handling                       |
 | `/cashier`                   | Cashier close — per-shift collections and cash count                         |

@@ -30,6 +30,8 @@ const LINKS: NavLink[] = [
   { href: '/blocks', label: '단체', roles: ['ADMIN', 'MANAGER', 'FRONT_DESK'] },
   { href: '/profiles', label: '게스트', roles: ['ADMIN', 'MANAGER', 'FRONT_DESK'] },
   { href: '/rooms', label: '객실' },
+  // 무엇을 얼마에 파는지. 프런트도 봐야 예약을 받는다.
+  { href: '/rates', label: '요금', roles: ['ADMIN', 'MANAGER', 'FRONT_DESK'] },
   { href: '/housekeeping', label: '하우스키핑' },
   { href: '/night-audit', label: '야간 감사', roles: ['ADMIN', 'MANAGER', 'FRONT_DESK'] },
   // 돈을 받는 사람이 자기 조를 마감한다.

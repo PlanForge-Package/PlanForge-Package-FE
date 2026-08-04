@@ -207,11 +207,18 @@ async function Results({
     return <EmptyState message="해당 기간에 판매 가능한 객실이 없습니다." />;
   }
 
+  /*
+   * 객실 타입 × 요금 코드로 한 줄씩 만든다.
+   *
+   * 같은 방이라도 기준 요금과 법인 협약가는 값이 다르다. 타입당 한 줄만 두면
+   * 어느 요금으로 파는지 고를 수 없고, 늘 하나만 팔리게 된다.
+   */
   const offers = rates.ok ? rates.data.offers : [];
-  const options: BookingOption[] = availability.data.items.map((item) => ({
-    item,
-    offer: offers.find((offer) => offer.roomTypeCode === item.roomTypeCode),
-  }));
+  const options: BookingOption[] = availability.data.items.flatMap((item) => {
+    const matching = offers.filter((offer) => offer.roomTypeCode === item.roomTypeCode);
+    // 요금을 못 받아 왔어도 재고는 보여 준다 — 대기로는 받을 수 있어야 한다.
+    return matching.length === 0 ? [{ item }] : matching.map((offer) => ({ item, offer }));
+  });
 
   const nights = rates.ok ? rates.data.nights : nightsBetween(arrivalDate, departureDate);
 
