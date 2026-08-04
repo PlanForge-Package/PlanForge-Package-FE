@@ -4,6 +4,7 @@ import { ErrorNotice } from '@/components/notice';
 import { PageHeader, StatTile } from '@/components/page-header';
 import { apiFetch, tryFetch } from '@/lib/api';
 import { requireUser } from '@/lib/auth';
+import { getDictionary } from '@/lib/i18n';
 import { getPropertyContext } from '@/lib/property';
 import type { DailyTraceList, ReservationListResponse } from '@/lib/types';
 
@@ -14,6 +15,7 @@ export default async function DashboardPage() {
   // Property 선택이 들어오면 BE 의 /api/reservations/summary 로 바꾼다.
   const user = await requireUser('/');
   const property = await getPropertyContext(user);
+  const { t } = await getDictionary();
 
   // 지시 조회가 실패해도 현황은 보여야 한다. 별개 호출인 이유가 이것이다.
   const [result, traces] = await Promise.all([
@@ -43,19 +45,22 @@ export default async function DashboardPage() {
   return (
     <main className="flex flex-col gap-8">
       <PageHeader
-        title="대시보드"
-        description={property.selected?.name ?? 'Oracle OPERA(OHIP) 기반 호텔 관리 플랫폼'}
+        title={t.dashboard.title}
+        description={property.selected?.name ?? t.login.subtitle}
       />
 
       {!result.ok ? (
-        <ErrorNotice title="현황을 불러오지 못했습니다" message={result.message} />
+        <ErrorNotice title={t.dashboard.loadFailed} message={result.message} />
       ) : (
         counts && (
-          <section aria-label="예약 요약" className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <StatTile label="전체 예약" value={counts.total} />
-            <StatTile label="재실" value={counts.inHouse} />
-            <StatTile label="도착 예정" value={counts.arriving} />
-            <StatTile label="체크아웃" value={counts.checkedOut} />
+          <section
+            aria-label={t.dashboard.reservationSummary}
+            className="grid grid-cols-2 gap-3 sm:grid-cols-4"
+          >
+            <StatTile label={t.dashboard.totalReservations} value={counts.total} />
+            <StatTile label={t.dashboard.inHouse} value={counts.inHouse} />
+            <StatTile label={t.dashboard.arrivals} value={counts.arriving} />
+            <StatTile label={t.dashboard.checkedOut} value={counts.checkedOut} />
           </section>
         )
       )}
@@ -64,14 +69,16 @@ export default async function DashboardPage() {
         <DailyTraces traces={traces.data.items} />
       ) : (
         <ErrorNotice
-          title="오늘의 지시를 불러오지 못했습니다"
+          title={t.dashboard.tracesFailed}
           message={traces.message}
           status={traces.status}
         />
       )}
 
       <section className="flex flex-col gap-3">
-        <h2 className="text-sm font-medium uppercase tracking-wide text-subtle">바로 가기</h2>
+        <h2 className="text-sm font-medium uppercase tracking-wide text-subtle">
+          {t.dashboard.shortcuts}
+        </h2>
         <div className="grid gap-3 sm:grid-cols-2">
           <Link
             href="/reservations"

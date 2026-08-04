@@ -124,6 +124,7 @@ src/
 │   ├── daily-traces.tsx          오늘의 지시 (대시보드)
 │   └── notice.tsx                ErrorNotice · InfoNotice · EmptyState
 ├── lib/
+│   ├── i18n/                     화면 언어 — 사전(ko·en·zh·ja) · 로케일 판단
 │   ├── api.ts                    apiFetch (서버 전용) · ApiError · tryFetch
 │   ├── action-state.ts           ActionState · 실패 시 입력값 보존
 │   ├── auth.ts                   requireUser · logoutUrl
@@ -199,6 +200,18 @@ pnpm dev -- -p 3200
 ---
 
 ## 설계 판단
+
+### 화면 언어
+
+화면 언어는 쿠키 → `Accept-Language` → 한국어 순으로 정합니다. 사람이 화면에서 고른 값이
+브라우저 설정보다 뒤에 온 결정이기 때문입니다. 선택은 쿠키에만 두었습니다 — 계정 설정으로
+만들면 프런트 데스크에서 계정을 함께 쓸 때 한 사람이 바꾼 언어가 다른 사람에게도 적용됩니다.
+
+사전은 `src/lib/i18n/dictionaries/` 에 언어별로 있고, 한국어 사전이 기준입니다. 다른 언어에서
+키가 빠지면 타입 오류로 드러납니다.
+
+지금 번역된 화면은 **메뉴·로그인·대시보드**입니다. 나머지 화면은 한국어로 나오며, 같은 방식으로
+사전에 키를 늘려 가며 옮깁니다.
 
 ### 인증
 

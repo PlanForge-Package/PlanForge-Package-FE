@@ -1,5 +1,6 @@
 import { Nav } from '@/components/nav';
 import { requireUser } from '@/lib/auth';
+import { getDictionary } from '@/lib/i18n';
 import { getPropertyContext } from '@/lib/property';
 
 /**
@@ -11,6 +12,7 @@ import { getPropertyContext } from '@/lib/property';
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser();
   const property = await getPropertyContext(user);
+  const { locale, t } = await getDictionary();
 
   return (
     <>
@@ -19,6 +21,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         properties={property.options}
         selectedPropertyId={property.selected?.id ?? null}
         canSwitchProperty={property.canSwitch}
+        locale={locale}
+        t={t}
       />
       <div className="mx-auto max-w-6xl px-6 py-10">{children}</div>
     </>

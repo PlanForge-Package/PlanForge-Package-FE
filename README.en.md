@@ -124,6 +124,7 @@ src/
 │   ├── daily-traces.tsx          Today's traces (dashboard)
 │   └── notice.tsx                ErrorNotice · InfoNotice · EmptyState
 ├── lib/
+│   ├── i18n/                     UI language — dictionaries (ko·en·zh·ja) · locale resolution
 │   ├── api.ts                    apiFetch (server only) · ApiError · tryFetch
 │   ├── action-state.ts           ActionState · preserves input on failure
 │   ├── auth.ts                   requireUser · logoutUrl

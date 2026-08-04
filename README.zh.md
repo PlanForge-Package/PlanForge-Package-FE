@@ -122,6 +122,7 @@ src/
 │   ├── daily-traces.tsx          今日指示（仪表盘）
 │   └── notice.tsx                ErrorNotice · InfoNotice · EmptyState
 ├── lib/
+│   ├── i18n/                     界面语言 —— 词典（ko·en·zh·ja）· 语言判定
 │   ├── api.ts                    apiFetch（仅服务端）· ApiError · tryFetch
 │   ├── action-state.ts           ActionState · 失败时保留输入
 │   ├── auth.ts                   requireUser · logoutUrl
@@ -197,6 +198,15 @@ pnpm dev -- -p 3200
 ---
 
 ## 设计取舍
+
+### 界面语言
+
+语言按 Cookie → `Accept-Language` → 韩语的顺序判定。人在界面上选择晚于浏览器设置，因此优先。
+选择只保存在 Cookie 中 —— 若做成账号设置，前台共用账号时一个人的更改会影响所有人。
+
+词典位于 `src/lib/i18n/dictionaries/`，以韩语为基准。其他语言缺少键会在类型检查中暴露。
+
+目前已翻译**菜单、登录与仪表板**。其余界面仍为韩语，按同样方式逐步迁移。
 
 ### 认证
 

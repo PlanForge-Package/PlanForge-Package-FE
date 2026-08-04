@@ -3,9 +3,10 @@
 import { useActionState } from 'react';
 import { ActionMessage, SubmitButton } from '@/components/action-feedback';
 import { IDLE, type ActionState } from '@/lib/action-state';
+import type { Dictionary } from '@/lib/i18n';
 import { loginAction } from './actions';
 
-export function LoginForm({ next, reason }: { next?: string; reason?: string }) {
+export function LoginForm({ next, reason, t }: { next?: string; reason?: string; t: Dictionary }) {
   const [state, action] = useActionState<ActionState, FormData>(loginAction, IDLE);
 
   return (
@@ -15,7 +16,7 @@ export function LoginForm({ next, reason }: { next?: string; reason?: string }) 
           role="status"
           className="rounded-md border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-sm"
         >
-          세션이 만료되었습니다. 다시 로그인해 주세요.
+          {t.login.expired}
         </p>
       )}
 
@@ -23,7 +24,7 @@ export function LoginForm({ next, reason }: { next?: string; reason?: string }) 
 
       <div className="flex flex-col gap-1">
         <label htmlFor="email" className="text-sm text-subtle">
-          이메일
+          {t.login.email}
         </label>
         <input
           id="email"
@@ -39,7 +40,7 @@ export function LoginForm({ next, reason }: { next?: string; reason?: string }) 
 
       <div className="flex flex-col gap-1">
         <label htmlFor="password" className="text-sm text-subtle">
-          비밀번호
+          {t.login.password}
         </label>
         <input
           id="password"
@@ -52,10 +53,10 @@ export function LoginForm({ next, reason }: { next?: string; reason?: string }) 
       </div>
 
       <SubmitButton
-        pendingLabel="로그인 중…"
+        pendingLabel={t.login.pending}
         className="btn-primary rounded-md px-3 py-2 text-sm font-medium"
       >
-        로그인
+        {t.login.submit}
       </SubmitButton>
 
       <ActionMessage state={state} />

@@ -124,6 +124,7 @@ src/
 │   ├── daily-traces.tsx          本日のトレース（ダッシュボード）
 │   └── notice.tsx                ErrorNotice・InfoNotice・EmptyState
 ├── lib/
+│   ├── i18n/                     画面言語 — 辞書 (ko・en・zh・ja)・ロケール判定
 │   ├── api.ts                    apiFetch（サーバー専用）・ApiError・tryFetch
 │   ├── action-state.ts           ActionState・失敗時に入力値を保持
 │   ├── auth.ts                   requireUser・logoutUrl
@@ -199,6 +200,18 @@ pnpm dev -- -p 3200
 ---
 
 ## 設計判断
+
+### 画面言語
+
+言語は Cookie → `Accept-Language` → 韓国語の順で決まります。画面で選んだ値はブラウザ設定より
+後の決定だからです。選択は Cookie にのみ保持します — アカウント設定にすると、フロントで
+アカウントを共用する際に一人の変更が全員に及びます。
+
+辞書は `src/lib/i18n/dictionaries/` にあり、韓国語が基準です。他言語でキーが欠けると型エラーで
+分かります。
+
+現在翻訳済みなのは**メニュー・ログイン・ダッシュボード**です。残りの画面は韓国語で表示され、
+同じ方法で辞書のキーを増やしながら移していきます。
 
 ### 認証
 
