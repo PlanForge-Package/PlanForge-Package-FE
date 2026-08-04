@@ -624,3 +624,67 @@ export interface DailySummary {
   departures: number;
   inHouse: number;
 }
+
+// --- AR / 시티레저 ----------------------------------------------------------
+
+export type ArTransactionType = 'CHARGE' | 'PAYMENT' | 'ADJUSTMENT';
+export type ArInvoiceStatus = 'DRAFT' | 'SENT' | 'PAID' | 'VOID';
+
+export interface ArAccount {
+  id: string;
+  propertyId: string;
+  code: string;
+  name: string;
+  profileId: string | null;
+  /** 여신 한도. null 이면 한도 없음. */
+  creditLimit: string | null;
+  termDays: number;
+  billingEmail: string | null;
+  notes: string | null;
+  active: boolean;
+  profile: {
+    id: string;
+    companyName: string | null;
+    lastName: string | null;
+    firstName: string | null;
+  } | null;
+}
+
+export interface ArAccountList {
+  items: Array<ArAccount & { balance: string }>;
+  total: number;
+}
+
+export interface ArTransaction {
+  id: string;
+  type: ArTransactionType;
+  /** 부호가 붙은 값. 청구는 양수, 입금은 음수다. */
+  amount: string;
+  currency: string;
+  description: string;
+  postedAt: string;
+  folioWindow: number | null;
+  invoice: { id: string; number: string; status: ArInvoiceStatus } | null;
+  reservation: { id: string; confirmationNumber: string | null } | null;
+}
+
+export interface ArInvoice {
+  id: string;
+  number: string;
+  status: ArInvoiceStatus;
+  total: string;
+  currency: string;
+  issuedAt: string;
+  dueDate: string;
+  note: string | null;
+}
+
+export interface ArAccountDetail {
+  account: ArAccount;
+  /** 미수 잔액. 거래 합계다. */
+  balance: string;
+  /** 아직 청구서에 묶이지 않은 금액 */
+  unbilled: string;
+  transactions: ArTransaction[];
+  invoices: ArInvoice[];
+}

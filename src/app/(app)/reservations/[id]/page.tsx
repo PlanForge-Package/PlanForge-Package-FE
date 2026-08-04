@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { logoutUrl, requireUser } from '@/lib/auth';
+import { ArTransferPanel } from '@/components/ar-transfer-panel';
 import { FolioPanel } from '@/components/folio-panel';
 import { FolioRoutingPanel } from '@/components/folio-routing-panel';
 import { SharePanel } from '@/components/share-panel';
@@ -17,6 +18,7 @@ import { ReservationStatusBadge } from '@/components/status-badge';
 import { ApiError, apiFetch, backendMessage, tryFetch } from '@/lib/api';
 import { CHANNEL_LABELS, MARKET_LABELS, SOURCE_LABELS, label } from '@/lib/channel-labels';
 import type {
+  ArAccountList,
   FolioRoutingList,
   PaymentListResponse,
   ReservationDetail,
@@ -102,7 +104,7 @@ export default async function ReservationDetailPage({ params }: Props) {
   const folios = reservation.folios ?? [];
 
   // 키·결제·라우팅 조회가 실패해도 예약 화면 전체를 죽이지 않는다. 별개 호출인 이유가 이것이다.
-  const [keys, payments, routings, traces, siblings] = await Promise.all([
+  const [keys, payments, routings, traces, siblings, arAccounts] = await Promise.all([
     tryFetch(
       apiFetch<RoomKeyListResponse>('be', `/api/reservations/${encodeURIComponent(id)}/keys`),
     ),
@@ -125,6 +127,11 @@ export default async function ReservationDetailPage({ params }: Props) {
     tryFetch(
       apiFetch<ReservationListResponse>('be', '/api/reservations', {
         query: { propertyId: reservation.property.id, limit: 200 },
+      }),
+    ),
+    tryFetch(
+      apiFetch<ArAccountList>('be', '/api/ar/accounts', {
+        query: { propertyId: reservation.property.id },
       }),
     ),
   ]);
@@ -235,6 +242,12 @@ export default async function ReservationDetailPage({ params }: Props) {
       )}
 
       <FolioPanel reservationId={reservation.id} folios={folios} currency={reservation.currency} />
+
+      <ArTransferPanel
+        reservationId={reservation.id}
+        folios={folios}
+        accounts={arAccounts.ok ? arAccounts.data.items : []}
+      />
 
       {traces.ok ? (
         <TracePanel

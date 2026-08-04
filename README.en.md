@@ -89,6 +89,7 @@ src/
 │       ├── housekeeping/         Task assignment · progress · discrepancies
 │       ├── night-audit/          Close-of-day checklist · no-show
 │       ├── cashier/             Per-shift collections · close
+│       ├── ar/                  City-ledger accounts · invoices
 │       ├── reports/              Occupancy · ADR · RevPAR · channel breakdown
 │       ├── pos-outlets/          POS outlet key management
 │       ├── users/                Account management (admin)
@@ -109,6 +110,8 @@ src/
 │   ├── housekeeping-board.tsx    Assignment · progress
 │   ├── night-audit-board.tsx     Checklist · no-show
 │   ├── cashier-panel.tsx         Open · close a shift · past shifts
+│   ├── ar-panels.tsx             Accounts · payments · invoices
+│   ├── ar-transfer-panel.tsx     Folio balance → account
 │   ├── trace-panel.tsx           Traces on a reservation · complete
 │   ├── share-panel.tsx           Share a room · leave the group
 │   ├── daily-traces.tsx          Today's traces (dashboard)
@@ -177,6 +180,7 @@ the BE repository).
 | `/housekeeping`              | Housekeeping — assignment, progress, discrepancies                           |
 | `/night-audit`               | Night audit — close-of-day checklist, no-show handling                       |
 | `/cashier`                   | Cashier close — per-shift collections and cash count                         |
+| `/ar` `/ar/[id]`             | City ledger — balances and credit limits, payments, invoices                 |
 | `/reports`                   | Performance — occupancy, ADR, RevPAR, channel breakdown (manager)            |
 | `/pos-outlets`               | POS outlets — issue, rotate, deactivate keys (manager)                       |
 | `/users`                     | Account management — hire, role, leave (admin)                               |

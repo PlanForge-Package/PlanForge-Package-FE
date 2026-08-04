@@ -89,6 +89,7 @@ src/
 │       ├── housekeeping/         작업 배정 · 진행 · 불일치
 │       ├── night-audit/          마감 점검표 · 노쇼 처리
 │       ├── cashier/             근무조 수납 집계 · 마감
+│       ├── ar/                  후불 거래처 · 청구서
 │       ├── reports/              점유율·ADR·RevPAR · 경로별 분해
 │       ├── pos-outlets/          POS 아웃렛 키 관리
 │       ├── users/                계정 관리 (관리자)
@@ -109,6 +110,8 @@ src/
 │   ├── housekeeping-board.tsx    작업 배정 · 진행
 │   ├── night-audit-board.tsx     점검표 · 노쇼
 │   ├── cashier-panel.tsx         근무조 시작 · 마감 · 지난 조
+│   ├── ar-panels.tsx             거래처 목록 · 입금 · 청구서
+│   ├── ar-transfer-panel.tsx     폴리오 잔액 → 거래처
 │   ├── trace-panel.tsx           예약별 지시 등록 · 처리
 │   ├── share-panel.tsx           객실 공유 · 해제
 │   ├── daily-traces.tsx          오늘의 지시 (대시보드)
@@ -177,6 +180,7 @@ pnpm dev -- -p 3200
 | `/housekeeping`              | 하우스키핑 — 작업 배정·진행, 불일치 확인                     |
 | `/night-audit`               | 야간 감사 — 마감 점검표, 노쇼 처리                           |
 | `/cashier`                   | 캐셔 마감 — 근무조별 수납·시재 대사                          |
+| `/ar` `/ar/[id]`             | 후불 거래처 — 미수·여신 한도, 입금, 청구서 발행·무효         |
 | `/reports`                   | 실적 — 점유율·ADR·RevPAR, 경로별 분해 (지배인)               |
 | `/pos-outlets`               | POS 아웃렛 — 키 발급·재발급·사용 중지 (지배인)               |
 | `/users`                     | 계정 관리 — 입사·역할·퇴사 (관리자)                          |

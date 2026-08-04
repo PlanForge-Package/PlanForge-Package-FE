@@ -87,6 +87,7 @@ src/
 │       ├── housekeeping/         任务分配 · 进度 · 差异
 │       ├── night-audit/          夜审检查表 · No-show
 │       ├── cashier/             班次收款汇总 · 结班
+│       ├── ar/                  挂账客户 · 账单
 │       ├── reports/              出租率 · ADR · RevPAR · 渠道拆解
 │       ├── pos-outlets/          POS 门店密钥管理
 │       ├── users/                账号管理（管理员）
@@ -107,6 +108,8 @@ src/
 │   ├── housekeeping-board.tsx    任务分配 · 进度
 │   ├── night-audit-board.tsx     检查表 · No-show
 │   ├── cashier-panel.tsx         开班 · 结班 · 历史班次
+│   ├── ar-panels.tsx             挂账客户 · 回款 · 账单
+│   ├── ar-transfer-panel.tsx     账夹余额 → 挂账客户
 │   ├── trace-panel.tsx           预订指示登记 · 处理
 │   ├── share-panel.tsx           共享客房 · 解除
 │   ├── daily-traces.tsx          今日指示（仪表盘）
@@ -175,6 +178,7 @@ pnpm dev -- -p 3200
 | `/housekeeping`              | 客房 —— 任务分配 · 进度、差异确认                        |
 | `/night-audit`               | 夜审 —— 结账检查表、No-show 处理                         |
 | `/cashier`                   | 结班 —— 按班次汇总收款与点钞                             |
+| `/ar` `/ar/[id]`             | 挂账客户 —— 余额与信用额度、回款、账单开具与作废         |
 | `/reports`                   | 经营 —— 出租率 · ADR · RevPAR、渠道拆解（经理）          |
 | `/pos-outlets`               | POS 门店 —— 密钥发放 · 换发 · 停用（经理）               |
 | `/users`                     | 账号管理 —— 入职 · 角色 · 离职（管理员）                 |

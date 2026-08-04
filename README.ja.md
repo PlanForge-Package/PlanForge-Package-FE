@@ -89,6 +89,7 @@ src/
 │       ├── housekeeping/         作業割当・進捗・不一致
 │       ├── night-audit/          締めチェックリスト・ノーショー
 │       ├── cashier/             シフト別収納集計・締め
+│       ├── ar/                  後払い取引先・請求書
 │       ├── reports/              稼働率・ADR・RevPAR・チャネル別内訳
 │       ├── pos-outlets/          POS アウトレットキー管理
 │       ├── users/                アカウント管理（管理者）
@@ -109,6 +110,8 @@ src/
 │   ├── housekeeping-board.tsx    作業割当・進捗
 │   ├── night-audit-board.tsx     チェックリスト・ノーショー
 │   ├── cashier-panel.tsx         シフト開始・締め・過去のシフト
+│   ├── ar-panels.tsx             取引先一覧・入金・請求書
+│   ├── ar-transfer-panel.tsx     フォリオ残高 → 取引先
 │   ├── trace-panel.tsx           予約ごとのトレース登録・処理
 │   ├── share-panel.tsx           客室シェア・解除
 │   ├── daily-traces.tsx          本日のトレース（ダッシュボード）
@@ -177,7 +180,7 @@ pnpm dev -- -p 3200
 | `/housekeeping`              | ハウスキーピング —— 作業割当・進捗、不一致の確認                         |
 | `/night-audit`               | ナイトオーディット —— 締めチェックリスト、ノーショー処理                 |
 | `/cashier`                   | キャッシャー締め —— シフト別の収納と現金照合                             |
-| `/cashier`                   | キャッシャー締め —— シフト別の収納と現金照合                             |
+| `/ar` `/ar/[id]`             | 後払い取引先 — 残高と与信、入金、請求書の発行・無効                      |
 | `/reports`                   | 実績 —— 稼働率・ADR・RevPAR、経路別内訳（支配人）                        |
 | `/pos-outlets`               | POS アウトレット —— キーの発行・再発行・停止（支配人）                   |
 | `/users`                     | アカウント管理 —— 入社・役割・退社（管理者）                             |

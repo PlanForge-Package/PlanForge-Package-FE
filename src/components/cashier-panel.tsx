@@ -77,7 +77,7 @@ export function CashierPanel({
               type="number"
               name="openingFloat"
               min={0}
-              step={1000}
+              step={1}
               defaultValue={openState.values?.openingFloat ?? '0'}
               required
               className="w-40 rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm text-ink"
@@ -133,7 +133,8 @@ export function CashierPanel({
                 type="number"
                 name="countedCash"
                 min={0}
-                step={1000}
+                // 실제로 센 금액을 그대로 넣는다. 1000 단위 배수만 받으면 마감을 못 한다.
+                step={1}
                 defaultValue={closeState.values?.countedCash ?? ''}
                 required
                 placeholder={summary.expectedCash.split('.')[0]}
