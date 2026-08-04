@@ -4,6 +4,7 @@ import { notFound, redirect } from 'next/navigation';
 import { logoutUrl, requireUser } from '@/lib/auth';
 import { FolioPanel } from '@/components/folio-panel';
 import { FolioRoutingPanel } from '@/components/folio-routing-panel';
+import { SharePanel } from '@/components/share-panel';
 import { TracePanel } from '@/components/trace-panel';
 import { WaitlistPanel } from '@/components/waitlist-panel';
 import { FrontDeskPanel } from '@/components/front-desk';
@@ -19,6 +20,7 @@ import type {
   FolioRoutingList,
   PaymentListResponse,
   ReservationDetail,
+  ReservationListResponse,
   RoomKeyListResponse,
   TraceList,
 } from '@/lib/types';
@@ -100,7 +102,7 @@ export default async function ReservationDetailPage({ params }: Props) {
   const folios = reservation.folios ?? [];
 
   // 키·결제·라우팅 조회가 실패해도 예약 화면 전체를 죽이지 않는다. 별개 호출인 이유가 이것이다.
-  const [keys, payments, routings, traces] = await Promise.all([
+  const [keys, payments, routings, traces, siblings] = await Promise.all([
     tryFetch(
       apiFetch<RoomKeyListResponse>('be', `/api/reservations/${encodeURIComponent(id)}/keys`),
     ),
@@ -114,7 +116,33 @@ export default async function ReservationDetailPage({ params }: Props) {
       ),
     ),
     tryFetch(apiFetch<TraceList>('be', `/api/reservations/${encodeURIComponent(id)}/traces`)),
+    /*
+     * 공유 후보와 상대를 한 번에 찾기 위해 같은 호텔의 예약을 읽는다.
+     *
+     * 후보를 좁히는 조건(같은 객실 타입·겹치는 기간)은 화면에서 건다. 실제로
+     * 묶을 수 있는지는 OPERA 가 판단하므로 여기서는 고를 만한 것만 추린다.
+     */
+    tryFetch(
+      apiFetch<ReservationListResponse>('be', '/api/reservations', {
+        query: { propertyId: reservation.property.id, limit: 200 },
+      }),
+    ),
   ]);
+
+  const nearby = siblings.ok ? siblings.data.items : [];
+  const partners = reservation.shareGroupId
+    ? nearby.filter((r) => r.shareGroupId === reservation.shareGroupId && r.id !== reservation.id)
+    : [];
+  const shareCandidates = nearby.filter(
+    (r) =>
+      r.id !== reservation.id &&
+      !r.shareGroupId &&
+      r.roomType.code === reservation.roomType.code &&
+      !['CANCELLED', 'NO_SHOW', 'CHECKED_OUT'].includes(r.status) &&
+      // 기간이 겹쳐야 한 방을 함께 쓸 수 있다.
+      r.arrivalDate < reservation.departureDate &&
+      reservation.arrivalDate < r.departureDate,
+  );
 
   return (
     <main className="flex flex-col gap-8">
@@ -222,6 +250,13 @@ export default async function ReservationDetailPage({ params }: Props) {
           status={traces.status}
         />
       )}
+
+      <SharePanel
+        reservationId={reservation.id}
+        shareGroupId={reservation.shareGroupId ?? null}
+        partners={partners}
+        candidates={shareCandidates}
+      />
 
       {routings.ok ? (
         <FolioRoutingPanel

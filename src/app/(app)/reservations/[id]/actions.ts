@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { actionError, actionSuccess, type ActionState } from '@/lib/action-state';
+import { actionError, actionSuccess, formValues, type ActionState } from '@/lib/action-state';
 import { apiFetch, backendMessage } from '@/lib/api';
 import type { PostingType } from '@/lib/types';
 
@@ -253,4 +253,53 @@ export async function confirmWaitlistAction(
   revalidatePath(`/reservations/${reservationId}`);
   revalidatePath('/reservations');
   return actionSuccess('대기를 확정했습니다.');
+}
+
+/**
+ * 객실 공유.
+ *
+ * 겹치는 기간·같은 객실 타입인지, 이미 다른 방에 들어가 있지는 않은지는
+ * OPERA 가 본다 — 재고와 객실 배정을 아는 쪽이 판단해야 한다.
+ */
+export async function shareReservationAction(
+  reservationId: string,
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const values = formValues(formData, ['withReservationId']);
+
+  const withReservationId = String(formData.get('withReservationId') ?? '').trim();
+  if (!withReservationId) return actionError('함께 묶을 예약을 골라 주세요.', values);
+
+  try {
+    await apiFetch('be', `/api/reservations/${encodeURIComponent(reservationId)}/share`, {
+      method: 'POST',
+      json: { withReservationId },
+    });
+  } catch (error) {
+    return actionError(backendMessage(error, '객실을 함께 쓰도록 묶지 못했습니다.'), values);
+  }
+
+  revalidatePath(`/reservations/${reservationId}`);
+  revalidatePath(`/reservations/${withReservationId}`);
+  return actionSuccess('한 객실을 함께 쓰도록 묶었습니다.');
+}
+
+export async function unshareReservationAction(
+  reservationId: string,
+  _prev: ActionState,
+  _formData: FormData,
+): Promise<ActionState> {
+  try {
+    await apiFetch('be', `/api/reservations/${encodeURIComponent(reservationId)}/unshare`, {
+      method: 'POST',
+      json: {},
+    });
+  } catch (error) {
+    return actionError(backendMessage(error, '공유를 해제하지 못했습니다.'));
+  }
+
+  revalidatePath(`/reservations/${reservationId}`);
+  revalidatePath('/reservations');
+  return actionSuccess('공유를 해제했습니다.');
 }

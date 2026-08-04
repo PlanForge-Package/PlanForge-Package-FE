@@ -110,6 +110,7 @@ src/
 │   ├── night-audit-board.tsx     점검표 · 노쇼
 │   ├── cashier-panel.tsx         근무조 시작 · 마감 · 지난 조
 │   ├── trace-panel.tsx           예약별 지시 등록 · 처리
+│   ├── share-panel.tsx           객실 공유 · 해제
 │   ├── daily-traces.tsx          오늘의 지시 (대시보드)
 │   └── notice.tsx                ErrorNotice · InfoNotice · EmptyState
 ├── lib/

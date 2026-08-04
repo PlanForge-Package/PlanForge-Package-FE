@@ -110,6 +110,7 @@ src/
 │   ├── night-audit-board.tsx     Checklist · no-show
 │   ├── cashier-panel.tsx         Open · close a shift · past shifts
 │   ├── trace-panel.tsx           Traces on a reservation · complete
+│   ├── share-panel.tsx           Share a room · leave the group
 │   ├── daily-traces.tsx          Today's traces (dashboard)
 │   └── notice.tsx                ErrorNotice · InfoNotice · EmptyState
 ├── lib/

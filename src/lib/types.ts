@@ -113,6 +113,8 @@ export interface Reservation {
   assignedRoomNumber: string | null;
   /** 단체 블록에서 빠져나온 예약이면 그 블록 코드 */
   blockCode?: string | null;
+  /** 객실을 함께 쓰는 예약들의 묶음. 예약은 둘이어도 객실은 하나다. */
+  shareGroupId?: string | null;
   /** 예약이 들어온 경로. 세 축을 따로 두어야 조합을 구분할 수 있다. */
   sourceCode?: string | null;
   marketCode?: string | null;

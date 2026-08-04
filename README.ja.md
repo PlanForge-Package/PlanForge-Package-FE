@@ -110,6 +110,7 @@ src/
 │   ├── night-audit-board.tsx     チェックリスト・ノーショー
 │   ├── cashier-panel.tsx         シフト開始・締め・過去のシフト
 │   ├── trace-panel.tsx           予約ごとのトレース登録・処理
+│   ├── share-panel.tsx           客室シェア・解除
 │   ├── daily-traces.tsx          本日のトレース（ダッシュボード）
 │   └── notice.tsx                ErrorNotice・InfoNotice・EmptyState
 ├── lib/

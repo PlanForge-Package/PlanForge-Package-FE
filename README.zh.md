@@ -108,6 +108,7 @@ src/
 │   ├── night-audit-board.tsx     检查表 · No-show
 │   ├── cashier-panel.tsx         开班 · 结班 · 历史班次
 │   ├── trace-panel.tsx           预订指示登记 · 处理
+│   ├── share-panel.tsx           共享客房 · 解除
 │   ├── daily-traces.tsx          今日指示（仪表盘）
 │   └── notice.tsx                ErrorNotice · InfoNotice · EmptyState
 ├── lib/
