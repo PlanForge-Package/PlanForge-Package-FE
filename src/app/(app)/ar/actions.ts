@@ -3,15 +3,21 @@
 import { revalidatePath } from 'next/cache';
 import { actionError, actionSuccess, formValues, type ActionState } from '@/lib/action-state';
 import { apiFetch, backendMessage } from '@/lib/api';
+import { getDictionary } from '@/lib/i18n';
+import { fill, money } from '@/lib/i18n/format';
 import type { ArInvoiceStatus } from '@/lib/types';
 
 const STATUSES: ArInvoiceStatus[] = ['DRAFT', 'SENT', 'PAID', 'VOID'];
 
-function readAmount(value: FormDataEntryValue | null, label: string): number | string {
+function readAmount(
+  value: FormDataEntryValue | null,
+  label: string,
+  template: string,
+): number | string {
   const raw = String(value ?? '').trim();
   const parsed = Number(raw);
   if (!raw || !Number.isInteger(parsed) || parsed <= 0) {
-    return `${label}은 0보다 큰 정수여야 합니다.`;
+    return fill(template, { label });
   }
   return parsed;
 }
@@ -20,16 +26,17 @@ export async function createAccountAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   const values = formValues(formData, ['code', 'name', 'creditLimit', 'termDays', 'billingEmail']);
 
   const propertyId = String(formData.get('propertyId') ?? '').trim();
-  if (!propertyId) return actionError('호텔을 선택해 주세요.', values);
+  if (!propertyId) return actionError(t.ar.msgSelectProperty, values);
 
   const code = String(formData.get('code') ?? '').trim();
-  if (!code) return actionError('거래처 코드를 입력해 주세요.', values);
+  if (!code) return actionError(t.ar.msgCodeRequired, values);
 
   const name = String(formData.get('name') ?? '').trim();
-  if (!name) return actionError('거래처 이름을 입력해 주세요.', values);
+  if (!name) return actionError(t.ar.msgNameRequired, values);
 
   const rawLimit = String(formData.get('creditLimit') ?? '').trim();
   const rawTerm = String(formData.get('termDays') ?? '').trim();
@@ -49,11 +56,11 @@ export async function createAccountAction(
       },
     });
   } catch (error) {
-    return actionError(backendMessage(error, '거래처를 등록하지 못했습니다.'), values);
+    return actionError(backendMessage(error, t.ar.msgCreateFailed), values);
   }
 
   revalidatePath('/ar');
-  return actionSuccess(`거래처 ${code} 를 등록했습니다.`);
+  return actionSuccess(fill(t.ar.msgCreated, { code }));
 }
 
 export async function recordPaymentAction(
@@ -61,13 +68,14 @@ export async function recordPaymentAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { locale, t } = await getDictionary();
   const values = formValues(formData, ['amount', 'description']);
 
-  const amount = readAmount(formData.get('amount'), '입금액');
+  const amount = readAmount(formData.get('amount'), t.ar.paymentAmount, t.ar.msgAmountInvalid);
   if (typeof amount === 'string') return actionError(amount, values);
 
   const description = String(formData.get('description') ?? '').trim();
-  if (!description) return actionError('적요를 입력해 주세요.', values);
+  if (!description) return actionError(t.ar.msgMemoRequired, values);
 
   /*
    * Allocation mode.
@@ -91,7 +99,7 @@ export async function recordPaymentAction(
       json: body,
     });
   } catch (error) {
-    return actionError(backendMessage(error, '입금을 기록하지 못했습니다.'), values);
+    return actionError(backendMessage(error, t.ar.msgPaymentFailed), values);
   }
 
   revalidatePath(`/ar/${accountId}`);
@@ -100,10 +108,11 @@ export async function recordPaymentAction(
   const unapplied = Number(result.unapplied);
   return actionSuccess(
     unapplied > 0 && apply !== 'none'
-      ? `입금 ${amount.toLocaleString('ko-KR')}원을 기록했습니다. ${unapplied.toLocaleString(
-          'ko-KR',
-        )}원은 붙일 청구서가 없어 잔액으로 남았습니다.`
-      : `입금 ${amount.toLocaleString('ko-KR')}원을 기록했습니다.`,
+      ? fill(t.ar.msgPaymentUnapplied, {
+          amount: money(amount, locale),
+          rest: money(unapplied, locale),
+        })
+      : fill(t.ar.msgPaymentRecorded, { amount: money(amount, locale) }),
   );
 }
 
@@ -112,6 +121,7 @@ export async function createInvoiceAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { locale, t } = await getDictionary();
   const note = String(formData.get('note') ?? '').trim();
 
   let invoice: { number: string; total: string };
@@ -121,12 +131,15 @@ export async function createInvoiceAction(
       json: note ? { note } : {},
     });
   } catch (error) {
-    return actionError(backendMessage(error, '청구서를 발행하지 못했습니다.'));
+    return actionError(backendMessage(error, t.ar.msgInvoiceFailed));
   }
 
   revalidatePath(`/ar/${accountId}`);
   return actionSuccess(
-    `청구서 ${invoice.number} 를 발행했습니다 (${Number(invoice.total).toLocaleString('ko-KR')}원).`,
+    fill(t.ar.msgInvoiceIssued, {
+      number: invoice.number,
+      amount: money(invoice.total, locale),
+    }),
   );
 }
 
@@ -135,15 +148,16 @@ export async function updateInvoiceStatusAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   const invoiceId = String(formData.get('invoiceId') ?? '').trim();
-  if (!invoiceId) return actionError('대상 청구서를 찾을 수 없습니다.');
+  if (!invoiceId) return actionError(t.ar.msgInvoiceMissing);
 
   const status = String(formData.get('status') ?? '');
   if (!STATUSES.includes(status as ArInvoiceStatus)) {
-    return actionError('상태를 선택해 주세요.');
+    return actionError(t.ar.msgStatusRequired);
   }
 
-  const number = String(formData.get('number') ?? '청구서');
+  const number = String(formData.get('number') ?? t.ar.invoices);
 
   try {
     await apiFetch('be', `/api/ar/invoices/${encodeURIComponent(invoiceId)}/status`, {
@@ -151,14 +165,14 @@ export async function updateInvoiceStatusAction(
       json: { status },
     });
   } catch (error) {
-    return actionError(backendMessage(error, '상태를 바꾸지 못했습니다.'));
+    return actionError(backendMessage(error, t.ar.msgStatusFailed));
   }
 
   revalidatePath(`/ar/${accountId}`);
   return actionSuccess(
     status === 'VOID'
-      ? `${number} 를 무효 처리했습니다. 묶여 있던 거래는 다시 청구할 수 있습니다.`
-      : `${number} 상태를 바꿨습니다.`,
+      ? fill(t.ar.msgVoided, { number })
+      : fill(t.ar.msgStatusChanged, { number }),
   );
 }
 
@@ -168,14 +182,15 @@ export async function transferToArAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { locale, t } = await getDictionary();
   const values = formValues(formData, ['accountId', 'window', 'description']);
 
   const accountId = String(formData.get('accountId') ?? '').trim();
-  if (!accountId) return actionError('거래처를 선택해 주세요.', values);
+  if (!accountId) return actionError(t.ar.msgAccountRequired, values);
 
   const window = Number(String(formData.get('window') ?? ''));
   if (!Number.isInteger(window) || window < 1) {
-    return actionError('창구를 선택해 주세요.', values);
+    return actionError(t.ar.msgWindowRequired, values);
   }
 
   const description = String(formData.get('description') ?? '').trim();
@@ -188,12 +203,12 @@ export async function transferToArAction(
       { method: 'POST', json: { accountId, window, ...(description ? { description } : {}) } },
     );
   } catch (error) {
-    return actionError(backendMessage(error, '거래처로 넘기지 못했습니다.'), values);
+    return actionError(backendMessage(error, t.ar.msgTransferFailed), values);
   }
 
   revalidatePath(`/reservations/${reservationId}`);
   revalidatePath('/ar');
   return actionSuccess(
-    `${Number(result.transaction.amount).toLocaleString('ko-KR')}원을 거래처로 넘겼습니다.`,
+    fill(t.ar.msgTransferred, { amount: money(result.transaction.amount, locale) }),
   );
 }

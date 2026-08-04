@@ -6,12 +6,14 @@ import { ErrorNotice } from '@/components/notice';
 import { PageHeader } from '@/components/page-header';
 import { ApiError, apiFetch, backendMessage } from '@/lib/api';
 import { requireUser } from '@/lib/auth';
+import { getDictionary } from '@/lib/i18n';
+import { fill } from '@/lib/i18n/format';
 import type { ArInvoiceDetail } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: '청구서 — PlanForge',
+  title: 'Invoice — PlanForge',
 };
 
 interface Props {
@@ -19,6 +21,7 @@ interface Props {
 }
 
 export default async function InvoicePage({ params }: Props) {
+  const { t } = await getDictionary();
   const { id } = await params;
   await requireUser(`/ar/invoices/${id}`);
 
@@ -30,14 +33,14 @@ export default async function InvoicePage({ params }: Props) {
 
     return (
       <main className="flex flex-col gap-6">
-        <PageHeader title="청구서" />
+        <PageHeader title={t.ar.invoices} />
         <ErrorNotice
-          title="청구서를 불러오지 못했습니다"
-          message={backendMessage(error, '청구서를 불러오지 못했습니다.')}
+          title={t.ar.loadInvoiceFailed}
+          message={backendMessage(error, t.ar.loadInvoiceFailed)}
           status={error instanceof ApiError ? error.status : 0}
         />
         <Link href="/ar" className="text-sm underline underline-offset-4 text-subtle">
-          ← 거래처 목록으로
+          {t.ar.backToAccountsLong}
         </Link>
       </main>
     );
@@ -53,8 +56,8 @@ export default async function InvoicePage({ params }: Props) {
           ← {invoice.account.name}
         </Link>
         <PageHeader
-          title={`청구서 ${invoice.number}`}
-          description="거래처에 보내는 문서입니다. 인쇄하거나 PDF 로 저장해 보냅니다."
+          title={fill(t.ar.invoiceDocTitle, { number: invoice.number })}
+          description={t.ar.invoiceDocDescription}
         />
       </div>
 

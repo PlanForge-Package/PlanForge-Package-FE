@@ -3,6 +3,8 @@
 import { useActionState } from 'react';
 import { transferToArAction } from '@/app/(app)/ar/actions';
 import { IDLE, type ActionState } from '@/lib/action-state';
+import { fill, money } from '@/lib/i18n/format';
+import { useI18n, useLocale } from '@/lib/i18n/provider';
 import type { ArAccount, Folio } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
 
@@ -25,6 +27,8 @@ export function ArTransferPanel({
   folios: Folio[];
   accounts: ArAccount[];
 }) {
+  const t = useI18n();
+  const locale = useLocale();
   const [state, action] = useActionState<ActionState, FormData>(
     transferToArAction.bind(null, reservationId),
     IDLE,
@@ -36,8 +40,8 @@ export function ArTransferPanel({
   );
 
   return (
-    <section aria-label="거래처 이관" className="flex flex-col gap-3">
-      <h2 className="text-sm font-medium uppercase tracking-wide text-subtle">거래처 이관 (AR)</h2>
+    <section aria-label={t.ar.transfer} className="flex flex-col gap-3">
+      <h2 className="text-sm font-medium uppercase tracking-wide text-subtle">{t.ar.transferTitle}</h2>
 
       <div aria-live="polite">
         <ActionMessage state={state} />
@@ -45,23 +49,23 @@ export function ArTransferPanel({
 
       {accounts.length === 0 ? (
         <p className="rounded-lg border border-dashed border-current/20 px-4 py-6 text-center text-sm text-subtle">
-          등록된 거래처가 없습니다. AR 화면에서 먼저 등록해 주세요.
+          {t.ar.transferNoAccounts}
         </p>
       ) : transferable.length === 0 ? (
         <p className="rounded-lg border border-dashed border-current/20 px-4 py-6 text-center text-sm text-subtle">
-          넘길 잔액이 남은 창구가 없습니다.
+          {t.ar.transferNoBalance}
         </p>
       ) : (
         <form action={action} className="flex flex-wrap items-end gap-2">
           <label className="flex flex-col gap-1 text-xs text-subtle">
-            거래처
+            {t.ar.accountTitle}
             <select
               name="accountId"
               defaultValue={state.values?.accountId ?? ''}
               required
               className="w-56 rounded-md border border-current/20 bg-transparent px-2 py-1.5 text-sm text-ink"
             >
-              <option value="">선택</option>
+              <option value="">{t.ar.transferSelect}</option>
               {accounts.map((account) => (
                 <option key={account.id} value={account.id}>
                   {account.code} · {account.name}
@@ -71,7 +75,7 @@ export function ArTransferPanel({
           </label>
 
           <label className="flex flex-col gap-1 text-xs text-subtle">
-            창구
+            {t.ar.transferWindow}
             <select
               name="window"
               defaultValue={state.values?.window ?? String(transferable[0]?.window ?? 1)}
@@ -80,34 +84,34 @@ export function ArTransferPanel({
             >
               {transferable.map((folio) => (
                 <option key={folio.id} value={folio.window}>
-                  윈도 {folio.window} · {Number(folio.balance).toLocaleString('ko-KR')}원
+                  {fill(t.ar.transferWindowOption, {
+                    window: folio.window,
+                    amount: money(folio.balance, locale),
+                  })}
                 </option>
               ))}
             </select>
           </label>
 
           <label className="flex flex-col gap-1 text-xs text-subtle">
-            적요
+            {t.ar.memo}
             <input
               type="text"
               name="description"
               defaultValue={state.values?.description ?? ''}
               maxLength={200}
-              placeholder="비우면 확인 번호로 적습니다"
+              placeholder={t.ar.transferMemoPlaceholder}
               className="w-64 rounded-md border border-current/20 bg-transparent px-2 py-1.5 text-sm text-ink"
             />
           </label>
 
-          <SubmitButton pendingLabel="넘기는 중…" confirm="이 잔액을 거래처로 넘기시겠습니까?">
-            거래처로 넘기기
+          <SubmitButton pendingLabel={t.ar.transferPending} confirm={t.ar.transferConfirm}>
+            {t.ar.transferSubmit}
           </SubmitButton>
         </form>
       )}
 
-      <p className="text-xs text-subtle">
-        넘기면 폴리오 잔액이 0 이 되고 그 금액이 거래처 미수로 쌓입니다. 여신 한도를 넘으면
-        거절됩니다.
-      </p>
+      <p className="text-xs text-subtle">{t.ar.transferNote}</p>
     </section>
   );
 }

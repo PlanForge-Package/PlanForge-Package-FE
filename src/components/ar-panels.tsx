@@ -9,28 +9,12 @@ import {
   updateInvoiceStatusAction,
 } from '@/app/(app)/ar/actions';
 import { IDLE, type ActionState } from '@/lib/action-state';
+import { fill, money } from '@/lib/i18n/format';
+import { useI18n, useLocale } from '@/lib/i18n/provider';
 import type { ArAccountDetail, ArAccountList, ArInvoiceStatus } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
 
-export const INVOICE_STATUS_LABELS: Record<ArInvoiceStatus, string> = {
-  DRAFT: '발행',
-  SENT: '보냄',
-  PAID: '수금',
-  VOID: '무효',
-};
-
-const TYPE_LABELS: Record<string, string> = {
-  CHARGE: '청구',
-  PAYMENT: '입금',
-  ADJUSTMENT: '조정',
-};
-
-function money(amount: string | null): string {
-  if (amount === null) return '—';
-  const value = Number(amount);
-  if (!Number.isFinite(value)) return amount;
-  return `${value.toLocaleString('ko-KR')}원`;
-}
+const INVOICE_STATUSES: ArInvoiceStatus[] = ['DRAFT', 'SENT', 'PAID', 'VOID'];
 
 const smallButton =
   'rounded-md border border-current/20 px-2.5 py-1 text-xs transition-colors hover:bg-current/5 disabled:cursor-not-allowed disabled:opacity-50';
@@ -45,10 +29,12 @@ export function ArAccountsPanel({
   data: ArAccountList;
   canCreate: boolean;
 }) {
+  const t = useI18n();
+  const locale = useLocale();
   const [state, action] = useActionState<ActionState, FormData>(createAccountAction, IDLE);
 
   return (
-    <section aria-label="거래처" className="flex flex-col gap-3">
+    <section aria-label={t.ar.accountTitle} className="flex flex-col gap-3">
       <div aria-live="polite">
         <ActionMessage state={state} />
       </div>
@@ -58,7 +44,7 @@ export function ArAccountsPanel({
           <input type="hidden" name="propertyId" value={propertyId} />
 
           <label className="flex flex-col gap-1 text-xs text-subtle">
-            코드
+            {t.ar.code}
             <input
               type="text"
               name="code"
@@ -71,20 +57,20 @@ export function ArAccountsPanel({
           </label>
 
           <label className="flex flex-col gap-1 text-xs text-subtle">
-            이름
+            {t.ar.name}
             <input
               type="text"
               name="name"
               defaultValue={state.values?.name ?? ''}
               required
               maxLength={120}
-              placeholder="스페이스플래닝"
+              placeholder={t.ar.namePlaceholder}
               className="w-56 rounded-md border border-current/20 bg-transparent px-2 py-1.5 text-sm text-ink"
             />
           </label>
 
           <label className="flex flex-col gap-1 text-xs text-subtle">
-            여신 한도
+            {t.ar.creditLimit}
             <input
               type="number"
               name="creditLimit"
@@ -93,13 +79,13 @@ export function ArAccountsPanel({
               // browser validation and silently block submission.
               step={1}
               defaultValue={state.values?.creditLimit ?? ''}
-              placeholder="비우면 한도 없음"
+              placeholder={t.ar.creditLimitPlaceholder}
               className="w-40 rounded-md border border-current/20 bg-transparent px-2 py-1.5 text-sm text-ink"
             />
           </label>
 
           <label className="flex flex-col gap-1 text-xs text-subtle">
-            결제 조건(일)
+            {t.ar.termDaysInput}
             <input
               type="number"
               name="termDays"
@@ -109,37 +95,37 @@ export function ArAccountsPanel({
             />
           </label>
 
-          <SubmitButton pendingLabel="등록 중…">거래처 등록</SubmitButton>
+          <SubmitButton pendingLabel={t.ar.creatingAccount}>{t.ar.createAccount}</SubmitButton>
         </form>
       )}
 
       {data.items.length === 0 ? (
         <p className="rounded-lg border border-dashed border-current/20 px-4 py-8 text-center text-sm text-subtle">
-          등록된 거래처가 없습니다.
+          {t.ar.emptyAccounts}
         </p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[44rem] text-sm">
-            <caption className="sr-only">거래처 목록</caption>
+            <caption className="sr-only">{t.ar.accountListCaption}</caption>
             <thead>
               <tr className="border-b border-current/10 text-left">
                 <th scope="col" className="py-2 pr-4 font-medium">
-                  코드
+                  {t.ar.code}
                 </th>
                 <th scope="col" className="py-2 pr-4 font-medium">
-                  이름
+                  {t.ar.name}
                 </th>
                 <th scope="col" className="py-2 pr-4 text-right font-medium">
-                  미수 잔액
+                  {t.ar.balance}
                 </th>
                 <th scope="col" className="py-2 pr-4 text-right font-medium">
-                  여신 한도
+                  {t.ar.creditLimit}
                 </th>
                 <th scope="col" className="py-2 pr-4 font-medium">
-                  결제 조건
+                  {t.ar.termDays}
                 </th>
                 <th scope="col" className="py-2 font-medium">
-                  상태
+                  {t.ar.status}
                 </th>
               </tr>
             </thead>
@@ -160,13 +146,17 @@ export function ArAccountsPanel({
                         overLimit ? 'text-red-700 dark:text-red-300' : ''
                       }`}
                     >
-                      {money(item.balance)}
+                      {money(item.balance, locale)}
                     </td>
                     <td className="py-2.5 pr-4 text-right tabular-nums text-subtle">
-                      {item.creditLimit === null ? '없음' : money(item.creditLimit)}
+                      {item.creditLimit === null ? t.ar.noLimit : money(item.creditLimit, locale)}
                     </td>
-                    <td className="py-2.5 pr-4 text-subtle">{item.termDays}일</td>
-                    <td className="py-2.5 text-subtle">{item.active ? '거래 중' : '중지'}</td>
+                    <td className="py-2.5 pr-4 text-subtle">
+                      {fill(t.ar.days, { count: item.termDays })}
+                    </td>
+                    <td className="py-2.5 text-subtle">
+                      {item.active ? t.ar.active : t.ar.inactive}
+                    </td>
                   </tr>
                 );
               })}
@@ -175,10 +165,7 @@ export function ArAccountsPanel({
         </div>
       )}
 
-      <p className="text-xs text-subtle">
-        미수 잔액은 거래 합계입니다 — 청구는 더하고 입금은 뺍니다. 여신 한도를 넘으면 새 이관이
-        막힙니다.
-      </p>
+      <p className="text-xs text-subtle">{t.ar.accountsNote}</p>
     </section>
   );
 }
@@ -191,6 +178,8 @@ export function ArAccountDetailPanel({
   data: ArAccountDetail;
   canManage: boolean;
 }) {
+  const t = useI18n();
+  const locale = useLocale();
   const [paymentState, paymentAction] = useActionState<ActionState, FormData>(
     recordPaymentAction.bind(null, data.account.id),
     IDLE,
@@ -233,25 +222,32 @@ export function ArAccountDetailPanel({
         <ActionMessage state={state} />
       </div>
 
-      <section aria-label="잔액" className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Figure label="미수 잔액" value={money(data.balance)} />
-        <Figure label="미청구" value={money(data.unbilled)} />
+      <section aria-label={t.ar.balanceSection} className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <Figure label={t.ar.balance} value={money(data.balance, locale)} />
+        <Figure label={t.ar.unbilled} value={money(data.unbilled, locale)} />
         <Figure
-          label="여신 한도"
-          value={data.account.creditLimit === null ? '없음' : money(data.account.creditLimit)}
+          label={t.ar.creditLimit}
+          value={
+            data.account.creditLimit === null
+              ? t.ar.noLimit
+              : money(data.account.creditLimit, locale)
+          }
         />
-        <Figure label="결제 조건" value={`${data.account.termDays}일`} />
+        <Figure
+          label={t.ar.termDays}
+          value={fill(t.ar.days, { count: data.account.termDays })}
+        />
       </section>
 
       {canManage && (
-        <section aria-label="거래처 처리" className="flex flex-wrap items-end gap-4">
+        <section aria-label={t.ar.actionsSection} className="flex flex-wrap items-end gap-4">
           <form
             action={paymentAction}
             onSubmit={() => setLast('payment')}
             className="flex flex-wrap items-end gap-2"
           >
             <label className="flex flex-col gap-1 text-xs text-subtle">
-              입금액
+              {t.ar.paymentAmount}
               <input
                 type="number"
                 name="amount"
@@ -263,34 +259,37 @@ export function ArAccountDetailPanel({
               />
             </label>
             <label className="flex flex-col gap-1 text-xs text-subtle">
-              적요
+              {t.ar.memo}
               <input
                 type="text"
                 name="description"
                 defaultValue={paymentState.values?.description ?? ''}
                 required
                 maxLength={200}
-                placeholder="10월분 입금"
+                placeholder={t.ar.paymentMemoPlaceholder}
                 className="w-56 rounded-md border border-current/20 bg-transparent px-2 py-1.5 text-sm text-ink"
               />
             </label>
             <label className="flex flex-col gap-1 text-xs text-subtle">
-              배분
+              {t.ar.allocation}
               <select
                 name="apply"
                 defaultValue="auto"
                 className="w-56 rounded-md border border-current/20 bg-transparent px-2 py-1.5 text-sm text-ink"
               >
-                <option value="auto">만기 빠른 순으로 자동</option>
-                <option value="none">배분하지 않음</option>
+                <option value="auto">{t.ar.allocationAuto}</option>
+                <option value="none">{t.ar.allocationNone}</option>
                 {open.map((invoice) => (
                   <option key={invoice.id} value={invoice.id}>
-                    {invoice.number} (남은 {money(invoice.outstanding)})
+                    {fill(t.ar.allocationInvoice, {
+                      number: invoice.number,
+                      amount: money(invoice.outstanding, locale),
+                    })}
                   </option>
                 ))}
               </select>
             </label>
-            <SubmitButton pendingLabel="기록 중…">입금 기록</SubmitButton>
+            <SubmitButton pendingLabel={t.ar.recordingPayment}>{t.ar.recordPayment}</SubmitButton>
           </form>
 
           <form
@@ -299,25 +298,25 @@ export function ArAccountDetailPanel({
             className="flex flex-wrap items-end gap-2"
           >
             <label className="flex flex-col gap-1 text-xs text-subtle">
-              청구서 메모
+              {t.ar.invoiceNote}
               <input
                 type="text"
                 name="note"
                 maxLength={500}
-                placeholder="10월분"
+                placeholder={t.ar.invoiceNotePlaceholder}
                 className="w-56 rounded-md border border-current/20 bg-transparent px-2 py-1.5 text-sm text-ink"
               />
             </label>
-            <SubmitButton pendingLabel="발행 중…">청구서 발행</SubmitButton>
+            <SubmitButton pendingLabel={t.ar.issuingInvoice}>{t.ar.issueInvoice}</SubmitButton>
           </form>
         </section>
       )}
 
-      <section aria-label="청구서" className="flex flex-col gap-3">
-        <h2 className="text-sm font-medium uppercase tracking-wide text-subtle">청구서</h2>
+      <section aria-label={t.ar.invoices} className="flex flex-col gap-3">
+        <h2 className="text-sm font-medium uppercase tracking-wide text-subtle">{t.ar.invoices}</h2>
         {data.invoices.length === 0 ? (
           <p className="rounded-lg border border-dashed border-current/20 px-4 py-6 text-center text-sm text-subtle">
-            발행한 청구서가 없습니다.
+            {t.ar.emptyInvoices}
           </p>
         ) : (
           <div className="overflow-x-auto">
@@ -325,29 +324,29 @@ export function ArAccountDetailPanel({
               <thead>
                 <tr className="border-b border-current/10 text-left">
                   <th scope="col" className="py-2 pr-4 font-medium">
-                    번호
+                    {t.ar.invoiceNumber}
                   </th>
                   <th scope="col" className="py-2 pr-4 text-right font-medium">
-                    금액
+                    {t.ar.amount}
                   </th>
                   <th scope="col" className="py-2 pr-4 text-right font-medium">
-                    받은 금액
+                    {t.ar.paid}
                   </th>
                   <th scope="col" className="py-2 pr-4 text-right font-medium">
-                    남은 금액
+                    {t.ar.outstanding}
                   </th>
                   <th scope="col" className="py-2 pr-4 font-medium">
-                    발행
+                    {t.ar.issuedAt}
                   </th>
                   <th scope="col" className="py-2 pr-4 font-medium">
-                    만기
+                    {t.ar.dueDate}
                   </th>
                   <th scope="col" className="py-2 pr-4 font-medium">
-                    상태
+                    {t.ar.status}
                   </th>
                   {canManage && (
                     <th scope="col" className="py-2 font-medium">
-                      상태 변경
+                      {t.ar.changeStatus}
                     </th>
                   )}
                 </tr>
@@ -363,12 +362,14 @@ export function ArAccountDetailPanel({
                         {invoice.number}
                       </Link>
                     </td>
-                    <td className="py-2.5 pr-4 text-right tabular-nums">{money(invoice.total)}</td>
+                    <td className="py-2.5 pr-4 text-right tabular-nums">
+                      {money(invoice.total, locale)}
+                    </td>
                     <td className="py-2.5 pr-4 text-right tabular-nums text-subtle">
-                      {money(invoice.paid)}
+                      {money(invoice.paid, locale)}
                     </td>
                     <td className="py-2.5 pr-4 text-right tabular-nums">
-                      {money(invoice.outstanding)}
+                      {money(invoice.outstanding, locale)}
                     </td>
                     <td className="py-2.5 pr-4 tabular-nums text-subtle">
                       {invoice.issuedAt.slice(0, 10)}
@@ -379,9 +380,9 @@ export function ArAccountDetailPanel({
                       }`}
                     >
                       {invoice.dueDate.slice(0, 10)}
-                      {invoice.overdue && <span className="ml-1.5 text-xs">연체</span>}
+                      {invoice.overdue && <span className="ml-1.5 text-xs">{t.ar.overdue}</span>}
                     </td>
-                    <td className="py-2.5 pr-4">{INVOICE_STATUS_LABELS[invoice.status]}</td>
+                    <td className="py-2.5 pr-4">{t.ar.invoiceStatuses[invoice.status]}</td>
                     {canManage && (
                       <td className="py-2.5">
                         {invoice.status === 'VOID' ? (
@@ -397,19 +398,17 @@ export function ArAccountDetailPanel({
                             <select
                               name="status"
                               defaultValue={invoice.status}
-                              aria-label={`${invoice.number} 상태`}
+                              aria-label={fill(t.ar.invoiceStatusAria, { number: invoice.number })}
                               className="rounded-md border border-current/20 bg-transparent px-1.5 py-0.5 text-xs"
                             >
-                              {(Object.keys(INVOICE_STATUS_LABELS) as ArInvoiceStatus[]).map(
-                                (value) => (
-                                  <option key={value} value={value}>
-                                    {INVOICE_STATUS_LABELS[value]}
-                                  </option>
-                                ),
-                              )}
+                              {INVOICE_STATUSES.map((value) => (
+                                <option key={value} value={value}>
+                                  {t.ar.invoiceStatuses[value]}
+                                </option>
+                              ))}
                             </select>
                             <SubmitButton pendingLabel="…" className={smallButton}>
-                              적용
+                              {t.ar.applyStatus}
                             </SubmitButton>
                           </form>
                         )}
@@ -421,17 +420,16 @@ export function ArAccountDetailPanel({
             </table>
           </div>
         )}
-        <p className="text-xs text-subtle">
-          청구서에 묶인 거래는 다시 다른 청구서에 들어가지 않습니다 — 두 번 청구하면 거래처가 두 번
-          냅니다. 무효로 돌리면 묶여 있던 거래가 풀립니다.
-        </p>
+        <p className="text-xs text-subtle">{t.ar.invoicesNote}</p>
       </section>
 
-      <section aria-label="원장" className="flex flex-col gap-3">
-        <h2 className="text-sm font-medium uppercase tracking-wide text-subtle">거래 내역</h2>
+      <section aria-label={t.ar.ledger} className="flex flex-col gap-3">
+        <h2 className="text-sm font-medium uppercase tracking-wide text-subtle">
+          {t.ar.transactions}
+        </h2>
         {data.transactions.length === 0 ? (
           <p className="rounded-lg border border-dashed border-current/20 px-4 py-6 text-center text-sm text-subtle">
-            거래가 없습니다.
+            {t.ar.emptyTransactions}
           </p>
         ) : (
           <div className="overflow-x-auto">
@@ -439,31 +437,33 @@ export function ArAccountDetailPanel({
               <thead>
                 <tr className="border-b border-current/10 text-left">
                   <th scope="col" className="py-2 pr-4 font-medium">
-                    일시
+                    {t.ar.postedAt}
                   </th>
                   <th scope="col" className="py-2 pr-4 font-medium">
-                    종류
+                    {t.ar.type}
                   </th>
                   <th scope="col" className="py-2 pr-4 font-medium">
-                    적요
+                    {t.ar.memo}
                   </th>
                   <th scope="col" className="py-2 pr-4 text-right font-medium">
-                    금액
+                    {t.ar.amount}
                   </th>
                   <th scope="col" className="py-2 font-medium">
-                    청구서
+                    {t.ar.invoiceColumn}
                   </th>
                 </tr>
               </thead>
               <tbody>
                 {data.transactions.map((tx) => {
                   const value = Number(tx.amount);
+                  const typeLabel =
+                    t.ar.transactionTypes[tx.type as keyof typeof t.ar.transactionTypes] ?? tx.type;
                   return (
                     <tr key={tx.id} className="border-b border-current/5">
                       <td className="py-2.5 pr-4 tabular-nums text-subtle">
                         {tx.postedAt.slice(0, 16).replace('T', ' ')}
                       </td>
-                      <td className="py-2.5 pr-4">{TYPE_LABELS[tx.type] ?? tx.type}</td>
+                      <td className="py-2.5 pr-4">{typeLabel}</td>
                       <td className="py-2.5 pr-4">
                         {tx.description}
                         {tx.reservation && (
@@ -480,10 +480,10 @@ export function ArAccountDetailPanel({
                           value < 0 ? 'text-emerald-700 dark:text-emerald-300' : ''
                         }`}
                       >
-                        {money(tx.amount)}
+                        {money(tx.amount, locale)}
                       </td>
                       <td className="py-2.5 font-mono text-xs text-subtle">
-                        {tx.invoice?.number ?? '미청구'}
+                        {tx.invoice?.number ?? t.ar.notInvoiced}
                       </td>
                     </tr>
                   );

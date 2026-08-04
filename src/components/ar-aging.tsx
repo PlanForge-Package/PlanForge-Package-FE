@@ -1,19 +1,9 @@
 import Link from 'next/link';
+import { getDictionary } from '@/lib/i18n';
+import { fill, money } from '@/lib/i18n/format';
 import type { ArAging } from '@/lib/types';
 
-const BUCKET_LABELS: Array<[keyof ArAging['totals'], string]> = [
-  ['current', '만기 전'],
-  ['days30', '1~30일'],
-  ['days60', '31~60일'],
-  ['days90', '61~90일'],
-  ['over90', '90일 초과'],
-];
-
-function money(value: string): string {
-  const amount = Number(value);
-  if (!Number.isFinite(amount)) return value;
-  return `${amount.toLocaleString('ko-KR')}원`;
-}
+const BUCKETS: Array<keyof ArAging['totals']> = ['current', 'days30', 'days60', 'days90', 'over90'];
 
 /**
  * Aging.
@@ -21,42 +11,48 @@ function money(value: string): string {
  * The older a receivable, the harder it is to collect. A total alone hides where to
  * start, so it is broken out by how long each is past due.
  */
-export function ArAgingPanel({ data }: { data: ArAging }) {
+export async function ArAgingPanel({ data }: { data: ArAging }) {
+  const { locale, t } = await getDictionary();
+  const bucketLabel = (key: keyof ArAging['totals']) =>
+    t.ar.buckets[key as keyof typeof t.ar.buckets] ?? key;
+
   if (data.items.length === 0) {
     return (
-      <section aria-label="연체" className="flex flex-col gap-3">
-        <h2 className="text-sm font-medium uppercase tracking-wide text-subtle">연체 현황</h2>
+      <section aria-label={t.ar.aging} className="flex flex-col gap-3">
+        <h2 className="text-sm font-medium uppercase tracking-wide text-subtle">
+          {t.ar.agingTitle}
+        </h2>
         <p className="rounded-lg border border-dashed border-current/20 px-4 py-6 text-center text-sm text-subtle">
-          받지 못한 청구서가 없습니다.
+          {t.ar.agingEmpty}
         </p>
       </section>
     );
   }
 
   return (
-    <section aria-label="연체" className="flex flex-col gap-3">
+    <section aria-label={t.ar.aging} className="flex flex-col gap-3">
       <h2 className="text-sm font-medium uppercase tracking-wide text-subtle">
-        연체 현황 ({data.asOf} 기준)
+        {fill(t.ar.agingTitleAsOf, { date: data.asOf })}
       </h2>
 
       <div className="overflow-x-auto">
         <table className="w-full min-w-[52rem] text-sm">
-          <caption className="sr-only">거래처별 경과 구간</caption>
+          <caption className="sr-only">{t.ar.agingCaption}</caption>
           <thead>
             <tr className="border-b border-current/10 text-left">
               <th scope="col" className="py-2 pr-4 font-medium">
-                거래처
+                {t.ar.agingAccount}
               </th>
-              {BUCKET_LABELS.map(([key, label]) => (
+              {BUCKETS.map((key) => (
                 <th key={key} scope="col" className="py-2 pr-4 text-right font-medium">
-                  {label}
+                  {bucketLabel(key)}
                 </th>
               ))}
               <th scope="col" className="py-2 pr-4 text-right font-medium">
-                연체 합계
+                {t.ar.agingOverdueTotal}
               </th>
               <th scope="col" className="py-2 text-right font-medium">
-                미수 합계
+                {t.ar.agingOutstandingTotal}
               </th>
             </tr>
           </thead>
@@ -72,7 +68,7 @@ export function ArAgingPanel({ data }: { data: ArAging }) {
                   </Link>
                   <span className="ml-2">{row.account.name}</span>
                 </td>
-                {BUCKET_LABELS.map(([key]) => {
+                {BUCKETS.map((key) => {
                   const value = row.buckets[key as keyof typeof row.buckets];
                   return (
                     <td
@@ -83,7 +79,7 @@ export function ArAgingPanel({ data }: { data: ArAging }) {
                           : 'text-subtle'
                       }`}
                     >
-                      {Number(value) > 0 ? money(value) : '—'}
+                      {Number(value) > 0 ? money(value, locale) : '—'}
                     </td>
                   );
                 })}
@@ -92,27 +88,29 @@ export function ArAgingPanel({ data }: { data: ArAging }) {
                     Number(row.overdue) > 0 ? 'font-medium text-red-700 dark:text-red-300' : ''
                   }`}
                 >
-                  {money(row.overdue)}
+                  {money(row.overdue, locale)}
                 </td>
-                <td className="py-2.5 text-right font-medium tabular-nums">{money(row.total)}</td>
+                <td className="py-2.5 text-right font-medium tabular-nums">
+                  {money(row.total, locale)}
+                </td>
               </tr>
             ))}
           </tbody>
           <tfoot>
             <tr className="border-t border-current/20">
               <th scope="row" className="py-2.5 pr-4 text-left font-medium">
-                합계
+                {t.ar.agingTotal}
               </th>
-              {BUCKET_LABELS.map(([key]) => (
+              {BUCKETS.map((key) => (
                 <td key={key} className="py-2.5 pr-4 text-right tabular-nums">
-                  {money(data.totals[key])}
+                  {money(data.totals[key], locale)}
                 </td>
               ))}
               <td className="py-2.5 pr-4 text-right font-semibold tabular-nums">
-                {money(data.totals.overdue)}
+                {money(data.totals.overdue, locale)}
               </td>
               <td className="py-2.5 text-right font-semibold tabular-nums">
-                {money(data.totals.total)}
+                {money(data.totals.total, locale)}
               </td>
             </tr>
           </tfoot>
@@ -120,7 +118,7 @@ export function ArAgingPanel({ data }: { data: ArAging }) {
       </div>
 
       <details className="text-sm">
-        <summary className="cursor-pointer text-subtle">청구서별로 보기</summary>
+        <summary className="cursor-pointer text-subtle">{t.ar.agingByInvoice}</summary>
         <div className="mt-3 flex flex-col gap-4">
           {data.items.map((row) => (
             <div key={row.account.id} className="flex flex-col gap-1">
@@ -136,11 +134,17 @@ export function ArAgingPanel({ data }: { data: ArAging }) {
                     >
                       {invoice.number}
                     </Link>
-                    <span className="tabular-nums">만기 {invoice.dueDate}</span>
                     <span className="tabular-nums">
-                      {invoice.daysOverdue > 0 ? `${invoice.daysOverdue}일 지남` : '만기 전'}
+                      {fill(t.ar.agingDue, { date: invoice.dueDate })}
                     </span>
-                    <span className="tabular-nums">남은 {money(invoice.outstanding)}</span>
+                    <span className="tabular-nums">
+                      {invoice.daysOverdue > 0
+                        ? fill(t.ar.agingDaysOverdue, { count: invoice.daysOverdue })
+                        : t.ar.agingNotDue}
+                    </span>
+                    <span className="tabular-nums">
+                      {fill(t.ar.agingRemaining, { amount: money(invoice.outstanding, locale) })}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -149,9 +153,7 @@ export function ArAgingPanel({ data }: { data: ArAging }) {
         </div>
       </details>
 
-      <p className="text-xs text-subtle">
-        받은 만큼 뺀 금액입니다. 오래 묵은 미수일수록 받기 어려우니 90일 초과부터 확인해 주세요.
-      </p>
+      <p className="text-xs text-subtle">{t.ar.agingNote}</p>
     </section>
   );
 }

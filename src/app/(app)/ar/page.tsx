@@ -4,6 +4,8 @@ import { ArAccountsPanel } from '@/components/ar-panels';
 import { EmptyState, ErrorNotice } from '@/components/notice';
 import { PageHeader } from '@/components/page-header';
 import { apiFetch, tryFetch } from '@/lib/api';
+import { getDictionary } from '@/lib/i18n';
+import { fill } from '@/lib/i18n/format';
 import { requireUser } from '@/lib/auth';
 import { getPropertyContext } from '@/lib/property';
 import type { ArAccountList, ArAging } from '@/lib/types';
@@ -14,10 +16,11 @@ const CAN_MANAGE = ['ADMIN', 'MANAGER'];
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'AR 거래처 — PlanForge',
+  title: 'AR — PlanForge',
 };
 
 export default async function ArPage() {
+  const { t } = await getDictionary();
   const user = await requireUser('/ar');
   const property = await getPropertyContext(user);
   const propertyId = property.selected?.id;
@@ -25,8 +28,8 @@ export default async function ArPage() {
   if (property.error) {
     return (
       <main className="flex flex-col gap-6">
-        <PageHeader title="AR 거래처" />
-        <ErrorNotice title="호텔 목록을 불러오지 못했습니다" message={property.error} />
+        <PageHeader title={t.ar.title} />
+        <ErrorNotice title={t.ar.loadPropertiesFailed} message={property.error} />
       </main>
     );
   }
@@ -34,8 +37,8 @@ export default async function ArPage() {
   if (!propertyId) {
     return (
       <main className="flex flex-col gap-6">
-        <PageHeader title="AR 거래처" />
-        <EmptyState message="접근 가능한 호텔이 없습니다. 관리자에게 소속 지정을 요청해 주세요." />
+        <PageHeader title={t.ar.title} />
+        <EmptyState message={t.common.noAccess} />
       </main>
     );
   }
@@ -49,13 +52,13 @@ export default async function ArPage() {
   return (
     <main className="flex flex-col gap-8">
       <PageHeader
-        title="AR 거래처"
-        description={`${property.selected?.name} — 후불 거래처의 미수와 청구를 관리합니다.`}
+        title={t.ar.title}
+        description={fill(t.ar.description, { property: property.selected?.name ?? '' })}
       />
 
       {!accounts.ok ? (
         <ErrorNotice
-          title="거래처를 불러오지 못했습니다"
+          title={t.ar.loadAccountsFailed}
           message={accounts.message}
           status={accounts.status}
         />
@@ -69,7 +72,7 @@ export default async function ArPage() {
 
       {!aging.ok ? (
         <ErrorNotice
-          title="연체 현황을 불러오지 못했습니다"
+          title={t.ar.loadAgingFailed}
           message={aging.message}
           status={aging.status}
         />
