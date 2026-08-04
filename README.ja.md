@@ -88,6 +88,7 @@ src/
 │       ├── rooms/                客室ステータス
 │       ├── housekeeping/         作業割当・進捗・不一致
 │       ├── night-audit/          締めチェックリスト・ノーショー
+│       ├── cashier/             シフト別収納集計・締め
 │       ├── reports/              稼働率・ADR・RevPAR・チャネル別内訳
 │       ├── pos-outlets/          POS アウトレットキー管理
 │       ├── users/                アカウント管理（管理者）
@@ -107,6 +108,7 @@ src/
 │   ├── outlet-admin.tsx          POS アウトレット発行・再発行
 │   ├── housekeeping-board.tsx    作業割当・進捗
 │   ├── night-audit-board.tsx     チェックリスト・ノーショー
+│   ├── cashier-panel.tsx         シフト開始・締め・過去のシフト
 │   └── notice.tsx                ErrorNotice・InfoNotice・EmptyState
 ├── lib/
 │   ├── api.ts                    apiFetch（サーバー専用）・ApiError・tryFetch
@@ -171,6 +173,8 @@ pnpm dev -- -p 3200
 | `/rooms`                     | 客室 —— ステータス変更（OPERA へ委譲）、在館状況、使用不可の登録・解除   |
 | `/housekeeping`              | ハウスキーピング —— 作業割当・進捗、不一致の確認                         |
 | `/night-audit`               | ナイトオーディット —— 締めチェックリスト、ノーショー処理                 |
+| `/cashier`                   | キャッシャー締め —— シフト別の収納と現金照合                             |
+| `/cashier`                   | キャッシャー締め —— シフト別の収納と現金照合                             |
 | `/reports`                   | 実績 —— 稼働率・ADR・RevPAR、経路別内訳（支配人）                        |
 | `/pos-outlets`               | POS アウトレット —— キーの発行・再発行・停止（支配人）                   |
 | `/users`                     | アカウント管理 —— 入社・役割・退社（管理者）                             |

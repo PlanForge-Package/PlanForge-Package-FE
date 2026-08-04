@@ -86,6 +86,7 @@ src/
 │       ├── rooms/                房态
 │       ├── housekeeping/         任务分配 · 进度 · 差异
 │       ├── night-audit/          夜审检查表 · No-show
+│       ├── cashier/             班次收款汇总 · 结班
 │       ├── reports/              出租率 · ADR · RevPAR · 渠道拆解
 │       ├── pos-outlets/          POS 门店密钥管理
 │       ├── users/                账号管理（管理员）
@@ -105,6 +106,7 @@ src/
 │   ├── outlet-admin.tsx          POS 门店发放 · 换发
 │   ├── housekeeping-board.tsx    任务分配 · 进度
 │   ├── night-audit-board.tsx     检查表 · No-show
+│   ├── cashier-panel.tsx         开班 · 结班 · 历史班次
 │   └── notice.tsx                ErrorNotice · InfoNotice · EmptyState
 ├── lib/
 │   ├── api.ts                    apiFetch（仅服务端）· ApiError · tryFetch
@@ -169,6 +171,7 @@ pnpm dev -- -p 3200
 | `/rooms`                     | 房间 —— 房态变更（委托 OPERA）、在住情况、停用登记与解除 |
 | `/housekeeping`              | 客房 —— 任务分配 · 进度、差异确认                        |
 | `/night-audit`               | 夜审 —— 结账检查表、No-show 处理                         |
+| `/cashier`                   | 结班 —— 按班次汇总收款与点钞                             |
 | `/reports`                   | 经营 —— 出租率 · ADR · RevPAR、渠道拆解（经理）          |
 | `/pos-outlets`               | POS 门店 —— 密钥发放 · 换发 · 停用（经理）               |
 | `/users`                     | 账号管理 —— 入职 · 角色 · 离职（管理员）                 |

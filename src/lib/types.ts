@@ -386,6 +386,41 @@ export interface Posting {
   transferredAt?: string | null;
 }
 
+/** 캐셔 근무조 집계. 금액은 모두 문자열이다 — Decimal 은 JSON 에서 문자열로 온다. */
+export interface CashierSummary {
+  openingFloat: string;
+  byMethod: Record<PaymentMethod, string>;
+  collected: string;
+  /** 금고에 있어야 할 현금 = 시작 시재 + 받은 현금 */
+  expectedCash: string;
+  countedCash: string | null;
+  /** 센 것 − 있어야 할 것. 양수면 과잉, 음수면 부족. 마감 전에는 null. */
+  difference: string | null;
+  paymentCount: number;
+}
+
+export interface CashierShift {
+  id: string;
+  propertyId: string;
+  userId: string;
+  openedAt: string;
+  closedAt: string | null;
+  openingFloat: string;
+  countedCash: string | null;
+  notes: string | null;
+  user: { id: string; name: string; role: UserRole };
+}
+
+export interface CashierCurrent {
+  shift: CashierShift | null;
+  summary: CashierSummary | null;
+}
+
+export interface CashierShiftList {
+  items: Array<CashierShift & { summary: CashierSummary }>;
+  total: number;
+}
+
 /** 라우팅 지시 — 거래 코드별로 요금을 보낼 창구. */
 export interface FolioRouting {
   id: string;

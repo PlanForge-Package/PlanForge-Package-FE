@@ -32,6 +32,8 @@ const LINKS: NavLink[] = [
   { href: '/rooms', label: '객실' },
   { href: '/housekeeping', label: '하우스키핑' },
   { href: '/night-audit', label: '야간 감사', roles: ['ADMIN', 'MANAGER', 'FRONT_DESK'] },
+  // 돈을 받는 사람이 자기 조를 마감한다.
+  { href: '/cashier', label: '캐셔 마감', roles: ['ADMIN', 'MANAGER', 'FRONT_DESK'] },
   // 매출 지표는 경영 정보다. 프런트데스크에게는 열지 않는다.
   { href: '/reports', label: '실적', roles: ['ADMIN', 'MANAGER'] },
   // 아웃렛 키는 요금을 달 수 있는 자격이다. 지배인 이상만 다룬다.

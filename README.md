@@ -88,6 +88,7 @@ src/
 │       ├── rooms/                객실 상태
 │       ├── housekeeping/         작업 배정 · 진행 · 불일치
 │       ├── night-audit/          마감 점검표 · 노쇼 처리
+│       ├── cashier/             근무조 수납 집계 · 마감
 │       ├── reports/              점유율·ADR·RevPAR · 경로별 분해
 │       ├── pos-outlets/          POS 아웃렛 키 관리
 │       ├── users/                계정 관리 (관리자)
@@ -107,6 +108,7 @@ src/
 │   ├── outlet-admin.tsx          POS 아웃렛 발급 · 재발급
 │   ├── housekeeping-board.tsx    작업 배정 · 진행
 │   ├── night-audit-board.tsx     점검표 · 노쇼
+│   ├── cashier-panel.tsx         근무조 시작 · 마감 · 지난 조
 │   └── notice.tsx                ErrorNotice · InfoNotice · EmptyState
 ├── lib/
 │   ├── api.ts                    apiFetch (서버 전용) · ApiError · tryFetch
@@ -171,6 +173,7 @@ pnpm dev -- -p 3200
 | `/rooms`                     | 객실 — 상태 변경(OPERA 위임), 재실 현황, 사용 불가 등록·해제 |
 | `/housekeeping`              | 하우스키핑 — 작업 배정·진행, 불일치 확인                     |
 | `/night-audit`               | 야간 감사 — 마감 점검표, 노쇼 처리                           |
+| `/cashier`                   | 캐셔 마감 — 근무조별 수납·시재 대사                          |
 | `/reports`                   | 실적 — 점유율·ADR·RevPAR, 경로별 분해 (지배인)               |
 | `/pos-outlets`               | POS 아웃렛 — 키 발급·재발급·사용 중지 (지배인)               |
 | `/users`                     | 계정 관리 — 입사·역할·퇴사 (관리자)                          |
