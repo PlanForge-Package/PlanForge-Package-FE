@@ -223,6 +223,25 @@ export interface RatePackage {
   includedInRate: boolean;
 }
 
+/** 예약의 보증 방식과 취소 조건, 보증금. 취소 전에 손님에게 알려야 하는 값이다. */
+export interface ReservationPolicies {
+  reservationId: string;
+  guaranteeCode: string;
+  currency: string;
+  cancellation: {
+    policyName: string;
+    /** 이 시각까지는 무료로 취소할 수 있다. */
+    freeUntil: string;
+    withinFreeWindow: boolean;
+    penaltyAmount: number;
+  };
+  deposit: {
+    requiredAmount: number;
+    dueDate?: string;
+    paidAmount: number;
+  };
+}
+
 // --- 마감 분개 ---------------------------------------------------------------
 
 export interface JournalCode {

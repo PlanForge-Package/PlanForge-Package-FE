@@ -104,6 +104,7 @@ src/
 │   ├── folio-panel.tsx           폴리오 · 거래 등록 · 창구 간 이관
 │   ├── folio-routing-panel.tsx   라우팅 지시 (거래 코드 → 창구)
 │   ├── payment-panel.tsx         승인 · 매입 · 승인취소 · 환불
+│   ├── policy-panel.tsx         보증 방식 · 취소 조건 · 보증금
 │   ├── room-key-panel.tsx        카드 발급 · 무효화
 │   ├── room-outage-panel.tsx     사용 불가 객실 등록 · 해제
 │   ├── rate-panels.tsx          요금 코드 목록 · 패키지

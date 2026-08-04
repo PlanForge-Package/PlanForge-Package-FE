@@ -7,6 +7,7 @@ import { FolioPanel } from '@/components/folio-panel';
 import { FolioRoutingPanel } from '@/components/folio-routing-panel';
 import { SharePanel } from '@/components/share-panel';
 import { TracePanel } from '@/components/trace-panel';
+import { PolicyPanel } from '@/components/policy-panel';
 import { WaitlistPanel } from '@/components/waitlist-panel';
 import { FrontDeskPanel } from '@/components/front-desk';
 import { ReservationEditPanel } from '@/components/reservation-edit';
@@ -23,6 +24,7 @@ import type {
   PaymentListResponse,
   ReservationDetail,
   ReservationListResponse,
+  ReservationPolicies,
   RoomKeyListResponse,
   TraceList,
 } from '@/lib/types';
@@ -32,6 +34,9 @@ const CAN_REFUND = ['ADMIN', 'MANAGER'];
 
 /** 지시를 새로 거는 것은 프론트데스크와 지배인이 한다. 처리는 전 역할이 한다. */
 const CAN_EDIT_TRACE = ['ADMIN', 'MANAGER', 'FRONT_DESK'];
+
+/** 보증 방식과 보증금은 돈에 직결된다. 프론트데스크까지 다룬다. */
+const CAN_EDIT = ['ADMIN', 'MANAGER', 'FRONT_DESK'];
 
 export const dynamic = 'force-dynamic';
 
@@ -104,7 +109,7 @@ export default async function ReservationDetailPage({ params }: Props) {
   const folios = reservation.folios ?? [];
 
   // 키·결제·라우팅 조회가 실패해도 예약 화면 전체를 죽이지 않는다. 별개 호출인 이유가 이것이다.
-  const [keys, payments, routings, traces, siblings, arAccounts] = await Promise.all([
+  const [keys, payments, routings, traces, siblings, arAccounts, policies] = await Promise.all([
     tryFetch(
       apiFetch<RoomKeyListResponse>('be', `/api/reservations/${encodeURIComponent(id)}/keys`),
     ),
@@ -133,6 +138,10 @@ export default async function ReservationDetailPage({ params }: Props) {
       apiFetch<ArAccountList>('be', '/api/ar/accounts', {
         query: { propertyId: reservation.property.id },
       }),
+    ),
+    // 취소 조건과 보증금. OPERA 에 연결되지 않은 예약은 물을 수 없다.
+    tryFetch(
+      apiFetch<ReservationPolicies>('be', `/api/reservations/${encodeURIComponent(id)}/policies`),
     ),
   ]);
 
@@ -204,6 +213,14 @@ export default async function ReservationDetailPage({ params }: Props) {
 
       {/* 확정한 뒤에도 결과가 보여야 하므로 패널이 스스로 숨는다. */}
       <WaitlistPanel reservationId={reservation.id} status={reservation.status} />
+
+      {policies.ok && (
+        <PolicyPanel
+          reservationId={reservation.id}
+          policies={policies.data}
+          canManage={CAN_EDIT.includes(user.role)}
+        />
+      )}
 
       <ReservationEditPanel
         reservationId={reservation.id}

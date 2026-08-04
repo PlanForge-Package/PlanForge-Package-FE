@@ -102,6 +102,7 @@ src/
 │   ├── folio-panel.tsx           账单 · 入账 · 账窗间转移
 │   ├── folio-routing-panel.tsx   路由指令（交易码 → 账窗）
 │   ├── payment-panel.tsx         授权 · 请款 · 撤销 · 退款
+│   ├── policy-panel.tsx         担保方式 · 取消条款 · 押金
 │   ├── room-key-panel.tsx        房卡制卡 · 作废
 │   ├── room-outage-panel.tsx     房间停用登记 · 解除
 │   ├── rate-panels.tsx          房价代码列表 · 套餐

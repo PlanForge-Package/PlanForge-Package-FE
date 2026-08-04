@@ -212,18 +212,93 @@ export async function cancelReservationAction(
 ): Promise<ActionState> {
   const reason = String(formData.get('reason') ?? '').trim();
 
+  let cancelled: { cancellationPenalty?: string | null };
   try {
-    await apiFetch('be', `/api/reservations/${encodeURIComponent(reservationId)}/cancel`, {
-      method: 'POST',
-      json: reason ? { reason } : {},
-    });
+    cancelled = await apiFetch(
+      'be',
+      `/api/reservations/${encodeURIComponent(reservationId)}/cancel`,
+      {
+        method: 'POST',
+        json: reason ? { reason } : {},
+      },
+    );
   } catch (error) {
     return actionError(backendMessage(error, '예약을 취소하지 못했습니다.'));
   }
 
   revalidatePath(`/reservations/${reservationId}`);
   revalidatePath('/reservations');
-  return actionSuccess('예약을 취소했습니다.');
+
+  // 물린 금액을 말하지 않으면 손님에게 설명할 수 없다.
+  const penalty = Number(cancelled.cancellationPenalty ?? 0);
+  return actionSuccess(
+    penalty > 0
+      ? `예약을 취소했습니다. 위약금 ${penalty.toLocaleString('ko-KR')}원이 폴리오에 달렸습니다.`
+      : '예약을 취소했습니다. 위약금은 없습니다.',
+  );
+}
+
+/** 보증 방식 변경. 노쇼를 어떻게 다룰지가 여기서 갈린다. */
+export async function setGuaranteeAction(
+  reservationId: string,
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const guaranteeCode = String(formData.get('guaranteeCode') ?? '').trim();
+  if (!guaranteeCode) return actionError('보증 방식을 골라 주세요.');
+
+  try {
+    await apiFetch('be', `/api/reservations/${encodeURIComponent(reservationId)}/guarantee`, {
+      method: 'PUT',
+      json: { guaranteeCode },
+    });
+  } catch (error) {
+    return actionError(backendMessage(error, '보증 방식을 바꾸지 못했습니다.'));
+  }
+
+  revalidatePath(`/reservations/${reservationId}`);
+  return actionSuccess('보증 방식을 바꿨습니다.');
+}
+
+/**
+ * 보증금 수납.
+ *
+ * 도착 전이라 청구는 없지만 그 돈은 이미 우리에게 있다. 폴리오에 결제로 올려
+ * 두어야 체크인 때 두 번 받지 않는다.
+ */
+export async function recordDepositAction(
+  reservationId: string,
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const values = formValues(formData, ['amount', 'method', 'description']);
+
+  const raw = String(formData.get('amount') ?? '').trim();
+  const amount = Number(raw);
+  if (!raw || !Number.isInteger(amount) || amount <= 0) {
+    return actionError('보증금은 0보다 큰 정수여야 합니다.', values);
+  }
+
+  const method = String(formData.get('method') ?? '');
+  if (!method) return actionError('받은 방법을 골라 주세요.', values);
+
+  try {
+    await apiFetch('be', `/api/reservations/${encodeURIComponent(reservationId)}/folios/deposit`, {
+      method: 'POST',
+      json: {
+        amount,
+        method,
+        description: String(formData.get('description') ?? '').trim() || undefined,
+        // 같은 화면에서 두 번 눌러도 한 번만 받는다.
+        reference: `DEP-${reservationId}-${amount}-${String(formData.get('nonce') ?? '')}`,
+      },
+    });
+  } catch (error) {
+    return actionError(backendMessage(error, '보증금을 받지 못했습니다.'), values);
+  }
+
+  revalidatePath(`/reservations/${reservationId}`);
+  return actionSuccess(`보증금 ${amount.toLocaleString('ko-KR')}원을 받았습니다.`);
 }
 
 /**

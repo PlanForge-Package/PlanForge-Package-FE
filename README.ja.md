@@ -104,6 +104,7 @@ src/
 │   ├── folio-panel.tsx           フォリオ・取引登録・ウィンドウ間移管
 │   ├── folio-routing-panel.tsx   ルーティング指示（取引コード → ウィンドウ）
 │   ├── payment-panel.tsx         オーソリ・売上確定・取消・返金
+│   ├── policy-panel.tsx         保証方式・キャンセル条件・デポジット
 │   ├── room-key-panel.tsx        カード発行・無効化
 │   ├── room-outage-panel.tsx     使用不可客室の登録・解除
 │   ├── rate-panels.tsx          料金コード一覧・パッケージ

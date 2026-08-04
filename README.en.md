@@ -104,6 +104,7 @@ src/
 │   ├── folio-panel.tsx           Folios · postings · transfer between windows
 │   ├── folio-routing-panel.tsx   Routing instructions (code → window)
 │   ├── payment-panel.tsx         Authorize · capture · void · refund
+│   ├── policy-panel.tsx         Guarantee · cancellation terms · deposit
 │   ├── room-key-panel.tsx        Issue · revoke room keys
 │   ├── room-outage-panel.tsx     Out-of-order / out-of-service periods
 │   ├── rate-panels.tsx          Rate plans · packages
