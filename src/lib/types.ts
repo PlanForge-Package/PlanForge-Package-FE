@@ -386,6 +386,38 @@ export interface Posting {
   transferredAt?: string | null;
 }
 
+/** 트레이스를 받을 부서. 역할과는 다르다 — 정비는 역할이 없지만 지시는 간다. */
+export type TraceDepartment = 'FRONT_DESK' | 'HOUSEKEEPING' | 'MAINTENANCE' | 'FNB' | 'RESERVATION';
+
+export type TraceStatus = 'PENDING' | 'DONE';
+
+export interface ReservationTrace {
+  id: string;
+  reservationId: string;
+  department: TraceDepartment;
+  dueDate: string;
+  note: string;
+  status: TraceStatus;
+  completedAt: string | null;
+  reservation: {
+    id: string;
+    confirmationNumber: string | null;
+    assignedRoomNumber: string | null;
+    profile: { lastName: string | null; firstName: string | null };
+  };
+  createdBy: { id: string; name: string } | null;
+  completedBy: { id: string; name: string } | null;
+}
+
+export interface TraceList {
+  items: ReservationTrace[];
+  total: number;
+}
+
+export interface DailyTraceList extends TraceList {
+  date: string;
+}
+
 /** 캐셔 근무조 집계. 금액은 모두 문자열이다 — Decimal 은 JSON 에서 문자열로 온다. */
 export interface CashierSummary {
   openingFloat: string;

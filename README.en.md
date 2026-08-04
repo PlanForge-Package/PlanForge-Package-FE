@@ -109,6 +109,8 @@ src/
 │   ├── housekeeping-board.tsx    Assignment · progress
 │   ├── night-audit-board.tsx     Checklist · no-show
 │   ├── cashier-panel.tsx         Open · close a shift · past shifts
+│   ├── trace-panel.tsx           Traces on a reservation · complete
+│   ├── daily-traces.tsx          Today's traces (dashboard)
 │   └── notice.tsx                ErrorNotice · InfoNotice · EmptyState
 ├── lib/
 │   ├── api.ts                    apiFetch (server only) · ApiError · tryFetch

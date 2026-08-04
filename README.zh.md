@@ -107,6 +107,8 @@ src/
 │   ├── housekeeping-board.tsx    任务分配 · 进度
 │   ├── night-audit-board.tsx     检查表 · No-show
 │   ├── cashier-panel.tsx         开班 · 结班 · 历史班次
+│   ├── trace-panel.tsx           预订指示登记 · 处理
+│   ├── daily-traces.tsx          今日指示（仪表盘）
 │   └── notice.tsx                ErrorNotice · InfoNotice · EmptyState
 ├── lib/
 │   ├── api.ts                    apiFetch（仅服务端）· ApiError · tryFetch

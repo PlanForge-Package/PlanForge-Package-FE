@@ -109,6 +109,8 @@ src/
 │   ├── housekeeping-board.tsx    作業割当・進捗
 │   ├── night-audit-board.tsx     チェックリスト・ノーショー
 │   ├── cashier-panel.tsx         シフト開始・締め・過去のシフト
+│   ├── trace-panel.tsx           予約ごとのトレース登録・処理
+│   ├── daily-traces.tsx          本日のトレース（ダッシュボード）
 │   └── notice.tsx                ErrorNotice・InfoNotice・EmptyState
 ├── lib/
 │   ├── api.ts                    apiFetch（サーバー専用）・ApiError・tryFetch

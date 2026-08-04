@@ -1,10 +1,11 @@
 import Link from 'next/link';
+import { DailyTraces } from '@/components/daily-traces';
 import { ErrorNotice } from '@/components/notice';
 import { PageHeader, StatTile } from '@/components/page-header';
 import { apiFetch, tryFetch } from '@/lib/api';
 import { requireUser } from '@/lib/auth';
 import { getPropertyContext } from '@/lib/property';
-import type { ReservationListResponse } from '@/lib/types';
+import type { DailyTraceList, ReservationListResponse } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,11 +15,19 @@ export default async function DashboardPage() {
   const user = await requireUser('/');
   const property = await getPropertyContext(user);
 
-  const result = await tryFetch(
-    apiFetch<ReservationListResponse>('be', '/api/reservations', {
-      query: { propertyId: property.selected?.id, limit: 200 },
-    }),
-  );
+  // 지시 조회가 실패해도 현황은 보여야 한다. 별개 호출인 이유가 이것이다.
+  const [result, traces] = await Promise.all([
+    tryFetch(
+      apiFetch<ReservationListResponse>('be', '/api/reservations', {
+        query: { propertyId: property.selected?.id, limit: 200 },
+      }),
+    ),
+    tryFetch(
+      apiFetch<DailyTraceList>('be', '/api/traces', {
+        query: { propertyId: property.selected?.id },
+      }),
+    ),
+  ]);
 
   const counts = result.ok
     ? {
@@ -49,6 +58,16 @@ export default async function DashboardPage() {
             <StatTile label="체크아웃" value={counts.checkedOut} />
           </section>
         )
+      )}
+
+      {traces.ok ? (
+        <DailyTraces traces={traces.data.items} />
+      ) : (
+        <ErrorNotice
+          title="오늘의 지시를 불러오지 못했습니다"
+          message={traces.message}
+          status={traces.status}
+        />
       )}
 
       <section className="flex flex-col gap-3">

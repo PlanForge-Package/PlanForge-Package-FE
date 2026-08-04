@@ -109,6 +109,8 @@ src/
 │   ├── housekeeping-board.tsx    작업 배정 · 진행
 │   ├── night-audit-board.tsx     점검표 · 노쇼
 │   ├── cashier-panel.tsx         근무조 시작 · 마감 · 지난 조
+│   ├── trace-panel.tsx           예약별 지시 등록 · 처리
+│   ├── daily-traces.tsx          오늘의 지시 (대시보드)
 │   └── notice.tsx                ErrorNotice · InfoNotice · EmptyState
 ├── lib/
 │   ├── api.ts                    apiFetch (서버 전용) · ApiError · tryFetch
