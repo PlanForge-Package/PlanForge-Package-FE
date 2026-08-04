@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { EmptyState, ErrorNotice } from '@/components/notice';
 import { PageHeader, StatTile } from '@/components/page-header';
 import { apiFetch, tryFetch } from '@/lib/api';
@@ -89,6 +90,14 @@ export default async function ReportsPage({
         <button type="submit" className="btn-primary rounded-md px-3 py-1.5 text-sm font-medium">
           조회
         </button>
+
+        {/* 판매 지표와 회계 마감은 다른 질문이다. 화면을 갈라 두고 오갈 수 있게 한다. */}
+        <Link
+          href={`/reports/journal?date=${to}`}
+          className="rounded-md border border-current/20 px-3 py-1.5 text-sm transition-colors hover:bg-current/5"
+        >
+          마감 분개
+        </Link>
       </form>
 
       {!report.ok ? (

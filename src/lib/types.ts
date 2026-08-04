@@ -223,6 +223,56 @@ export interface RatePackage {
   includedInRate: boolean;
 }
 
+// --- 마감 분개 ---------------------------------------------------------------
+
+export interface JournalCode {
+  transactionCode: string;
+  name: string;
+  group: string;
+  count: number;
+  /** 표시가격. 국내 호텔은 세금을 포함해 판다. */
+  gross: string;
+  net: string;
+  serviceCharge: string;
+  vat: string;
+  /** 거래 코드 설정에 없는 코드. 어디로 분개할지 사람이 정해야 한다. */
+  unmapped: boolean;
+}
+
+export interface JournalGroup {
+  group: string;
+  label: string;
+  count: number;
+  gross: string;
+  net: string;
+  serviceCharge: string;
+  vat: string;
+  codes: JournalCode[];
+}
+
+export interface JournalReport {
+  propertyId: string;
+  date: string;
+  revenue: {
+    groups: JournalGroup[];
+    total: { count: number; gross: string; net: string; serviceCharge: string; vat: string };
+  };
+  unmappedCodes: string[];
+  payments: {
+    methods: Array<{ method: string; count: number; amount: string }>;
+    total: string;
+  };
+  ledger: {
+    openingBalance: string;
+    charges: string;
+    payments: string;
+    closingBalance: string;
+    /** 열린 폴리오 잔액의 합. 마감 잔액과 같아야 한다. */
+    outstanding: string;
+    balanced: boolean;
+  };
+}
+
 export interface RatePackageList {
   propertyId: string;
   items: RatePackage[];

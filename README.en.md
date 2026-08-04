@@ -92,6 +92,7 @@ src/
 │       ├── cashier/             Per-shift collections · close
 │       ├── ar/                  City-ledger accounts · invoices
 │       ├── reports/              Occupancy · ADR · RevPAR · channel breakdown
+│       │   └── journal/         Closing journal · tax · reconciliation
 │       ├── pos-outlets/          POS outlet key management
 │       ├── users/                Account management (admin)
 │       └── account/              My account
@@ -186,6 +187,7 @@ the BE repository).
 | `/cashier`                   | Cashier close — per-shift collections and cash count                         |
 | `/ar` `/ar/[id]`             | City ledger — balances and credit limits, payments, invoices                 |
 | `/reports`                   | Performance — occupancy, ADR, RevPAR, channel breakdown (manager)            |
+| `/reports/journal`           | Closing journal — revenue by code, tax, payments, reconciliation (MANAGER)   |
 | `/pos-outlets`               | POS outlets — issue, rotate, deactivate keys (manager)                       |
 | `/users`                     | Account management — hire, role, leave (admin)                               |
 | `/account`                   | My account — change password                                                 |

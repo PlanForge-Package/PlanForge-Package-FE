@@ -90,6 +90,7 @@ src/
 │       ├── cashier/             班次收款汇总 · 结班
 │       ├── ar/                  挂账客户 · 账单
 │       ├── reports/              出租率 · ADR · RevPAR · 渠道拆解
+│       │   └── journal/         结账分录 · 税额 · 对账
 │       ├── pos-outlets/          POS 门店密钥管理
 │       ├── users/                账号管理（管理员）
 │       └── account/              我的账号
@@ -184,6 +185,7 @@ pnpm dev -- -p 3200
 | `/cashier`                   | 结班 —— 按班次汇总收款与点钞                             |
 | `/ar` `/ar/[id]`             | 挂账客户 —— 余额与信用额度、回款、账单开具与作废         |
 | `/reports`                   | 经营 —— 出租率 · ADR · RevPAR、渠道拆解（经理）          |
+| `/reports/journal`           | 结账分录 —— 按代码的营收与税额、收款、账目对账（经理）   |
 | `/pos-outlets`               | POS 门店 —— 密钥发放 · 换发 · 停用（经理）               |
 | `/users`                     | 账号管理 —— 入职 · 角色 · 离职（管理员）                 |
 | `/account`                   | 我的账号 —— 修改密码                                     |
