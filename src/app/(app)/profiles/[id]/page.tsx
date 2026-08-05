@@ -5,14 +5,13 @@ import { ErrorNotice, InfoNotice } from '@/components/notice';
 import { PageHeader, StatTile } from '@/components/page-header';
 import { DuplicatePanel, ProfileEditor } from '@/components/profile-editor';
 import { ReservationStatusBadge } from '@/components/status-badge';
-import { ApiError, apiFetch, tryFetch } from '@/lib/api';
+import { ApiError, apiFetch, translateError, tryFetch } from '@/lib/api';
 import { logoutUrl, requireUser } from '@/lib/auth';
 import { getDictionary, type Dictionary } from '@/lib/i18n';
 import { fill, money } from '@/lib/i18n/format';
 import { profileName } from '@/lib/profile-labels';
 import type { DuplicateResponse, ProfileDetail } from '@/lib/types';
 import { dateOnly } from '@/lib/date';
-import { translateError } from '@/lib/translate-error';
 
 export const dynamic = 'force-dynamic';
 

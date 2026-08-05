@@ -18,11 +18,10 @@ import { PageHeader } from '@/components/page-header';
 import { PaymentPanel } from '@/components/payment-panel';
 import { RoomKeyPanel } from '@/components/room-key-panel';
 import { ReservationStatusBadge } from '@/components/status-badge';
-import { ApiError, apiFetch, tryFetch } from '@/lib/api';
+import { ApiError, apiFetch, translateError, tryFetch } from '@/lib/api';
 import { label } from '@/lib/channel-labels';
 import { getDictionary } from '@/lib/i18n';
 import { dateOnly } from '@/lib/date';
-import { translateError } from '@/lib/translate-error';
 import type {
   ArAccountList,
   FolioRoutingList,

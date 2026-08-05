@@ -2,10 +2,9 @@
 
 import { revalidatePath } from 'next/cache';
 import { actionError, actionSuccess, formValues, type ActionState } from '@/lib/action-state';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, translateError } from '@/lib/api';
 import { getDictionary, type Dictionary } from '@/lib/i18n';
 import { fill } from '@/lib/i18n/format';
-import { translateError } from '@/lib/translate-error';
 
 /**
  * Reads the per-room-type amounts from the form.

@@ -2,6 +2,7 @@ import type { Dictionary } from './ko';
 
 export const zh: Dictionary = {
   common: {
+    loadFailed: '无法加载数据。',
     appName: 'PlanForge',
     language: '语言',
     loading: '加载中…',

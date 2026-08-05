@@ -4,13 +4,12 @@ import { notFound } from 'next/navigation';
 import { EmptyState, ErrorNotice } from '@/components/notice';
 import { PageHeader } from '@/components/page-header';
 import { RatePlanDetail } from '@/components/rate-plan-detail';
-import { ApiError, apiFetch, tryFetch } from '@/lib/api';
+import { ApiError, apiFetch, translateError, tryFetch } from '@/lib/api';
 import { requireUser } from '@/lib/auth';
 import { getDictionary } from '@/lib/i18n';
 import { fill } from '@/lib/i18n/format';
 import { getPropertyContext } from '@/lib/property';
 import type { RatePackageList, RatePlanConfig, RoomType } from '@/lib/types';
-import { translateError } from '@/lib/translate-error';
 
 const CAN_MANAGE = ['ADMIN', 'MANAGER'];
 

@@ -2,6 +2,7 @@ import type { Dictionary } from './ko';
 
 export const en: Dictionary = {
   common: {
+    loadFailed: 'The data could not be loaded.',
     appName: 'PlanForge',
     language: 'Language',
     loading: 'Loading…',

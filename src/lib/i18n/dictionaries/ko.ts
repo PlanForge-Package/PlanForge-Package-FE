@@ -9,6 +9,7 @@
  */
 export const ko = {
   common: {
+    loadFailed: '데이터를 불러오지 못했습니다.',
     appName: 'PlanForge',
     language: '언어',
     loading: '불러오는 중…',

@@ -2,9 +2,8 @@
 
 import { redirect } from 'next/navigation';
 import { actionError, type ActionState } from '@/lib/action-state';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, translateError } from '@/lib/api';
 import { clearSessionToken, setSessionToken, type SessionUser } from '@/lib/session';
-import { translateError } from '@/lib/translate-error';
 import { getDictionary } from '@/lib/i18n';
 
 interface LoginResponse {

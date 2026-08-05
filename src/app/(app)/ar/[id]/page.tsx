@@ -4,12 +4,11 @@ import { notFound } from 'next/navigation';
 import { ArAccountDetailPanel } from '@/components/ar-panels';
 import { ErrorNotice } from '@/components/notice';
 import { PageHeader } from '@/components/page-header';
-import { ApiError, apiFetch } from '@/lib/api';
+import { ApiError, apiFetch, translateError } from '@/lib/api';
 import { requireUser } from '@/lib/auth';
 import { getDictionary } from '@/lib/i18n';
 import { fill } from '@/lib/i18n/format';
 import type { ArAccountDetail } from '@/lib/types';
-import { translateError } from '@/lib/translate-error';
 
 /** Recording payments and issuing invoices is receivables management, so a manager owns it. */
 const CAN_MANAGE = ['ADMIN', 'MANAGER'];

@@ -2,6 +2,7 @@ import type { Dictionary } from './ko';
 
 export const ja: Dictionary = {
   common: {
+    loadFailed: 'データを読み込めませんでした。',
     appName: 'PlanForge',
     language: '言語',
     loading: '読み込み中…',

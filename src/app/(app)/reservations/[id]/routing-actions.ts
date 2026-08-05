@@ -2,8 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { actionError, actionSuccess, formValues, type ActionState } from '@/lib/action-state';
-import { apiFetch } from '@/lib/api';
-import { translateError } from '@/lib/translate-error';
+import { apiFetch, translateError } from '@/lib/api';
 import { getDictionary } from '@/lib/i18n';
 
 const MAX_WINDOW = 8;

@@ -10,6 +10,8 @@
 
 import 'server-only';
 
+import { getDictionary, type Dictionary } from './i18n';
+import { fill } from './i18n/format';
 import { getSessionToken } from './session';
 
 /**
@@ -188,10 +190,33 @@ export async function tryFetch<T>(promise: Promise<T>): Promise<Result<T>> {
   try {
     return { ok: true, data: await promise };
   } catch (error) {
+    // Resolved here rather than at the call site: every screen renders this message,
+    // and one that forgot to translate would show BE's English in a Korean UI.
+    const { t } = await getDictionary();
     return {
       ok: false,
-      message: backendMessage(error, '데이터를 불러오지 못했습니다.'),
+      message: translateError(error, t, t.common.loadFailed),
       status: error instanceof ApiError ? error.status : 0,
     };
   }
+}
+
+/**
+ * Renders a refusal from BE in the reader's language.
+ *
+ * BE names what happened with a code and sends the values that vary alongside it. A
+ * finished sentence could not be translated — it arrives in whatever language BE was
+ * written in, and the screen has no way back to the meaning.
+ *
+ * Three steps down, each one a real case rather than defensive padding:
+ * 1. the dictionary entry for the code — the normal path;
+ * 2. BE's own English rendering — a code added before the dictionary caught up;
+ * 3. the caller's fallback — a network failure, a 500, anything with no code at all.
+ */
+export function translateError(error: unknown, t: Dictionary, fallback: string): string {
+  if (error instanceof ApiError && error.code) {
+    const template = (t.errors as Record<string, string | undefined>)[error.code];
+    if (template) return fill(template, error.params);
+  }
+  return backendMessage(error, fallback);
 }

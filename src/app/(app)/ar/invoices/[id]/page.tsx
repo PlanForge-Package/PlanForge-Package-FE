@@ -4,12 +4,11 @@ import { notFound } from 'next/navigation';
 import { InvoiceDocument } from '@/components/invoice-document';
 import { ErrorNotice } from '@/components/notice';
 import { PageHeader } from '@/components/page-header';
-import { ApiError, apiFetch } from '@/lib/api';
+import { ApiError, apiFetch, translateError } from '@/lib/api';
 import { requireUser } from '@/lib/auth';
 import { getDictionary } from '@/lib/i18n';
 import { fill } from '@/lib/i18n/format';
 import type { ArInvoiceDetail } from '@/lib/types';
-import { translateError } from '@/lib/translate-error';
 
 export const dynamic = 'force-dynamic';
 

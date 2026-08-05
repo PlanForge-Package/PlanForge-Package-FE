@@ -2,11 +2,10 @@
 
 import { revalidatePath } from 'next/cache';
 import { actionError, actionSuccess, formValues, type ActionState } from '@/lib/action-state';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, translateError } from '@/lib/api';
 import { getDictionary } from '@/lib/i18n';
 import { fill } from '@/lib/i18n/format';
 import type { RoomOutageKind, RoomStatus } from '@/lib/types';
-import { translateError } from '@/lib/translate-error';
 
 const KINDS: RoomOutageKind[] = ['OUT_OF_ORDER', 'OUT_OF_SERVICE'];
 const RETURN_STATUSES: RoomStatus[] = ['CLEAN', 'DIRTY', 'INSPECTED'];

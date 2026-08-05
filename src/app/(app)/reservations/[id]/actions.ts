@@ -2,9 +2,8 @@
 
 import { revalidatePath } from 'next/cache';
 import { actionError, actionSuccess, formValues, type ActionState } from '@/lib/action-state';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, translateError } from '@/lib/api';
 import type { PostingType } from '@/lib/types';
-import { translateError } from '@/lib/translate-error';
 import { getDictionary } from '@/lib/i18n';
 
 // This file exports async functions only. Types and constants live in @/lib/action-state.
