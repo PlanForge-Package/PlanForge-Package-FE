@@ -5,12 +5,13 @@ import { BlockEditor } from '@/components/block-form';
 import { ErrorNotice } from '@/components/notice';
 import { PageHeader, StatTile } from '@/components/page-header';
 import { BlockStatusBadge } from '@/components/status-badge';
-import { ApiError, apiFetch, backendMessage, tryFetch } from '@/lib/api';
+import { ApiError, apiFetch, tryFetch } from '@/lib/api';
 import { logoutUrl, requireUser } from '@/lib/auth';
 import { getDictionary, type Dictionary } from '@/lib/i18n';
 import { fill } from '@/lib/i18n/format';
 import type { Block, BlockRoomingList } from '@/lib/types';
 import { dateOnly } from '@/lib/date';
+import { translateError } from '@/lib/translate-error';
 
 export const dynamic = 'force-dynamic';
 
@@ -44,7 +45,7 @@ async function loadBlock(
     }
     return {
       ok: false,
-      message: backendMessage(error, t.blocks.loadFailed),
+      message: translateError(error, t, t.blocks.loadFailed),
       status: error instanceof ApiError ? error.status : 0,
     };
   }

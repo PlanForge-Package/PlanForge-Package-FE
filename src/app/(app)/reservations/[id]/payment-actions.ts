@@ -2,8 +2,10 @@
 
 import { revalidatePath } from 'next/cache';
 import { actionError, actionSuccess, formValues, type ActionState } from '@/lib/action-state';
-import { apiFetch, backendMessage } from '@/lib/api';
+import { apiFetch } from '@/lib/api';
 import type { Payment } from '@/lib/types';
+import { translateError } from '@/lib/translate-error';
+import { getDictionary } from '@/lib/i18n';
 
 // This file exports async functions only. Types and constants live in @/lib/action-state.
 
@@ -22,6 +24,7 @@ export async function authorizePaymentAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   const reservationId = text(formData, 'reservationId');
   const window = text(formData, 'window');
   if (!reservationId || !window) return actionError('대상 폴리오를 찾을 수 없습니다.');
@@ -64,7 +67,7 @@ export async function authorizePaymentAction(
       },
     );
   } catch (error) {
-    return fail(backendMessage(error, '결제하지 못했습니다.'));
+    return fail(translateError(error, t, '결제하지 못했습니다.'));
   }
 
   revalidatePath(`/reservations/${reservationId}`);
@@ -79,6 +82,7 @@ export async function capturePaymentAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   const paymentId = text(formData, 'paymentId');
   const reservationId = text(formData, 'reservationId');
   if (!paymentId) return actionError('대상 결제를 찾을 수 없습니다.');
@@ -89,7 +93,7 @@ export async function capturePaymentAction(
       json: {},
     });
   } catch (error) {
-    return actionError(backendMessage(error, '매입하지 못했습니다.'));
+    return actionError(translateError(error, t, '매입하지 못했습니다.'));
   }
 
   if (reservationId) revalidatePath(`/reservations/${reservationId}`);
@@ -100,6 +104,7 @@ export async function voidPaymentAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   const paymentId = text(formData, 'paymentId');
   const reservationId = text(formData, 'reservationId');
   if (!paymentId) return actionError('대상 결제를 찾을 수 없습니다.');
@@ -110,7 +115,7 @@ export async function voidPaymentAction(
       json: {},
     });
   } catch (error) {
-    return actionError(backendMessage(error, '승인을 취소하지 못했습니다.'));
+    return actionError(translateError(error, t, '승인을 취소하지 못했습니다.'));
   }
 
   if (reservationId) revalidatePath(`/reservations/${reservationId}`);
@@ -121,6 +126,7 @@ export async function refundPaymentAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   const paymentId = text(formData, 'paymentId');
   const reservationId = text(formData, 'reservationId');
   if (!paymentId) return actionError('대상 결제를 찾을 수 없습니다.');
@@ -136,7 +142,7 @@ export async function refundPaymentAction(
       json: { amount, ...(text(formData, 'reason') ? { reason: text(formData, 'reason') } : {}) },
     });
   } catch (error) {
-    return actionError(backendMessage(error, '환불하지 못했습니다.'));
+    return actionError(translateError(error, t, '환불하지 못했습니다.'));
   }
 
   if (reservationId) revalidatePath(`/reservations/${reservationId}`);

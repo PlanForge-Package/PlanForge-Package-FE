@@ -2,8 +2,10 @@
 
 import { revalidatePath } from 'next/cache';
 import { actionError, actionSuccess, formValues, type ActionState } from '@/lib/action-state';
-import { apiFetch, backendMessage } from '@/lib/api';
+import { apiFetch } from '@/lib/api';
 import type { PosOutlet } from '@/lib/types';
+import { translateError } from '@/lib/translate-error';
+import { getDictionary } from '@/lib/i18n';
 
 // This file exports async functions only. Types and constants live in @/lib/action-state.
 
@@ -30,6 +32,7 @@ export async function createOutletAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   const propertyId = text(formData, 'propertyId');
   if (!propertyId) return actionError('호텔을 선택해 주세요.');
 
@@ -51,7 +54,7 @@ export async function createOutletAction(
       json: { propertyId, code, name, transactionCode },
     });
   } catch (error) {
-    return fail(backendMessage(error, '아웃렛을 등록하지 못했습니다.'));
+    return fail(translateError(error, t, '아웃렛을 등록하지 못했습니다.'));
   }
 
   revalidatePath('/pos-outlets');
@@ -66,6 +69,7 @@ export async function rotateOutletKeyAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   const outletId = text(formData, 'outletId');
   if (!outletId) return actionError('대상 아웃렛을 찾을 수 없습니다.');
 
@@ -77,7 +81,7 @@ export async function rotateOutletKeyAction(
       { method: 'POST', json: {} },
     );
   } catch (error) {
-    return actionError(backendMessage(error, '키를 재발급하지 못했습니다.'));
+    return actionError(translateError(error, t, '키를 재발급하지 못했습니다.'));
   }
 
   revalidatePath('/pos-outlets');
@@ -92,6 +96,7 @@ export async function setOutletActiveAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   const outletId = text(formData, 'outletId');
   if (!outletId) return actionError('대상 아웃렛을 찾을 수 없습니다.');
 
@@ -104,7 +109,7 @@ export async function setOutletActiveAction(
       json: { active },
     });
   } catch (error) {
-    return actionError(backendMessage(error, '아웃렛 상태를 바꾸지 못했습니다.'));
+    return actionError(translateError(error, t, '아웃렛 상태를 바꾸지 못했습니다.'));
   }
 
   revalidatePath('/pos-outlets');

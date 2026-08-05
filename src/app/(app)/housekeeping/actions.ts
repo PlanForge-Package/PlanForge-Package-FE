@@ -2,10 +2,11 @@
 
 import { revalidatePath } from 'next/cache';
 import { actionError, actionSuccess, type ActionState } from '@/lib/action-state';
-import { apiFetch, backendMessage } from '@/lib/api';
+import { apiFetch } from '@/lib/api';
 import { getDictionary } from '@/lib/i18n';
 import { fill } from '@/lib/i18n/format';
 import type { RoomStatus, TaskStatus } from '@/lib/types';
+import { translateError } from '@/lib/translate-error';
 
 // This file exports async functions only. Types and constants live in @/lib/action-state.
 
@@ -46,7 +47,7 @@ export async function generateTasksAction(
       json: { propertyId, ...(date ? { date } : {}) },
     });
   } catch (error) {
-    return actionError(backendMessage(error, t.housekeeping.msgCreateFailed));
+    return actionError(translateError(error, t, t.housekeeping.msgCreateFailed));
   }
 
   revalidatePath('/housekeeping');
@@ -75,7 +76,7 @@ export async function assignTaskAction(
       json: { assignedToId },
     });
   } catch (error) {
-    return actionError(backendMessage(error, t.housekeeping.msgAssignFailed));
+    return actionError(translateError(error, t, t.housekeeping.msgAssignFailed));
   }
 
   revalidatePath('/housekeeping');
@@ -108,7 +109,7 @@ export async function updateTaskAction(
       json: { status, ...(notes ? { notes } : {}) },
     });
   } catch (error) {
-    return actionError(backendMessage(error, t.housekeeping.msgProgressFailed));
+    return actionError(translateError(error, t, t.housekeeping.msgProgressFailed));
   }
 
   revalidatePath('/housekeeping');
@@ -138,7 +139,7 @@ export async function updateRoomStatusAction(
       json: { status, ...(reason ? { reason } : {}) },
     });
   } catch (error) {
-    return actionError(backendMessage(error, t.housekeeping.msgRoomStatusFailed));
+    return actionError(translateError(error, t, t.housekeeping.msgRoomStatusFailed));
   }
 
   revalidatePath('/rooms');

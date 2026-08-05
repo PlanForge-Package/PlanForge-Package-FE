@@ -2,9 +2,10 @@
 
 import { revalidatePath } from 'next/cache';
 import { actionError, actionSuccess, formValues, type ActionState } from '@/lib/action-state';
-import { apiFetch, backendMessage } from '@/lib/api';
+import { apiFetch } from '@/lib/api';
 import { getDictionary, type Dictionary } from '@/lib/i18n';
 import { fill } from '@/lib/i18n/format';
+import { translateError } from '@/lib/translate-error';
 
 /**
  * Reads the per-room-type amounts from the form.
@@ -74,7 +75,7 @@ export async function createRatePlanAction(
       },
     });
   } catch (error) {
-    return actionError(backendMessage(error, t.rates.msgCreateFailed), values);
+    return actionError(translateError(error, t, t.rates.msgCreateFailed), values);
   }
 
   revalidatePath('/rates');
@@ -125,7 +126,7 @@ export async function updateRatePlanAction(
       json: body,
     });
   } catch (error) {
-    return actionError(backendMessage(error, t.rates.msgUpdateFailed));
+    return actionError(translateError(error, t, t.rates.msgUpdateFailed));
   }
 
   revalidatePath(`/rates/${ratePlanCode}`);
@@ -168,7 +169,7 @@ export async function addSeasonAction(
       },
     });
   } catch (error) {
-    return actionError(backendMessage(error, t.rates.msgSeasonFailed), values);
+    return actionError(translateError(error, t, t.rates.msgSeasonFailed), values);
   }
 
   revalidatePath(`/rates/${ratePlanCode}`);
@@ -193,7 +194,7 @@ export async function removeSeasonAction(
       { method: 'DELETE', json: { propertyId } },
     );
   } catch (error) {
-    return actionError(backendMessage(error, t.rates.msgSeasonDeleteFailed));
+    return actionError(translateError(error, t, t.rates.msgSeasonDeleteFailed));
   }
 
   revalidatePath(`/rates/${ratePlanCode}`);
@@ -249,7 +250,7 @@ export async function createPackageAction(
       },
     });
   } catch (error) {
-    return actionError(backendMessage(error, t.rates.msgPackageCreateFailed), values);
+    return actionError(translateError(error, t, t.rates.msgPackageCreateFailed), values);
   }
 
   revalidatePath('/rates');
@@ -281,7 +282,7 @@ export async function updatePackageAction(
       },
     });
   } catch (error) {
-    return actionError(backendMessage(error, t.rates.msgPackageUpdateFailed));
+    return actionError(translateError(error, t, t.rates.msgPackageUpdateFailed));
   }
 
   revalidatePath('/rates');

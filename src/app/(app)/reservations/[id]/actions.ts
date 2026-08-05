@@ -2,8 +2,10 @@
 
 import { revalidatePath } from 'next/cache';
 import { actionError, actionSuccess, formValues, type ActionState } from '@/lib/action-state';
-import { apiFetch, backendMessage } from '@/lib/api';
+import { apiFetch } from '@/lib/api';
 import type { PostingType } from '@/lib/types';
+import { translateError } from '@/lib/translate-error';
+import { getDictionary } from '@/lib/i18n';
 
 // This file exports async functions only. Types and constants live in @/lib/action-state.
 
@@ -29,6 +31,7 @@ export async function addPostingAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   const type = String(formData.get('type') ?? '');
   if (!POSTING_TYPES.includes(type as PostingType)) {
     return actionError('거래 종류를 선택해 주세요.');
@@ -59,7 +62,7 @@ export async function addPostingAction(
       },
     );
   } catch (error) {
-    return actionError(backendMessage(error, '거래를 등록하지 못했습니다.'));
+    return actionError(translateError(error, t, '거래를 등록하지 못했습니다.'));
   }
 
   revalidatePath(`/reservations/${reservationId}`);
@@ -71,6 +74,7 @@ export async function checkInAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   const roomNumber = String(formData.get('roomNumber') ?? '').trim();
 
   try {
@@ -79,7 +83,7 @@ export async function checkInAction(
       json: roomNumber ? { roomNumber } : {},
     });
   } catch (error) {
-    return actionError(backendMessage(error, '체크인하지 못했습니다.'));
+    return actionError(translateError(error, t, '체크인하지 못했습니다.'));
   }
 
   revalidatePath(`/reservations/${reservationId}`);
@@ -93,6 +97,7 @@ export async function checkOutAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   const notes = String(formData.get('notes') ?? '').trim();
 
   try {
@@ -101,7 +106,7 @@ export async function checkOutAction(
       json: notes ? { notes } : {},
     });
   } catch (error) {
-    return actionError(backendMessage(error, '체크아웃하지 못했습니다.'));
+    return actionError(translateError(error, t, '체크아웃하지 못했습니다.'));
   }
 
   revalidatePath(`/reservations/${reservationId}`);
@@ -115,13 +120,14 @@ export async function openFolioAction(
   _prev: ActionState,
   _formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   try {
     await apiFetch('be', `/api/reservations/${encodeURIComponent(reservationId)}/folios`, {
       method: 'POST',
       json: {},
     });
   } catch (error) {
-    return actionError(backendMessage(error, '폴리오를 열지 못했습니다.'));
+    return actionError(translateError(error, t, '폴리오를 열지 못했습니다.'));
   }
 
   revalidatePath(`/reservations/${reservationId}`);
@@ -161,6 +167,7 @@ export async function updateReservationAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   const arrivalDate = optionalDate(formData.get('arrivalDate'), '도착일');
   if (arrivalDate && typeof arrivalDate !== 'string') return actionError(arrivalDate.error);
 
@@ -197,7 +204,7 @@ export async function updateReservationAction(
       json: payload,
     });
   } catch (error) {
-    return actionError(backendMessage(error, '예약을 변경하지 못했습니다.'));
+    return actionError(translateError(error, t, '예약을 변경하지 못했습니다.'));
   }
 
   revalidatePath(`/reservations/${reservationId}`);
@@ -210,6 +217,7 @@ export async function cancelReservationAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   const reason = String(formData.get('reason') ?? '').trim();
 
   let cancelled: { cancellationPenalty?: string | null };
@@ -223,7 +231,7 @@ export async function cancelReservationAction(
       },
     );
   } catch (error) {
-    return actionError(backendMessage(error, '예약을 취소하지 못했습니다.'));
+    return actionError(translateError(error, t, '예약을 취소하지 못했습니다.'));
   }
 
   revalidatePath(`/reservations/${reservationId}`);
@@ -244,6 +252,7 @@ export async function setGuaranteeAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   const guaranteeCode = String(formData.get('guaranteeCode') ?? '').trim();
   if (!guaranteeCode) return actionError('보증 방식을 골라 주세요.');
 
@@ -253,7 +262,7 @@ export async function setGuaranteeAction(
       json: { guaranteeCode },
     });
   } catch (error) {
-    return actionError(backendMessage(error, '보증 방식을 바꾸지 못했습니다.'));
+    return actionError(translateError(error, t, '보증 방식을 바꾸지 못했습니다.'));
   }
 
   revalidatePath(`/reservations/${reservationId}`);
@@ -271,6 +280,7 @@ export async function recordDepositAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   const values = formValues(formData, ['amount', 'method', 'description']);
 
   const raw = String(formData.get('amount') ?? '').trim();
@@ -294,7 +304,7 @@ export async function recordDepositAction(
       },
     });
   } catch (error) {
-    return actionError(backendMessage(error, '보증금을 받지 못했습니다.'), values);
+    return actionError(translateError(error, t, '보증금을 받지 못했습니다.'), values);
   }
 
   revalidatePath(`/reservations/${reservationId}`);
@@ -312,6 +322,7 @@ export async function confirmWaitlistAction(
   _prev: ActionState,
   _formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   try {
     await apiFetch(
       'be',
@@ -322,7 +333,7 @@ export async function confirmWaitlistAction(
       },
     );
   } catch (error) {
-    return actionError(backendMessage(error, '대기를 확정하지 못했습니다.'));
+    return actionError(translateError(error, t, '대기를 확정하지 못했습니다.'));
   }
 
   revalidatePath(`/reservations/${reservationId}`);
@@ -341,6 +352,7 @@ export async function shareReservationAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   const values = formValues(formData, ['withReservationId']);
 
   const withReservationId = String(formData.get('withReservationId') ?? '').trim();
@@ -352,7 +364,7 @@ export async function shareReservationAction(
       json: { withReservationId },
     });
   } catch (error) {
-    return actionError(backendMessage(error, '객실을 함께 쓰도록 묶지 못했습니다.'), values);
+    return actionError(translateError(error, t, '객실을 함께 쓰도록 묶지 못했습니다.'), values);
   }
 
   revalidatePath(`/reservations/${reservationId}`);
@@ -365,13 +377,14 @@ export async function unshareReservationAction(
   _prev: ActionState,
   _formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   try {
     await apiFetch('be', `/api/reservations/${encodeURIComponent(reservationId)}/unshare`, {
       method: 'POST',
       json: {},
     });
   } catch (error) {
-    return actionError(backendMessage(error, '공유를 해제하지 못했습니다.'));
+    return actionError(translateError(error, t, '공유를 해제하지 못했습니다.'));
   }
 
   revalidatePath(`/reservations/${reservationId}`);

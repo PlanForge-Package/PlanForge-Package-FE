@@ -4,12 +4,13 @@ import { notFound } from 'next/navigation';
 import { EmptyState, ErrorNotice } from '@/components/notice';
 import { PageHeader } from '@/components/page-header';
 import { RatePlanDetail } from '@/components/rate-plan-detail';
-import { ApiError, apiFetch, backendMessage, tryFetch } from '@/lib/api';
+import { ApiError, apiFetch, tryFetch } from '@/lib/api';
 import { requireUser } from '@/lib/auth';
 import { getDictionary } from '@/lib/i18n';
 import { fill } from '@/lib/i18n/format';
 import { getPropertyContext } from '@/lib/property';
 import type { RatePackageList, RatePlanConfig, RoomType } from '@/lib/types';
+import { translateError } from '@/lib/translate-error';
 
 const CAN_MANAGE = ['ADMIN', 'MANAGER'];
 
@@ -52,7 +53,7 @@ export default async function RatePlanPage({ params }: Props) {
         <PageHeader title={t.rates.planDetailTitle} />
         <ErrorNotice
           title={t.rates.loadPlansFailed}
-          message={backendMessage(error, t.rates.loadPlansFailed)}
+          message={translateError(error, t, t.rates.loadPlansFailed)}
           status={error instanceof ApiError ? error.status : 0}
         />
         <Link href="/rates" className="text-sm underline underline-offset-4 text-subtle">

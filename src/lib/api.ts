@@ -12,10 +12,18 @@ import 'server-only';
 
 import { getSessionToken } from './session';
 
-/** BE's standard error response. NestJS ValidationPipe gives message as an array. */
+/**
+ * BE's standard error response.
+ *
+ * `code` is what a refusal actually is; `message` is BE's English rendering of it, kept
+ * for logs, API clients and codes the dictionary has not caught up with. NestJS
+ * ValidationPipe answers without a code and gives `message` as an array.
+ */
 interface BackendErrorBody {
   statusCode?: number;
   error?: string;
+  code?: string;
+  params?: Record<string, string | number>;
   message?: string | string[];
 }
 
@@ -46,6 +54,16 @@ export class ApiError extends Error {
   /** Whether this is an input or state problem the user can fix. */
   get userFixable(): boolean {
     return this.status >= 400 && this.status < 500;
+  }
+
+  /** The refusal BE named, if it named one. Translated by {@link translateError}. */
+  get code(): string | undefined {
+    return (this.body as BackendErrorBody | null)?.code;
+  }
+
+  /** The values that vary inside the message for {@link code}. */
+  get params(): Record<string, string | number> {
+    return (this.body as BackendErrorBody | null)?.params ?? {};
   }
 }
 

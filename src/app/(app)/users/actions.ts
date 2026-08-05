@@ -2,10 +2,11 @@
 
 import { revalidatePath } from 'next/cache';
 import { actionError, actionSuccess, type ActionState } from '@/lib/action-state';
-import { apiFetch, backendMessage } from '@/lib/api';
+import { apiFetch } from '@/lib/api';
 import { getDictionary, type Dictionary } from '@/lib/i18n';
 import { fill } from '@/lib/i18n/format';
 import type { UserRole } from '@/lib/types';
+import { translateError } from '@/lib/translate-error';
 
 // This file exports async functions only. Types and constants live in @/lib/action-state.
 
@@ -54,7 +55,7 @@ export async function createUserAction(
       json: { email, name, password, role, ...(propertyId ? { propertyId } : {}) },
     });
   } catch (error) {
-    return actionError(backendMessage(error, t.users.msgCreateFailed));
+    return actionError(translateError(error, t, t.users.msgCreateFailed));
   }
 
   revalidatePath('/users');
@@ -94,7 +95,7 @@ export async function updateUserAction(
       json: { role, propertyId },
     });
   } catch (error) {
-    return actionError(backendMessage(error, t.users.msgUpdateFailed));
+    return actionError(translateError(error, t, t.users.msgUpdateFailed));
   }
 
   revalidatePath('/users');
@@ -120,7 +121,7 @@ export async function setUserActiveAction(
     });
   } catch (error) {
     return actionError(
-      backendMessage(error, active ? t.users.msgReinstateFailed : t.users.msgLeaveFailed),
+      translateError(error, t, active ? t.users.msgReinstateFailed : t.users.msgLeaveFailed),
     );
   }
 
@@ -148,7 +149,7 @@ export async function resetPasswordAction(
       json: { password },
     });
   } catch (error) {
-    return actionError(backendMessage(error, t.users.msgResetFailed));
+    return actionError(translateError(error, t, t.users.msgResetFailed));
   }
 
   revalidatePath('/users');
@@ -176,7 +177,7 @@ export async function changeOwnPasswordAction(
       json: { currentPassword, newPassword },
     });
   } catch (error) {
-    return actionError(backendMessage(error, t.users.msgChangeFailed));
+    return actionError(translateError(error, t, t.users.msgChangeFailed));
   }
 
   return actionSuccess(t.users.msgChanged);

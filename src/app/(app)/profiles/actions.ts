@@ -2,8 +2,9 @@
 
 import { revalidatePath } from 'next/cache';
 import { actionError, actionSuccess, formValues, type ActionState } from '@/lib/action-state';
-import { apiFetch, backendMessage } from '@/lib/api';
+import { apiFetch } from '@/lib/api';
 import { getDictionary } from '@/lib/i18n';
+import { translateError } from '@/lib/translate-error';
 
 // This file exports async functions only. Types and constants live in @/lib/action-state.
 
@@ -57,7 +58,7 @@ export async function updateProfileAction(
       },
     });
   } catch (error) {
-    return fail(backendMessage(error, t.profiles.msgUpdateFailed));
+    return fail(translateError(error, t, t.profiles.msgUpdateFailed));
   }
 
   revalidatePath('/profiles');
@@ -86,7 +87,7 @@ export async function mergeProfileAction(
       json: { targetId },
     });
   } catch (error) {
-    return actionError(backendMessage(error, t.profiles.msgMergeFailed));
+    return actionError(translateError(error, t, t.profiles.msgMergeFailed));
   }
 
   revalidatePath('/profiles');

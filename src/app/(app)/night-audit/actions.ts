@@ -2,7 +2,9 @@
 
 import { revalidatePath } from 'next/cache';
 import { actionError, actionSuccess, type ActionState } from '@/lib/action-state';
-import { apiFetch, backendMessage } from '@/lib/api';
+import { apiFetch } from '@/lib/api';
+import { translateError } from '@/lib/translate-error';
+import { getDictionary } from '@/lib/i18n';
 
 // This file exports async functions only. Types and constants live in @/lib/action-state.
 
@@ -16,6 +18,7 @@ export async function markNoShowAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   const reservationId = String(formData.get('reservationId') ?? '').trim();
   if (!reservationId) return actionError('대상 예약을 찾을 수 없습니다.');
 
@@ -32,7 +35,7 @@ export async function markNoShowAction(
       },
     );
   } catch (error) {
-    return actionError(backendMessage(error, '노쇼로 처리하지 못했습니다.'));
+    return actionError(translateError(error, t, '노쇼로 처리하지 못했습니다.'));
   }
 
   revalidatePath('/night-audit');

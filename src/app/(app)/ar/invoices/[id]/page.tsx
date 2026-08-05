@@ -4,11 +4,12 @@ import { notFound } from 'next/navigation';
 import { InvoiceDocument } from '@/components/invoice-document';
 import { ErrorNotice } from '@/components/notice';
 import { PageHeader } from '@/components/page-header';
-import { ApiError, apiFetch, backendMessage } from '@/lib/api';
+import { ApiError, apiFetch } from '@/lib/api';
 import { requireUser } from '@/lib/auth';
 import { getDictionary } from '@/lib/i18n';
 import { fill } from '@/lib/i18n/format';
 import type { ArInvoiceDetail } from '@/lib/types';
+import { translateError } from '@/lib/translate-error';
 
 export const dynamic = 'force-dynamic';
 
@@ -36,7 +37,7 @@ export default async function InvoicePage({ params }: Props) {
         <PageHeader title={t.ar.invoices} />
         <ErrorNotice
           title={t.ar.loadInvoiceFailed}
-          message={backendMessage(error, t.ar.loadInvoiceFailed)}
+          message={translateError(error, t, t.ar.loadInvoiceFailed)}
           status={error instanceof ApiError ? error.status : 0}
         />
         <Link href="/ar" className="text-sm underline underline-offset-4 text-subtle">

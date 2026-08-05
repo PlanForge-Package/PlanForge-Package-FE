@@ -4,11 +4,12 @@ import { notFound } from 'next/navigation';
 import { ArAccountDetailPanel } from '@/components/ar-panels';
 import { ErrorNotice } from '@/components/notice';
 import { PageHeader } from '@/components/page-header';
-import { ApiError, apiFetch, backendMessage } from '@/lib/api';
+import { ApiError, apiFetch } from '@/lib/api';
 import { requireUser } from '@/lib/auth';
 import { getDictionary } from '@/lib/i18n';
 import { fill } from '@/lib/i18n/format';
 import type { ArAccountDetail } from '@/lib/types';
+import { translateError } from '@/lib/translate-error';
 
 /** Recording payments and issuing invoices is receivables management, so a manager owns it. */
 const CAN_MANAGE = ['ADMIN', 'MANAGER'];
@@ -39,7 +40,7 @@ export default async function ArAccountPage({ params }: Props) {
         <PageHeader title={t.ar.accountTitle} />
         <ErrorNotice
           title={t.ar.loadAccountsFailed}
-          message={backendMessage(error, t.ar.loadAccountsFailed)}
+          message={translateError(error, t, t.ar.loadAccountsFailed)}
           status={error instanceof ApiError ? error.status : 0}
         />
         <Link href="/ar" className="text-sm underline underline-offset-4 text-subtle">

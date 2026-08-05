@@ -2,8 +2,10 @@
 
 import { revalidatePath } from 'next/cache';
 import { actionError, actionSuccess, formValues, type ActionState } from '@/lib/action-state';
-import { apiFetch, backendMessage } from '@/lib/api';
+import { apiFetch } from '@/lib/api';
 import type { TraceDepartment } from '@/lib/types';
+import { translateError } from '@/lib/translate-error';
+import { getDictionary } from '@/lib/i18n';
 
 const DEPARTMENTS: TraceDepartment[] = [
   'FRONT_DESK',
@@ -20,6 +22,7 @@ export async function createTraceAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   // React 19 empties uncontrolled inputs when an action ends. On failure they come back.
   const values = formValues(formData, ['department', 'dueDate', 'note']);
 
@@ -40,7 +43,7 @@ export async function createTraceAction(
       json: { department, dueDate, note },
     });
   } catch (error) {
-    return actionError(backendMessage(error, '지시를 걸지 못했습니다.'), values);
+    return actionError(translateError(error, t, '지시를 걸지 못했습니다.'), values);
   }
 
   revalidatePath(`/reservations/${reservationId}`);
@@ -52,6 +55,7 @@ export async function completeTraceAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   const id = String(formData.get('traceId') ?? '').trim();
   if (!id) return actionError('대상 지시를 찾을 수 없습니다.');
 
@@ -60,7 +64,7 @@ export async function completeTraceAction(
   try {
     await apiFetch('be', `/api/traces/${encodeURIComponent(id)}/complete`, { method: 'PATCH' });
   } catch (error) {
-    return actionError(backendMessage(error, '처리하지 못했습니다.'));
+    return actionError(translateError(error, t, '처리하지 못했습니다.'));
   }
 
   // Used from both the reservation detail and the dashboard, so both are revalidated.
@@ -75,13 +79,14 @@ export async function removeTraceAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   const id = String(formData.get('traceId') ?? '').trim();
   if (!id) return actionError('대상 지시를 찾을 수 없습니다.');
 
   try {
     await apiFetch('be', `/api/traces/${encodeURIComponent(id)}`, { method: 'DELETE' });
   } catch (error) {
-    return actionError(backendMessage(error, '지시를 거두지 못했습니다.'));
+    return actionError(translateError(error, t, '지시를 거두지 못했습니다.'));
   }
 
   revalidatePath('/');

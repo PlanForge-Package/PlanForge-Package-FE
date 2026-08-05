@@ -2,8 +2,10 @@
 
 import { redirect } from 'next/navigation';
 import { actionError, type ActionState } from '@/lib/action-state';
-import { apiFetch, backendMessage } from '@/lib/api';
+import { apiFetch } from '@/lib/api';
 import { clearSessionToken, setSessionToken, type SessionUser } from '@/lib/session';
+import { translateError } from '@/lib/translate-error';
+import { getDictionary } from '@/lib/i18n';
 
 interface LoginResponse {
   accessToken: string;
@@ -18,6 +20,7 @@ function safeNext(value: FormDataEntryValue | null): string {
 }
 
 export async function loginAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const { t } = await getDictionary();
   const email = String(formData.get('email') ?? '').trim();
   const password = String(formData.get('password') ?? '');
 
@@ -32,7 +35,7 @@ export async function loginAction(_prev: ActionState, formData: FormData): Promi
       anonymous: true,
     });
   } catch (error) {
-    return actionError(backendMessage(error, '로그인하지 못했습니다.'));
+    return actionError(translateError(error, t, '로그인하지 못했습니다.'));
   }
 
   await setSessionToken(result.accessToken, result.expiresAt);

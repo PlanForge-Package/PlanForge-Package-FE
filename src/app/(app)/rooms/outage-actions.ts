@@ -2,10 +2,11 @@
 
 import { revalidatePath } from 'next/cache';
 import { actionError, actionSuccess, formValues, type ActionState } from '@/lib/action-state';
-import { apiFetch, backendMessage } from '@/lib/api';
+import { apiFetch } from '@/lib/api';
 import { getDictionary } from '@/lib/i18n';
 import { fill } from '@/lib/i18n/format';
 import type { RoomOutageKind, RoomStatus } from '@/lib/types';
+import { translateError } from '@/lib/translate-error';
 
 const KINDS: RoomOutageKind[] = ['OUT_OF_ORDER', 'OUT_OF_SERVICE'];
 const RETURN_STATUSES: RoomStatus[] = ['CLEAN', 'DIRTY', 'INSPECTED'];
@@ -58,7 +59,7 @@ export async function createOutageAction(
       json: { propertyId, roomNumber, kind, startDate, endDate, reason, returnStatus },
     });
   } catch (error) {
-    return actionError(backendMessage(error, t.outages.msgRegisterFailed), values);
+    return actionError(translateError(error, t, t.outages.msgRegisterFailed), values);
   }
 
   revalidatePath('/rooms');
@@ -85,7 +86,7 @@ export async function releaseOutageAction(
       json: reason ? { reason } : {},
     });
   } catch (error) {
-    return actionError(backendMessage(error, t.outages.msgReleaseFailed));
+    return actionError(translateError(error, t, t.outages.msgReleaseFailed));
   }
 
   revalidatePath('/rooms');

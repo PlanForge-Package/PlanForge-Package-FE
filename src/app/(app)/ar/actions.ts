@@ -2,10 +2,11 @@
 
 import { revalidatePath } from 'next/cache';
 import { actionError, actionSuccess, formValues, type ActionState } from '@/lib/action-state';
-import { apiFetch, backendMessage } from '@/lib/api';
+import { apiFetch } from '@/lib/api';
 import { getDictionary } from '@/lib/i18n';
 import { fill, money } from '@/lib/i18n/format';
 import type { ArInvoiceStatus } from '@/lib/types';
+import { translateError } from '@/lib/translate-error';
 
 const STATUSES: ArInvoiceStatus[] = ['DRAFT', 'SENT', 'PAID', 'VOID'];
 
@@ -56,7 +57,7 @@ export async function createAccountAction(
       },
     });
   } catch (error) {
-    return actionError(backendMessage(error, t.ar.msgCreateFailed), values);
+    return actionError(translateError(error, t, t.ar.msgCreateFailed), values);
   }
 
   revalidatePath('/ar');
@@ -99,7 +100,7 @@ export async function recordPaymentAction(
       json: body,
     });
   } catch (error) {
-    return actionError(backendMessage(error, t.ar.msgPaymentFailed), values);
+    return actionError(translateError(error, t, t.ar.msgPaymentFailed), values);
   }
 
   revalidatePath(`/ar/${accountId}`);
@@ -131,7 +132,7 @@ export async function createInvoiceAction(
       json: note ? { note } : {},
     });
   } catch (error) {
-    return actionError(backendMessage(error, t.ar.msgInvoiceFailed));
+    return actionError(translateError(error, t, t.ar.msgInvoiceFailed));
   }
 
   revalidatePath(`/ar/${accountId}`);
@@ -165,7 +166,7 @@ export async function updateInvoiceStatusAction(
       json: { status },
     });
   } catch (error) {
-    return actionError(backendMessage(error, t.ar.msgStatusFailed));
+    return actionError(translateError(error, t, t.ar.msgStatusFailed));
   }
 
   revalidatePath(`/ar/${accountId}`);
@@ -201,7 +202,7 @@ export async function transferToArAction(
       { method: 'POST', json: { accountId, window, ...(description ? { description } : {}) } },
     );
   } catch (error) {
-    return actionError(backendMessage(error, t.ar.msgTransferFailed), values);
+    return actionError(translateError(error, t, t.ar.msgTransferFailed), values);
   }
 
   revalidatePath(`/reservations/${reservationId}`);

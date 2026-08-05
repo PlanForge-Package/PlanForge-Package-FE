@@ -2,10 +2,11 @@
 
 import { revalidatePath } from 'next/cache';
 import { actionError, actionSuccess, formValues, type ActionState } from '@/lib/action-state';
-import { apiFetch, backendMessage } from '@/lib/api';
+import { apiFetch } from '@/lib/api';
 import { getDictionary } from '@/lib/i18n';
 import { fill } from '@/lib/i18n/format';
 import type { Block, BlockStatus } from '@/lib/types';
+import { translateError } from '@/lib/translate-error';
 
 /** Input fields handed back on failure. Counts are an array and handled separately. */
 const KEEP = ['code', 'name', 'startDate', 'endDate', 'cutoffDate', 'ratePlanCode'];
@@ -94,7 +95,7 @@ export async function createBlockAction(
       },
     });
   } catch (error) {
-    return fail(backendMessage(error, t.blocks.msgCreateFailed));
+    return fail(translateError(error, t, t.blocks.msgCreateFailed));
   }
 
   revalidatePath('/blocks');
@@ -154,7 +155,7 @@ export async function updateBlockAction(
       },
     });
   } catch (error) {
-    return actionError(backendMessage(error, t.blocks.msgUpdateFailed));
+    return actionError(translateError(error, t, t.blocks.msgUpdateFailed));
   }
 
   revalidatePath('/blocks');

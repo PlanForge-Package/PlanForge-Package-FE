@@ -2,8 +2,10 @@
 
 import { revalidatePath } from 'next/cache';
 import { actionError, actionSuccess, type ActionState } from '@/lib/action-state';
-import { apiFetch, backendMessage } from '@/lib/api';
+import { apiFetch } from '@/lib/api';
 import type { RoomKey } from '@/lib/types';
+import { translateError } from '@/lib/translate-error';
+import { getDictionary } from '@/lib/i18n';
 
 // This file exports async functions only. Types and constants live in @/lib/action-state.
 
@@ -12,6 +14,7 @@ function text(formData: FormData, field: string): string {
 }
 
 export async function issueKeyAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const { t } = await getDictionary();
   const reservationId = text(formData, 'reservationId');
   if (!reservationId) return actionError('대상 예약을 찾을 수 없습니다.');
 
@@ -26,7 +29,7 @@ export async function issueKeyAction(_prev: ActionState, formData: FormData): Pr
       { method: 'POST', json: { replaceExisting } },
     );
   } catch (error) {
-    return actionError(backendMessage(error, '카드를 발급하지 못했습니다.'));
+    return actionError(translateError(error, t, '카드를 발급하지 못했습니다.'));
   }
 
   revalidatePath(`/reservations/${reservationId}`);
@@ -40,6 +43,7 @@ export async function revokeKeyAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   const keyId = text(formData, 'keyId');
   const reservationId = text(formData, 'reservationId');
   if (!keyId) return actionError('대상 카드를 찾을 수 없습니다.');
@@ -52,7 +56,7 @@ export async function revokeKeyAction(
       json: reason ? { reason } : {},
     });
   } catch (error) {
-    return actionError(backendMessage(error, '카드를 무효화하지 못했습니다.'));
+    return actionError(translateError(error, t, '카드를 무효화하지 못했습니다.'));
   }
 
   if (reservationId) revalidatePath(`/reservations/${reservationId}`);

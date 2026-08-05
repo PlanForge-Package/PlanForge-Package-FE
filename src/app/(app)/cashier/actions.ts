@@ -2,7 +2,9 @@
 
 import { revalidatePath } from 'next/cache';
 import { actionError, actionSuccess, formValues, type ActionState } from '@/lib/action-state';
-import { apiFetch, backendMessage } from '@/lib/api';
+import { apiFetch } from '@/lib/api';
+import { translateError } from '@/lib/translate-error';
+import { getDictionary } from '@/lib/i18n';
 
 function readMoney(value: FormDataEntryValue | null, label: string): number | string {
   const raw = String(value ?? '').trim();
@@ -19,6 +21,7 @@ export async function openShiftAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   const values = formValues(formData, ['openingFloat']);
 
   const propertyId = String(formData.get('propertyId') ?? '').trim();
@@ -33,7 +36,7 @@ export async function openShiftAction(
       json: { propertyId, openingFloat },
     });
   } catch (error) {
-    return actionError(backendMessage(error, '근무조를 열지 못했습니다.'), values);
+    return actionError(translateError(error, t, '근무조를 열지 못했습니다.'), values);
   }
 
   revalidatePath('/cashier');
@@ -44,6 +47,7 @@ export async function closeShiftAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   const values = formValues(formData, ['countedCash', 'notes']);
 
   const shiftId = String(formData.get('shiftId') ?? '').trim();
@@ -61,7 +65,7 @@ export async function closeShiftAction(
       json: { countedCash, ...(notes ? { notes } : {}) },
     });
   } catch (error) {
-    return actionError(backendMessage(error, '마감하지 못했습니다.'), values);
+    return actionError(translateError(error, t, '마감하지 못했습니다.'), values);
   }
 
   revalidatePath('/cashier');

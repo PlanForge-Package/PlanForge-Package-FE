@@ -3,7 +3,9 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { actionError, formValues, type ActionState } from '@/lib/action-state';
-import { apiFetch, backendMessage } from '@/lib/api';
+import { apiFetch } from '@/lib/api';
+import { translateError } from '@/lib/translate-error';
+import { getDictionary } from '@/lib/i18n';
 
 /**
  * Input fields handed back to the screen on failure.
@@ -45,6 +47,7 @@ export async function createReservationAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   const kept = formValues(formData, KEEP);
   const fail = (message: string) => actionError(message, kept);
 
@@ -110,7 +113,7 @@ export async function createReservationAction(
       },
     });
   } catch (error) {
-    return fail(backendMessage(error, '예약을 만들지 못했습니다.'));
+    return fail(translateError(error, t, '예약을 만들지 못했습니다.'));
   }
 
   revalidatePath('/reservations');

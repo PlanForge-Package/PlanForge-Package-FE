@@ -2,7 +2,9 @@
 
 import { revalidatePath } from 'next/cache';
 import { actionError, actionSuccess, formValues, type ActionState } from '@/lib/action-state';
-import { apiFetch, backendMessage } from '@/lib/api';
+import { apiFetch } from '@/lib/api';
+import { translateError } from '@/lib/translate-error';
+import { getDictionary } from '@/lib/i18n';
 
 const MAX_WINDOW = 8;
 
@@ -20,6 +22,7 @@ export async function transferPostingAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   const postingId = String(formData.get('postingId') ?? '').trim();
   if (!postingId) return actionError('옮길 거래를 찾을 수 없습니다.');
 
@@ -35,7 +38,7 @@ export async function transferPostingAction(
       { method: 'POST', json: { toWindow } },
     );
   } catch (error) {
-    return actionError(backendMessage(error, '거래를 옮기지 못했습니다.'));
+    return actionError(translateError(error, t, '거래를 옮기지 못했습니다.'));
   }
 
   revalidatePath(`/reservations/${reservationId}`);
@@ -47,6 +50,7 @@ export async function setRoutingAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   // The input comes back on failure. React 19 empties uncontrolled inputs when an action ends.
   const values = formValues(formData, ['transactionCode', 'targetWindow', 'note']);
 
@@ -64,7 +68,7 @@ export async function setRoutingAction(
       json: { transactionCode, targetWindow, ...(note ? { note } : {}) },
     });
   } catch (error) {
-    return actionError(backendMessage(error, '라우팅을 걸지 못했습니다.'), values);
+    return actionError(translateError(error, t, '라우팅을 걸지 못했습니다.'), values);
   }
 
   revalidatePath(`/reservations/${reservationId}`);
@@ -76,6 +80,7 @@ export async function removeRoutingAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   const transactionCode = String(formData.get('transactionCode') ?? '').trim();
   if (!transactionCode) return actionError('해제할 지시를 찾을 수 없습니다.');
 
@@ -86,7 +91,7 @@ export async function removeRoutingAction(
       { method: 'DELETE' },
     );
   } catch (error) {
-    return actionError(backendMessage(error, '라우팅을 해제하지 못했습니다.'));
+    return actionError(translateError(error, t, '라우팅을 해제하지 못했습니다.'));
   }
 
   revalidatePath(`/reservations/${reservationId}`);

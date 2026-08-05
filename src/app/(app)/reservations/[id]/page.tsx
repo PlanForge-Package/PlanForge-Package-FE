@@ -12,15 +12,17 @@ import { WaitlistPanel } from '@/components/waitlist-panel';
 import { FrontDeskPanel } from '@/components/front-desk';
 import { ReservationEditPanel } from '@/components/reservation-edit';
 import { Detail } from '@/components/field';
+import type { Dictionary } from '@/lib/i18n';
 import { ErrorNotice } from '@/components/notice';
 import { PageHeader } from '@/components/page-header';
 import { PaymentPanel } from '@/components/payment-panel';
 import { RoomKeyPanel } from '@/components/room-key-panel';
 import { ReservationStatusBadge } from '@/components/status-badge';
-import { ApiError, apiFetch, backendMessage, tryFetch } from '@/lib/api';
+import { ApiError, apiFetch, tryFetch } from '@/lib/api';
 import { label } from '@/lib/channel-labels';
 import { getDictionary } from '@/lib/i18n';
 import { dateOnly } from '@/lib/date';
+import { translateError } from '@/lib/translate-error';
 import type {
   ArAccountList,
   FolioRoutingList,
@@ -57,6 +59,7 @@ interface Props {
  */
 async function loadReservation(
   id: string,
+  t: Dictionary,
 ): Promise<{ ok: true; data: ReservationDetail } | { ok: false; message: string; status: number }> {
   try {
     const data = await apiFetch<ReservationDetail>(
@@ -74,7 +77,7 @@ async function loadReservation(
     }
     return {
       ok: false,
-      message: backendMessage(error, '예약을 불러오지 못했습니다.'),
+      message: translateError(error, t, '예약을 불러오지 못했습니다.'),
       status: error instanceof ApiError ? error.status : 0,
     };
   }
@@ -91,7 +94,7 @@ export default async function ReservationDetailPage({ params }: Props) {
   const { id } = await params;
   const user = await requireUser(`/reservations/${id}`);
   const { t } = await getDictionary();
-  const result = await loadReservation(id);
+  const result = await loadReservation(id, t);
 
   if (!result.ok) {
     return (
