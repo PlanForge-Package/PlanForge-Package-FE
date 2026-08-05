@@ -6,9 +6,7 @@ import { markNoShowAction } from '@/app/(app)/night-audit/actions';
 import { IDLE, type ActionState } from '@/lib/action-state';
 import type { AuditSection } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
-
-const smallButton =
-  'rounded-md border border-current/20 px-2.5 py-1 text-xs transition-colors hover:bg-current/5 disabled:cursor-not-allowed disabled:opacity-50';
+import { control, ghostButton } from './ui';
 
 /**
  * Close checklist.
@@ -129,15 +127,15 @@ export function NightAuditBoard({ sections }: { sections: AuditSection[] }) {
                                     maxLength={200}
                                     placeholder="사유 (선택)"
                                     aria-label={`${item.confirmationNumber} 노쇼 사유`}
-                                    className="w-40 rounded-md border border-current/20 bg-transparent px-2 py-1 text-xs"
+                                    className={control('xs', 'w-40')}
                                   />
-                                  <SubmitButton pendingLabel="…" className={smallButton}>
+                                  <SubmitButton pendingLabel="…" className={ghostButton()}>
                                     노쇼 확정
                                   </SubmitButton>
                                   <button
                                     type="button"
                                     onClick={() => setConfirming(null)}
-                                    className={smallButton}
+                                    className={ghostButton()}
                                   >
                                     취소
                                   </button>
@@ -146,7 +144,7 @@ export function NightAuditBoard({ sections }: { sections: AuditSection[] }) {
                                 <button
                                   type="button"
                                   onClick={() => setConfirming(key)}
-                                  className={smallButton}
+                                  className={ghostButton()}
                                 >
                                   노쇼 처리
                                 </button>

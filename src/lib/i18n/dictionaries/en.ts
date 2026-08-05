@@ -550,8 +550,7 @@ export const en: Dictionary = {
     unbalancedMessage:
       'The computed closing balance {closing} differs from the open folio balance {outstanding}. Postings are leaking somewhere.',
     unmappedTitle: 'Some transaction codes are not in the setup',
-    unmappedMessage:
-      '{codes} — until a revenue group and tax rate are set, tax is left unsplit.',
+    unmappedMessage: '{codes} — until a revenue group and tax rate are set, tax is left unsplit.',
     totals: 'Totals',
     grossTotal: 'Total revenue (tax incl.)',
     net: 'Net',
@@ -732,7 +731,12 @@ export const en: Dictionary = {
       ACCESSIBLE: 'Accessible',
     },
     tiers: { NONE: 'Standard', SILVER: 'Silver', GOLD: 'Gold', PLATINUM: 'Platinum' },
-    kinds: { GUEST: 'Individual', COMPANY: 'Company', TRAVEL_AGENT: 'Travel agent', GROUP: 'Group' },
+    kinds: {
+      GUEST: 'Individual',
+      COMPANY: 'Company',
+      TRAVEL_AGENT: 'Travel agent',
+      GROUP: 'Group',
+    },
     duplicateReasons: {
       SAME_EMAIL: 'Same email',
       SAME_PHONE: 'Same phone',
@@ -866,7 +870,8 @@ export const en: Dictionary = {
     ratePlanValue: 'Rate plan price',
     create: 'Create block',
     creating: 'Creating…',
-    createNote: 'OPERA decides whether the inventory can be held. The cutoff must precede the start date.',
+    createNote:
+      'OPERA decides whether the inventory can be held. The cutoff must precede the start date.',
     editTitle: 'Edit block',
     name: 'Name',
     negotiatedFor: '{roomType} negotiated rate',

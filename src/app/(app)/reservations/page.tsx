@@ -8,6 +8,7 @@ import { requireUser } from '@/lib/auth';
 import { getDictionary } from '@/lib/i18n';
 import { getPropertyContext } from '@/lib/property';
 import type { ReservationListResponse, ReservationStatus } from '@/lib/types';
+import { control, primaryButton } from '@/components/ui';
 
 export const dynamic = 'force-dynamic';
 
@@ -63,10 +64,7 @@ export default async function ReservationsPage({
         title={t.reservations.title}
         description={`${property.selected?.name ?? t.common.allProperties} — ${t.reservations.description}`}
         actions={
-          <Link
-            href="/reservations/new"
-            className="btn-primary rounded-md px-3 py-1.5 text-sm font-medium"
-          >
+          <Link href="/reservations/new" className={primaryButton()}>
             {t.reservations.newReservation}
           </Link>
         }
@@ -81,17 +79,12 @@ export default async function ReservationsPage({
           name="q"
           defaultValue={q ?? ''}
           placeholder={t.reservations.searchPlaceholder}
-          className="rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm"
+          className={control('lg')}
         />
         <label htmlFor="status" className="sr-only">
           {t.common.status}
         </label>
-        <select
-          id="status"
-          name="status"
-          defaultValue={status ?? ''}
-          className="rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm"
-        >
+        <select id="status" name="status" defaultValue={status ?? ''} className={control('lg')}>
           {STATUS_FILTERS.map((value) => (
             <option key={value} value={value}>
               {value ? t.reservationStatus[value] : t.common.all}
@@ -105,7 +98,7 @@ export default async function ReservationsPage({
           id="channelCode"
           name="channelCode"
           defaultValue={channelCode ?? ''}
-          className="rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm"
+          className={control('lg')}
         >
           <option value="">{t.reservations.allChannels}</option>
           {Object.entries(t.channelCodes).map(([code, name]) => (
@@ -114,7 +107,7 @@ export default async function ReservationsPage({
             </option>
           ))}
         </select>
-        <button type="submit" className="btn-primary rounded-md px-3 py-1.5 text-sm font-medium">
+        <button type="submit" className={primaryButton()}>
           {t.common.search}
         </button>
       </form>

@@ -7,8 +7,7 @@ import { IDLE, type ActionState } from '@/lib/action-state';
 import type { AvailabilityItem, RateOffer } from '@/lib/types';
 import { useI18n } from '@/lib/i18n/provider';
 import { ActionMessage, SubmitButton } from './action-feedback';
-
-const inputClass = 'rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm';
+import { control } from './ui';
 
 function formatMoney(amount: number | undefined, currency: string): string {
   if (amount === undefined) return '—';
@@ -201,7 +200,7 @@ export function BookingForm({
                 maxLength={60}
                 placeholder="홍"
                 defaultValue={kept?.lastName ?? ''}
-                className={`w-28 ${inputClass}`}
+                className={control('lg', 'w-28')}
               />
             </div>
 
@@ -216,7 +215,7 @@ export function BookingForm({
                 maxLength={60}
                 placeholder="길동"
                 defaultValue={kept?.firstName ?? ''}
-                className={`w-32 ${inputClass}`}
+                className={control('lg', 'w-32')}
               />
             </div>
 
@@ -230,7 +229,7 @@ export function BookingForm({
                 type="email"
                 placeholder="guest@example.com"
                 defaultValue={kept?.email ?? ''}
-                className={`w-56 ${inputClass}`}
+                className={control('lg', 'w-56')}
               />
             </div>
 
@@ -242,7 +241,7 @@ export function BookingForm({
                 id={`${uid}-source`}
                 name="sourceCode"
                 defaultValue={kept?.sourceCode ?? 'DIRECT'}
-                className={`w-32 ${inputClass}`}
+                className={control('lg', 'w-32')}
               >
                 {Object.entries(t.sourceCodes).map(([code, name]) => (
                   <option key={code} value={code}>
@@ -260,7 +259,7 @@ export function BookingForm({
                 id={`${uid}-market`}
                 name="marketCode"
                 defaultValue={kept?.marketCode ?? 'TRANSIENT'}
-                className={`w-28 ${inputClass}`}
+                className={control('lg', 'w-28')}
               >
                 {Object.entries(t.marketCodes).map(([code, name]) => (
                   <option key={code} value={code}>
@@ -279,7 +278,7 @@ export function BookingForm({
                   id={`${uid}-block`}
                   name="blockCode"
                   defaultValue={kept?.blockCode ?? ''}
-                  className={`w-48 ${inputClass}`}
+                  className={control('lg', 'w-48')}
                 >
                   <option value="">일반 예약</option>
                   {blocks.map((block) => (

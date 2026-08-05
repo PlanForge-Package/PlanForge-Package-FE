@@ -516,7 +516,8 @@ export const zh: Dictionary = {
       '这是实际记入账夹的金额，与上面的客房收入不同，结算核对使用这一侧。会计结账的正式数字以 OPERA 报表为准。',
     channelSection: '渠道分解',
     channelTitle: '按来源的业绩',
-    channelNote: '看清各来源实际留下多少。哪条渠道付了佣金还在亏本销售，就在这里找出来。合计与上面的期间汇总一致。',
+    channelNote:
+      '看清各来源实际留下多少。哪条渠道付了佣金还在亏本销售，就在这里找出来。合计与上面的期间汇总一致。',
     channelHeading: '销售渠道',
     sourceHeading: '预订来源',
     marketHeading: '市场区分',
@@ -533,7 +534,8 @@ export const zh: Dictionary = {
     journalNote:
       '这些数字由本地副本计算得出。税务申报的正式数字以 OPERA 的结账报表为准 — 此处仅用于核对当日的钱是否对得上。',
     unbalancedTitle: '账目不平',
-    unbalancedMessage: '计算出的结账余额 {closing} 与未结账夹余额 {outstanding} 不一致。某处的计费在漏。',
+    unbalancedMessage:
+      '计算出的结账余额 {closing} 与未结账夹余额 {outstanding} 不一致。某处的计费在漏。',
     unmappedTitle: '存在未在设置中的交易代码',
     unmappedMessage: '{codes} — 在确定收入分组与税率之前，不拆分税额，按原样保留。',
     totals: '合计',
@@ -564,7 +566,8 @@ export const zh: Dictionary = {
     closingBalance: '结账应收',
     balancedHint: '与账夹余额一致',
     unbalancedHint: '与账夹余额不一致',
-    reconcileNote: '前日应收 + 当日账单 − 当日收款 = 结账应收。该值应与未结账夹余额合计（{outstanding}）一致。',
+    reconcileNote:
+      '前日应收 + 当日账单 − 当日收款 = 结账应收。该值应与未结账夹余额合计（{outstanding}）一致。',
   },
   users: {
     title: '账号管理',

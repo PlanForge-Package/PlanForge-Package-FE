@@ -9,14 +9,13 @@ import { fill, money } from '@/lib/i18n/format';
 import type { Locale } from '@/lib/i18n/locales';
 import { getPropertyContext } from '@/lib/property';
 import type { JournalReport } from '@/lib/types';
+import { control, primaryButton } from '@/components/ui';
 
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Close journal — PlanForge',
 };
-
-const fieldClass = 'rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm';
 
 function day(offset: number): string {
   const date = new Date();
@@ -70,9 +69,9 @@ export default async function JournalPage({
           <label htmlFor="date" className="text-xs text-subtle">
             {t.reports.businessDate}
           </label>
-          <input id="date" name="date" type="date" defaultValue={date} className={fieldClass} />
+          <input id="date" name="date" type="date" defaultValue={date} className={control('lg')} />
         </div>
-        <button type="submit" className="btn-primary rounded-md px-3 py-1.5 text-sm font-medium">
+        <button type="submit" className={primaryButton()}>
           {t.common.search}
         </button>
       </form>
@@ -92,15 +91,7 @@ export default async function JournalPage({
   );
 }
 
-function Journal({
-  report,
-  t,
-  locale,
-}: {
-  report: JournalReport;
-  t: Dictionary;
-  locale: Locale;
-}) {
+function Journal({ report, t, locale }: { report: JournalReport; t: Dictionary; locale: Locale }) {
   const { revenue, payments, ledger } = report;
 
   return (
@@ -257,9 +248,7 @@ function Journal({
                       {(t.payments.methods as Record<string, string>)[row.method] ?? row.method}
                     </td>
                     <td className="py-2.5 pr-4 text-right tabular-nums text-subtle">{row.count}</td>
-                    <td className="py-2.5 text-right tabular-nums">
-                      {money(row.amount, locale)}
-                    </td>
+                    <td className="py-2.5 text-right tabular-nums">{money(row.amount, locale)}</td>
                   </tr>
                 ))}
                 <tr>
@@ -283,10 +272,7 @@ function Journal({
           {t.reports.reconcileTitle}
         </h2>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <StatTile
-            label={t.reports.openingBalance}
-            value={money(ledger.openingBalance, locale)}
-          />
+          <StatTile label={t.reports.openingBalance} value={money(ledger.openingBalance, locale)} />
           <StatTile label={t.reports.dayCharges} value={money(ledger.charges, locale)} />
           <StatTile label={t.reports.dayPayments} value={money(ledger.payments, locale)} />
           <StatTile

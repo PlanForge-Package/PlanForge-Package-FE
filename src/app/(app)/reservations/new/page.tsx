@@ -7,6 +7,7 @@ import { apiFetch, tryFetch } from '@/lib/api';
 import { requireUser } from '@/lib/auth';
 import { getPropertyContext } from '@/lib/property';
 import type { AvailabilityResponse, Block, RateResponse } from '@/lib/types';
+import { control, primaryButton } from '@/components/ui';
 
 export const dynamic = 'force-dynamic';
 
@@ -98,8 +99,6 @@ function SearchForm({
   /** Guest count. Named differently so it is not confused with React's children. */
   childCount: number;
 }) {
-  const fieldClass = 'rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm';
-
   return (
     <form className="flex flex-wrap items-end gap-2" role="search">
       <div className="flex flex-col gap-1">
@@ -112,7 +111,7 @@ function SearchForm({
           type="date"
           defaultValue={arrivalDate}
           required
-          className={fieldClass}
+          className={control('lg')}
         />
       </div>
 
@@ -126,7 +125,7 @@ function SearchForm({
           type="date"
           defaultValue={departureDate}
           required
-          className={fieldClass}
+          className={control('lg')}
         />
       </div>
 
@@ -141,7 +140,7 @@ function SearchForm({
           min={1}
           max={10}
           defaultValue={adults}
-          className={`w-20 ${fieldClass}`}
+          className={control('lg', 'w-20')}
         />
       </div>
 
@@ -156,11 +155,11 @@ function SearchForm({
           min={0}
           max={10}
           defaultValue={childCount}
-          className={`w-20 ${fieldClass}`}
+          className={control('lg', 'w-20')}
         />
       </div>
 
-      <button type="submit" className="btn-primary rounded-md px-3 py-1.5 text-sm font-medium">
+      <button type="submit" className={primaryButton()}>
         조회
       </button>
     </form>

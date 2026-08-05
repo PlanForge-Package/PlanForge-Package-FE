@@ -10,14 +10,13 @@ import type { Locale } from '@/lib/i18n/locales';
 import { getPropertyContext } from '@/lib/property';
 import { label } from '@/lib/channel-labels';
 import type { BreakdownRow, DailyReport } from '@/lib/types';
+import { control, primaryButton } from '@/components/ui';
 
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Reports — PlanForge',
 };
-
-const fieldClass = 'rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm';
 
 function day(offset: number): string {
   const date = new Date();
@@ -69,15 +68,15 @@ export default async function ReportsPage({
           <label htmlFor="from" className="text-xs text-subtle">
             {t.reports.startDate}
           </label>
-          <input id="from" name="from" type="date" defaultValue={from} className={fieldClass} />
+          <input id="from" name="from" type="date" defaultValue={from} className={control('lg')} />
         </div>
         <div className="flex flex-col gap-1">
           <label htmlFor="to" className="text-xs text-subtle">
             {t.reports.endDate}
           </label>
-          <input id="to" name="to" type="date" defaultValue={to} className={fieldClass} />
+          <input id="to" name="to" type="date" defaultValue={to} className={control('lg')} />
         </div>
-        <button type="submit" className="btn-primary rounded-md px-3 py-1.5 text-sm font-medium">
+        <button type="submit" className={primaryButton()}>
           {t.common.search}
         </button>
 
@@ -92,11 +91,7 @@ export default async function ReportsPage({
       </form>
 
       {!report.ok ? (
-        <ErrorNotice
-          title={t.reports.loadFailed}
-          message={report.message}
-          status={report.status}
-        />
+        <ErrorNotice title={t.reports.loadFailed} message={report.message} status={report.status} />
       ) : (
         <Report data={report.data} t={t} locale={locale} />
       )}
@@ -164,20 +159,15 @@ function BreakdownTable({
   );
 }
 
-function Report({
-  data,
-  t,
-  locale,
-}: {
-  data: DailyReport;
-  t: Dictionary;
-  locale: Locale;
-}) {
+function Report({ data, t, locale }: { data: DailyReport; t: Dictionary; locale: Locale }) {
   const { currency } = data;
 
   return (
     <>
-      <section aria-label={t.reports.periodSummary} className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <section
+        aria-label={t.reports.periodSummary}
+        className="grid grid-cols-2 gap-3 sm:grid-cols-4"
+      >
         <StatTile label={t.reports.occupancy} value={percent(data.totals.occupancy)} />
         <StatTile label="ADR" value={money(data.totals.adr, locale, currency)} />
         <StatTile label="RevPAR" value={money(data.totals.revpar, locale, currency)} />
@@ -199,7 +189,10 @@ function Report({
       <section aria-label={t.reports.postingsSection} className="flex flex-col gap-2">
         <h2 className="text-sm font-medium">{t.reports.postingsTitle}</h2>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <StatTile label={t.reports.charges} value={money(data.postings.charges, locale, currency)} />
+          <StatTile
+            label={t.reports.charges}
+            value={money(data.postings.charges, locale, currency)}
+          />
           <StatTile
             label={t.reports.payments}
             value={money(data.postings.payments, locale, currency)}

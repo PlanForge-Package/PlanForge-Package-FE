@@ -6,6 +6,7 @@ import { IDLE, type ActionState } from '@/lib/action-state';
 import type { ReservationStatus } from '@/lib/types';
 import { useI18n } from '@/lib/i18n/provider';
 import { ActionMessage, SubmitButton } from './action-feedback';
+import { control } from './ui';
 
 /** The same rule as BE. Filtering here saves a round trip, but BE decides. */
 const CHECK_IN_ALLOWED: ReservationStatus[] = ['RESERVED', 'CONFIRMED'];
@@ -60,7 +61,7 @@ export function FrontDeskPanel({
                 defaultValue={assignedRoomNumber ?? ''}
                 placeholder={t.frontDesk.roomPlaceholder}
                 inputMode="numeric"
-                className="rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm"
+                className={control('lg')}
               />
             </div>
             <SubmitButton pendingLabel={t.frontDesk.checkingIn}>{t.frontDesk.checkIn}</SubmitButton>
@@ -80,7 +81,7 @@ export function FrontDeskPanel({
                 id="notes"
                 name="notes"
                 placeholder={t.frontDesk.checkOutPlaceholder}
-                className="w-64 rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm"
+                className={control('lg', 'w-64')}
               />
             </div>
             <SubmitButton

@@ -7,6 +7,7 @@ import { requireUser } from '@/lib/auth';
 import { getDictionary } from '@/lib/i18n';
 import { fill, num } from '@/lib/i18n/format';
 import type { Property, UserListResponse } from '@/lib/types';
+import { control, primaryButton } from '@/components/ui';
 
 export const dynamic = 'force-dynamic';
 
@@ -39,10 +40,7 @@ export default async function UsersPage({
 
   return (
     <main className="flex flex-col gap-6">
-      <PageHeader
-        title={t.users.title}
-        description={t.users.description}
-      />
+      <PageHeader title={t.users.title} description={t.users.description} />
 
       <form className="flex flex-wrap items-center gap-2" role="search">
         <label htmlFor="q" className="sr-only">
@@ -53,7 +51,7 @@ export default async function UsersPage({
           name="q"
           defaultValue={q ?? ''}
           placeholder={t.users.searchPlaceholder}
-          className="rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm"
+          className={control('lg')}
         />
         <label className="flex items-center gap-1.5 text-sm text-subtle">
           <input
@@ -65,7 +63,7 @@ export default async function UsersPage({
           />
           {t.users.includeInactive}
         </label>
-        <button type="submit" className="btn-primary rounded-md px-3 py-1.5 text-sm font-medium">
+        <button type="submit" className={primaryButton()}>
           {t.common.search}
         </button>
       </form>
@@ -73,11 +71,7 @@ export default async function UsersPage({
       <CreateUserForm properties={propertyOptions} />
 
       {!result.ok ? (
-        <ErrorNotice
-          title={t.users.loadFailed}
-          message={result.message}
-          status={result.status}
-        />
+        <ErrorNotice title={t.users.loadFailed} message={result.message} status={result.status} />
       ) : result.data.items.length === 0 ? (
         <EmptyState message={t.users.empty} />
       ) : (

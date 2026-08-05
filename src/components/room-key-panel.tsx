@@ -5,6 +5,7 @@ import { issueKeyAction, revokeKeyAction } from '@/app/(app)/reservations/[id]/k
 import { IDLE, type ActionState } from '@/lib/action-state';
 import type { RoomKeyListResponse, RoomKeyStatus } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
+import { control, ghostButton } from './ui';
 
 const STATUS_LABELS: Record<RoomKeyStatus, string> = {
   ACTIVE: '사용 중',
@@ -17,9 +18,6 @@ const STATUS_TONES: Record<RoomKeyStatus, string> = {
   REVOKED: 'bg-red-500/15 text-red-700 dark:text-red-300',
   EXPIRED: 'bg-zinc-500/15 text-zinc-600 dark:text-zinc-400',
 };
-
-const smallButton =
-  'rounded-md border border-current/20 px-2.5 py-1 text-xs transition-colors hover:bg-current/5 disabled:cursor-not-allowed disabled:opacity-50';
 
 function moment(value: string): string {
   return value.slice(0, 16).replace('T', ' ');
@@ -153,12 +151,12 @@ export function RoomKeyPanel({ data }: { data: RoomKeyListResponse }) {
                           maxLength={200}
                           placeholder="사유 (분실 등)"
                           aria-label={`${key.sequence}번째 카드 무효화 사유`}
-                          className="w-36 rounded-md border border-current/20 bg-transparent px-2 py-1 text-xs"
+                          className={control('xs', 'w-36')}
                         />
                         <SubmitButton
                           pendingLabel="…"
                           confirm={`${key.sequence}번째 카드를 무효화합니다. 이 카드로는 더 이상 문이 열리지 않습니다. 진행할까요?`}
-                          className={smallButton}
+                          className={ghostButton()}
                         >
                           무효화
                         </SubmitButton>

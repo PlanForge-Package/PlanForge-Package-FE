@@ -520,7 +520,8 @@ export const ko = {
     periodSummary: '기간 요약',
     occupancy: '점유율',
     roomRevenue: '객실 매출',
-    basisNote: '{nights}박 · 판매 가능 객실 {available}실 · 판매 {sold}실. {basis} 객실 매출은 예약 총액을 박수로 나눠 배분한 계약 기준 금액입니다.',
+    basisNote:
+      '{nights}박 · 판매 가능 객실 {available}실 · 판매 {sold}실. {basis} 객실 매출은 예약 총액을 박수로 나눠 배분한 계약 기준 금액입니다.',
     postingsSection: '폴리오 청구',
     postingsTitle: '폴리오 청구 (실제 계상)',
     charges: '청구',
@@ -582,7 +583,8 @@ export const ko = {
     closingBalance: '마감 미수',
     balancedHint: '폴리오 잔액과 일치',
     unbalancedHint: '폴리오 잔액과 불일치',
-    reconcileNote: '전일 미수 + 당일 청구 − 당일 수납 = 마감 미수. 이 값이 열린 폴리오 잔액의 합({outstanding})과 같아야 합니다.',
+    reconcileNote:
+      '전일 미수 + 당일 청구 − 당일 수납 = 마감 미수. 이 값이 열린 폴리오 잔액의 합({outstanding})과 같아야 합니다.',
   },
   users: {
     title: '계정 관리',
@@ -702,7 +704,8 @@ export const ko = {
     phone: '전화',
     nationality: '국적',
     membershipNumber: '멤버십 번호',
-    preferencesLegend: '선호 사항 — 객실 배정 때 참고합니다. 코드로 저장되므로 표기가 흔들리지 않습니다.',
+    preferencesLegend:
+      '선호 사항 — 객실 배정 때 참고합니다. 코드로 저장되므로 표기가 흔들리지 않습니다.',
     notesLegend: '내부 메모 — 게스트에게 노출되지 않습니다',
     save: '저장',
     saving: '저장 중…',

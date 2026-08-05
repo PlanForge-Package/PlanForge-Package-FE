@@ -14,6 +14,7 @@ import type { HousekeepingTask, ManagedUser, TaskStatus } from '@/lib/types';
 type Attendant = Pick<ManagedUser, 'id' | 'name' | 'role'>;
 import { ActionMessage, SubmitButton } from './action-feedback';
 import { RoomStatusBadge } from './status-badge';
+import { control, ghostButton } from './ui';
 
 const TASK_TONES: Record<TaskStatus, string> = {
   PENDING: 'bg-slate-500/15 text-slate-700 dark:text-slate-300',
@@ -23,10 +24,6 @@ const TASK_TONES: Record<TaskStatus, string> = {
 };
 
 const STATUSES: TaskStatus[] = ['PENDING', 'IN_PROGRESS', 'DONE', 'INSPECTED'];
-
-const selectClass = 'rounded-md border border-current/20 bg-transparent px-2 py-1 text-sm';
-const smallButton =
-  'rounded-md border border-current/20 px-2.5 py-1 text-xs transition-colors hover:bg-current/5 disabled:cursor-not-allowed disabled:opacity-50';
 
 export function TaskStatusBadge({ status }: { status: TaskStatus }) {
   const t = useI18n();
@@ -121,9 +118,7 @@ export function HousekeepingBoard({
                   <td className="py-2.5 pr-4 font-medium tabular-nums">
                     {task.room.number}
                     {task.room.occupied && (
-                      <span className="ml-1.5 text-xs text-subtle">
-                        {t.housekeeping.occupied}
-                      </span>
+                      <span className="ml-1.5 text-xs text-subtle">{t.housekeeping.occupied}</span>
                     )}
                   </td>
                   <td className="py-2.5 pr-4">{task.room.roomType.code}</td>
@@ -148,7 +143,7 @@ export function HousekeepingBoard({
                           aria-label={fill(t.housekeeping.assigneeAria, {
                             room: task.room.number,
                           })}
-                          className={selectClass}
+                          className={control('sm')}
                         >
                           <option value="">{t.housekeeping.unassigned}</option>
                           {attendants.map((person) => (
@@ -157,7 +152,7 @@ export function HousekeepingBoard({
                             </option>
                           ))}
                         </select>
-                        <SubmitButton pendingLabel="…" className={smallButton}>
+                        <SubmitButton pendingLabel="…" className={ghostButton()}>
                           {t.housekeeping.assign}
                         </SubmitButton>
                       </form>
@@ -191,7 +186,7 @@ export function HousekeepingBoard({
                         aria-label={fill(t.housekeeping.progressAria, {
                           room: task.room.number,
                         })}
-                        className={selectClass}
+                        className={control('sm')}
                       >
                         {STATUSES.map((status) => (
                           <option key={status} value={status}>
@@ -199,7 +194,7 @@ export function HousekeepingBoard({
                           </option>
                         ))}
                       </select>
-                      <SubmitButton pendingLabel="…" className={smallButton}>
+                      <SubmitButton pendingLabel="…" className={ghostButton()}>
                         {t.housekeeping.change}
                       </SubmitButton>
                     </form>

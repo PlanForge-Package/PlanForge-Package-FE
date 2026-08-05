@@ -7,6 +7,7 @@ import { IDLE, type ActionState } from '@/lib/action-state';
 import type { ReservationTrace } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
 import { DEPARTMENT_LABELS } from './trace-panel';
+import { ghostButton } from './ui';
 
 /**
  * Instructions due today.
@@ -72,10 +73,7 @@ export function DailyTraces({ traces }: { traces: ReservationTrace[] }) {
                     <input type="hidden" name="traceId" value={trace.id} />
                     <input type="hidden" name="reservationId" value={trace.reservation.id} />
                     <input type="hidden" name="note" value={trace.note} />
-                    <SubmitButton
-                      pendingLabel="…"
-                      className="rounded-md border border-current/20 px-2.5 py-1 text-xs transition-colors hover:bg-current/5 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
+                    <SubmitButton pendingLabel="…" className={ghostButton()}>
                       처리
                     </SubmitButton>
                   </form>

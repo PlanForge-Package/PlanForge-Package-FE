@@ -8,8 +8,7 @@ import {
 import { IDLE, type ActionState } from '@/lib/action-state';
 import type { ReservationStatus } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
-
-const inputClass = 'rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm';
+import { control } from './ui';
 
 /** Reservation details are editable only in these states. After check-in it is front-desk work. */
 const EDITABLE: ReservationStatus[] = ['RESERVED', 'CONFIRMED', 'WAITLISTED'];
@@ -86,7 +85,7 @@ export function ReservationEditPanel({
               name="arrivalDate"
               type="date"
               defaultValue={arrivalDate}
-              className={inputClass}
+              className={control('lg')}
             />
           </div>
 
@@ -99,7 +98,7 @@ export function ReservationEditPanel({
               name="departureDate"
               type="date"
               defaultValue={departureDate}
-              className={inputClass}
+              className={control('lg')}
             />
           </div>
 
@@ -111,7 +110,7 @@ export function ReservationEditPanel({
               id={`${uid}-roomtype`}
               name="roomTypeCode"
               defaultValue={roomTypeCode}
-              className={`w-24 ${inputClass}`}
+              className={control('lg', 'w-24')}
             />
           </div>
 
@@ -126,7 +125,7 @@ export function ReservationEditPanel({
               min={1}
               max={10}
               defaultValue={adults}
-              className={`w-20 ${inputClass}`}
+              className={control('lg', 'w-20')}
             />
           </div>
 
@@ -141,7 +140,7 @@ export function ReservationEditPanel({
               min={0}
               max={10}
               defaultValue={childCount}
-              className={`w-20 ${inputClass}`}
+              className={control('lg', 'w-20')}
             />
           </div>
 
@@ -168,7 +167,7 @@ export function ReservationEditPanel({
             name="reason"
             maxLength={200}
             placeholder="고객 요청"
-            className={`w-64 ${inputClass}`}
+            className={control('lg', 'w-64')}
           />
         </div>
         <SubmitButton

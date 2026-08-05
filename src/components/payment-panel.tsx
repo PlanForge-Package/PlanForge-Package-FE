@@ -11,6 +11,7 @@ import { IDLE, type ActionState } from '@/lib/action-state';
 import type { PaymentListResponse, PaymentMethod, PaymentStatus } from '@/lib/types';
 import { useI18n } from '@/lib/i18n/provider';
 import { ActionMessage, SubmitButton } from './action-feedback';
+import { control, ghostButton } from './ui';
 
 const STATUS_TONES: Record<PaymentStatus, string> = {
   AUTHORIZED: 'bg-amber-500/15 text-amber-700 dark:text-amber-300',
@@ -22,10 +23,6 @@ const STATUS_TONES: Record<PaymentStatus, string> = {
 
 /** Display order. The wording comes from the dictionary. */
 const METHODS: PaymentMethod[] = ['CARD', 'CASH', 'TRANSFER'];
-
-const inputClass = 'rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm';
-const smallButton =
-  'rounded-md border border-current/20 px-2.5 py-1 text-xs transition-colors hover:bg-current/5 disabled:cursor-not-allowed disabled:opacity-50';
 
 function money(value: string, currency = 'KRW'): string {
   const amount = Number(value);
@@ -139,7 +136,7 @@ export function PaymentPanel({
             name="method"
             value={method}
             onChange={(event) => setMethod(event.target.value as PaymentMethod)}
-            className={inputClass}
+            className={control('lg')}
           >
             {METHODS.map((value) => (
               <option key={value} value={value}>
@@ -161,7 +158,7 @@ export function PaymentPanel({
             step={1}
             required
             defaultValue={kept?.amount ?? ''}
-            className={`w-32 tabular-nums ${inputClass}`}
+            className={control('lg', 'w-32 tabular-nums')}
           />
         </div>
 
@@ -175,7 +172,7 @@ export function PaymentPanel({
               name="paymentToken"
               placeholder="tok_..."
               defaultValue={kept?.paymentToken ?? ''}
-              className={`w-48 font-mono ${inputClass}`}
+              className={control('lg', 'w-48 font-mono')}
             />
           </div>
         )}
@@ -190,7 +187,7 @@ export function PaymentPanel({
             maxLength={120}
             placeholder={t.payments.memoPlaceholder}
             defaultValue={kept?.description ?? ''}
-            className={`w-40 ${inputClass}`}
+            className={control('lg', 'w-40')}
           />
         </div>
 
@@ -275,7 +272,7 @@ export function PaymentPanel({
                                 name="reservationId"
                                 value={data.reservationId}
                               />
-                              <SubmitButton pendingLabel="…" className={smallButton}>
+                              <SubmitButton pendingLabel="…" className={ghostButton()}>
                                 {t.payments.capture}
                               </SubmitButton>
                             </form>
@@ -294,7 +291,7 @@ export function PaymentPanel({
                               <SubmitButton
                                 pendingLabel="…"
                                 confirm={t.payments.voidConfirm}
-                                className={smallButton}
+                                className={ghostButton()}
                               >
                                 {t.payments.void}
                               </SubmitButton>
@@ -325,12 +322,12 @@ export function PaymentPanel({
                                 max={refundable}
                                 defaultValue={refundable}
                                 aria-label={t.payments.refundAmount}
-                                className="w-24 rounded-md border border-current/20 bg-transparent px-2 py-1 text-xs tabular-nums"
+                                className={control('xs', 'w-24 tabular-nums')}
                               />
                               <SubmitButton
                                 pendingLabel="…"
                                 confirm={t.payments.refundConfirm}
-                                className={smallButton}
+                                className={ghostButton()}
                               >
                                 {t.payments.refund}
                               </SubmitButton>

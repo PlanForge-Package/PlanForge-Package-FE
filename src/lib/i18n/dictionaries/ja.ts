@@ -597,8 +597,7 @@ export const ja: Dictionary = {
     initialPassword: '初期パスワード',
     add: '追加',
     adding: '追加中…',
-    addNote:
-      'パスワードは 8 文字以上です。作成後は本人に直接渡し、変更するよう案内してください。',
+    addNote: 'パスワードは 8 文字以上です。作成後は本人に直接渡し、変更するよう案内してください。',
     columnRoleProperty: '役割 · 所属',
     columnStatus: '状態',
     columnLastLogin: '最終ログイン',
@@ -771,7 +770,8 @@ export const ja: Dictionary = {
       INSPECTED: '点検済',
     },
     discrepancyKinds: {
-      OCCUPIED_WITHOUT_RESERVATION: '在室表示ですが在室予約がありません — チェックアウト漏れの可能性',
+      OCCUPIED_WITHOUT_RESERVATION:
+        '在室表示ですが在室予約がありません — チェックアウト漏れの可能性',
       RESERVATION_WITHOUT_OCCUPANCY: '在室予約があるのに客室が空です — 割当の確認が必要',
       OCCUPIED_BUT_CLEAN: '在室中ですが清掃済と表示されています',
     },

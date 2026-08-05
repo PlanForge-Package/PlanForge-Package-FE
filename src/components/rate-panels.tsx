@@ -12,13 +12,9 @@ import { fill, money } from '@/lib/i18n/format';
 import { useI18n, useLocale } from '@/lib/i18n/provider';
 import type { RatePackage, RatePlanConfig, RoomType } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
+import { control, ghostButton } from './ui';
 
 export const CALCULATIONS = ['PerNight', 'PerStay', 'PerPerson'] as const;
-
-const inputClass =
-  'rounded-md border border-current/20 bg-transparent px-2 py-1.5 text-sm text-ink';
-const smallButton =
-  'rounded-md border border-current/20 px-2.5 py-1 text-xs transition-colors hover:bg-current/5 disabled:cursor-not-allowed disabled:opacity-50';
 
 /** Rate code list and registration. */
 export function RatePlansPanel({
@@ -126,7 +122,7 @@ export function RatePlansPanel({
                 required
                 maxLength={20}
                 placeholder="PROMO"
-                className={`w-32 font-mono ${inputClass}`}
+                className={control('md', 'w-32 font-mono')}
               />
             </label>
 
@@ -139,7 +135,7 @@ export function RatePlansPanel({
                 required
                 maxLength={120}
                 placeholder={t.rates.namePlaceholder}
-                className={`w-56 ${inputClass}`}
+                className={control('md', 'w-56')}
               />
             </label>
 
@@ -150,7 +146,7 @@ export function RatePlansPanel({
                 name="sellStartDate"
                 defaultValue={state.values?.sellStartDate ?? ''}
                 required
-                className={inputClass}
+                className={control('md')}
               />
             </label>
 
@@ -161,7 +157,7 @@ export function RatePlansPanel({
                 name="sellEndDate"
                 defaultValue={state.values?.sellEndDate ?? ''}
                 required
-                className={inputClass}
+                className={control('md')}
               />
             </label>
           </div>
@@ -176,7 +172,8 @@ export function RatePlansPanel({
                   <input type="checkbox" name="packageCodes" value={pkg.packageCode} />
                   {pkg.name}
                   <span className="text-xs text-subtle">
-                    ({t.rates.calculations[pkg.calculation as keyof typeof t.rates.calculations] ??
+                    (
+                    {t.rates.calculations[pkg.calculation as keyof typeof t.rates.calculations] ??
                       pkg.calculation}{' '}
                     {money(pkg.amount, locale)})
                   </span>
@@ -221,7 +218,7 @@ export function AmountGrid({
             defaultValue={values[roomType.code] ?? ''}
             placeholder={t.rates.notSold}
             aria-label={fill(t.rates.amountAria, { code: roomType.code })}
-            className={`w-36 ${inputClass}`}
+            className={control('md', 'w-36')}
           />
         </label>
       ))}
@@ -320,7 +317,7 @@ export function PackagesPanel({
                           defaultValue={pkg.amount}
                           required
                           aria-label={fill(t.rates.amountAria, { code: pkg.packageCode })}
-                          className={`w-28 ${inputClass}`}
+                          className={control('md', 'w-28')}
                         />
                         <label className="flex items-center gap-1 text-xs text-subtle">
                           <input
@@ -331,7 +328,7 @@ export function PackagesPanel({
                           />
                           {t.rates.included}
                         </label>
-                        <SubmitButton pendingLabel="…" className={smallButton}>
+                        <SubmitButton pendingLabel="…" className={ghostButton()}>
                           {t.rates.save}
                         </SubmitButton>
                       </form>
@@ -368,7 +365,7 @@ export function PackagesPanel({
               required
               maxLength={20}
               placeholder="BFAST"
-              className={`w-28 font-mono ${inputClass}`}
+              className={control('md', 'w-28 font-mono')}
             />
           </label>
 
@@ -381,7 +378,7 @@ export function PackagesPanel({
               required
               maxLength={120}
               placeholder={t.rates.packageNamePlaceholder}
-              className={`w-40 ${inputClass}`}
+              className={control('md', 'w-40')}
             />
           </label>
 
@@ -394,7 +391,7 @@ export function PackagesPanel({
               step={1}
               defaultValue={createState.values?.amount ?? ''}
               required
-              className={`w-32 ${inputClass}`}
+              className={control('md', 'w-32')}
             />
           </label>
 
@@ -403,7 +400,7 @@ export function PackagesPanel({
             <select
               name="calculation"
               defaultValue={createState.values?.calculation ?? 'PerNight'}
-              className={inputClass}
+              className={control('md')}
             >
               {CALCULATIONS.map((value) => (
                 <option key={value} value={value}>
@@ -421,7 +418,7 @@ export function PackagesPanel({
               defaultValue={createState.values?.transactionCode ?? '2000'}
               required
               maxLength={20}
-              className={`w-24 font-mono ${inputClass}`}
+              className={control('md', 'w-24 font-mono')}
             />
           </label>
 

@@ -6,6 +6,7 @@ import { IDLE, type ActionState } from '@/lib/action-state';
 import { useI18n } from '@/lib/i18n/provider';
 import type { Room, RoomOutage, RoomOutageKind } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
+import { control, ghostButton, primaryButton } from './ui';
 
 const KINDS: RoomOutageKind[] = ['OUT_OF_ORDER', 'OUT_OF_SERVICE'];
 const RETURN_STATUSES = ['DIRTY', 'CLEAN', 'INSPECTED'] as const;
@@ -59,7 +60,7 @@ export function RoomOutagePanel({
             name="roomNumber"
             defaultValue={createState.values?.roomNumber ?? ''}
             required
-            className="rounded-md border border-current/20 bg-transparent px-2 py-1.5 text-sm text-ink"
+            className={control('md')}
           >
             <option value="">{t.outages.select}</option>
             {rooms.map((room) => (
@@ -75,7 +76,7 @@ export function RoomOutagePanel({
           <select
             name="kind"
             defaultValue={createState.values?.kind ?? 'OUT_OF_ORDER'}
-            className="rounded-md border border-current/20 bg-transparent px-2 py-1.5 text-sm text-ink"
+            className={control('md')}
           >
             {KINDS.map((kind) => (
               <option key={kind} value={kind}>
@@ -92,7 +93,7 @@ export function RoomOutagePanel({
             name="startDate"
             defaultValue={createState.values?.startDate ?? today}
             required
-            className="rounded-md border border-current/20 bg-transparent px-2 py-1.5 text-sm text-ink"
+            className={control('md')}
           />
         </label>
 
@@ -103,7 +104,7 @@ export function RoomOutagePanel({
             name="endDate"
             defaultValue={createState.values?.endDate ?? today}
             required
-            className="rounded-md border border-current/20 bg-transparent px-2 py-1.5 text-sm text-ink"
+            className={control('md')}
           />
         </label>
 
@@ -116,7 +117,7 @@ export function RoomOutagePanel({
             required
             maxLength={200}
             placeholder={t.outages.reasonPlaceholder}
-            className="w-52 rounded-md border border-current/20 bg-transparent px-2 py-1.5 text-sm text-ink"
+            className={control('md', 'w-52')}
           />
         </label>
 
@@ -125,7 +126,7 @@ export function RoomOutagePanel({
           <select
             name="returnStatus"
             defaultValue={createState.values?.returnStatus ?? 'DIRTY'}
-            className="rounded-md border border-current/20 bg-transparent px-2 py-1.5 text-sm text-ink"
+            className={control('md')}
           >
             {RETURN_STATUSES.map((value) => (
               <option key={value} value={value}>
@@ -135,10 +136,7 @@ export function RoomOutagePanel({
           </select>
         </label>
 
-        <SubmitButton
-          pendingLabel={t.outages.registering}
-          className="btn-primary rounded-md px-3 py-1.5 text-sm font-medium"
-        >
+        <SubmitButton pendingLabel={t.outages.registering} className={primaryButton()}>
           {t.outages.register}
         </SubmitButton>
       </form>
@@ -204,10 +202,7 @@ export function RoomOutagePanel({
                       <form action={releaseAction}>
                         <input type="hidden" name="outageId" value={outage.id} />
                         <input type="hidden" name="roomNumber" value={outage.room.number} />
-                        <SubmitButton
-                          pendingLabel="…"
-                          className="rounded-md border border-current/20 px-2.5 py-1 text-xs transition-colors hover:bg-current/5 disabled:cursor-not-allowed disabled:opacity-50"
-                        >
+                        <SubmitButton pendingLabel="…" className={ghostButton()}>
                           {t.outages.release}
                         </SubmitButton>
                       </form>

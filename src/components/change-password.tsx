@@ -5,8 +5,7 @@ import { changeOwnPasswordAction } from '@/app/(app)/users/actions';
 import { IDLE, type ActionState } from '@/lib/action-state';
 import { useI18n } from '@/lib/i18n/provider';
 import { ActionMessage, SubmitButton } from './action-feedback';
-
-const inputClass = 'rounded-md border border-current/20 bg-transparent px-3 py-2 text-sm';
+import { control } from './ui';
 
 export function ChangePasswordForm() {
   const t = useI18n();
@@ -32,7 +31,7 @@ export function ChangePasswordForm() {
           type="password"
           autoComplete="current-password"
           required
-          className={inputClass}
+          className={control('xl')}
         />
       </div>
 
@@ -47,7 +46,7 @@ export function ChangePasswordForm() {
           autoComplete="new-password"
           required
           minLength={8}
-          className={inputClass}
+          className={control('xl')}
         />
       </div>
 
@@ -62,7 +61,7 @@ export function ChangePasswordForm() {
           autoComplete="new-password"
           required
           minLength={8}
-          className={inputClass}
+          className={control('xl')}
         />
       </div>
 

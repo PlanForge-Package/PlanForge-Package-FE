@@ -9,6 +9,7 @@ import {
 import { IDLE, type ActionState } from '@/lib/action-state';
 import type { ReservationTrace, TraceDepartment } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
+import { control, ghostButton } from './ui';
 
 export const DEPARTMENT_LABELS: Record<TraceDepartment, string> = {
   FRONT_DESK: '프론트데스크',
@@ -17,9 +18,6 @@ export const DEPARTMENT_LABELS: Record<TraceDepartment, string> = {
   FNB: '식음',
   RESERVATION: '예약',
 };
-
-const smallButton =
-  'rounded-md border border-current/20 px-2.5 py-1 text-xs transition-colors hover:bg-current/5 disabled:cursor-not-allowed disabled:opacity-50';
 
 /**
  * Instructions attached to a reservation.
@@ -79,7 +77,7 @@ export function TracePanel({
             <select
               name="department"
               defaultValue={createState.values?.department ?? 'HOUSEKEEPING'}
-              className="rounded-md border border-current/20 bg-transparent px-2 py-1.5 text-sm text-ink"
+              className={control('md')}
             >
               {(Object.keys(DEPARTMENT_LABELS) as TraceDepartment[]).map((value) => (
                 <option key={value} value={value}>
@@ -97,7 +95,7 @@ export function TracePanel({
               max={departureDate.slice(0, 10)}
               defaultValue={createState.values?.dueDate ?? today}
               required
-              className="rounded-md border border-current/20 bg-transparent px-2 py-1.5 text-sm text-ink"
+              className={control('md')}
             />
           </label>
 
@@ -110,7 +108,7 @@ export function TracePanel({
               defaultValue={createState.values?.note ?? ''}
               required
               placeholder="유아용 침대 준비"
-              className="w-72 rounded-md border border-current/20 bg-transparent px-2 py-1.5 text-sm text-ink"
+              className={control('md', 'w-72')}
             />
           </label>
 
@@ -149,7 +147,7 @@ export function TracePanel({
                       <input type="hidden" name="traceId" value={trace.id} />
                       <input type="hidden" name="reservationId" value={reservationId} />
                       <input type="hidden" name="note" value={trace.note} />
-                      <SubmitButton pendingLabel="…" className={smallButton}>
+                      <SubmitButton pendingLabel="…" className={ghostButton()}>
                         처리
                       </SubmitButton>
                     </form>
@@ -157,7 +155,7 @@ export function TracePanel({
                       <form action={removeAction}>
                         <input type="hidden" name="traceId" value={trace.id} />
                         <input type="hidden" name="reservationId" value={reservationId} />
-                        <SubmitButton pendingLabel="…" className={smallButton}>
+                        <SubmitButton pendingLabel="…" className={ghostButton()}>
                           거두기
                         </SubmitButton>
                       </form>

@@ -13,11 +13,10 @@ import { fill, money } from '@/lib/i18n/format';
 import { useI18n, useLocale } from '@/lib/i18n/provider';
 import type { ArAccountDetail, ArAccountList, ArInvoiceStatus } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
+import { Figure } from './field';
+import { control, ghostButton } from './ui';
 
 const INVOICE_STATUSES: ArInvoiceStatus[] = ['DRAFT', 'SENT', 'PAID', 'VOID'];
-
-const smallButton =
-  'rounded-md border border-current/20 px-2.5 py-1 text-xs transition-colors hover:bg-current/5 disabled:cursor-not-allowed disabled:opacity-50';
 
 /** Account list and registration. */
 export function ArAccountsPanel({
@@ -52,7 +51,7 @@ export function ArAccountsPanel({
               required
               maxLength={20}
               placeholder="SPACEPL"
-              className="w-32 rounded-md border border-current/20 bg-transparent px-2 py-1.5 font-mono text-sm text-ink"
+              className={control('md', 'w-32 font-mono')}
             />
           </label>
 
@@ -65,7 +64,7 @@ export function ArAccountsPanel({
               required
               maxLength={120}
               placeholder={t.ar.namePlaceholder}
-              className="w-56 rounded-md border border-current/20 bg-transparent px-2 py-1.5 text-sm text-ink"
+              className={control('md', 'w-56')}
             />
           </label>
 
@@ -80,7 +79,7 @@ export function ArAccountsPanel({
               step={1}
               defaultValue={state.values?.creditLimit ?? ''}
               placeholder={t.ar.creditLimitPlaceholder}
-              className="w-40 rounded-md border border-current/20 bg-transparent px-2 py-1.5 text-sm text-ink"
+              className={control('md', 'w-40')}
             />
           </label>
 
@@ -91,7 +90,7 @@ export function ArAccountsPanel({
               name="termDays"
               min={0}
               defaultValue={state.values?.termDays ?? '30'}
-              className="w-28 rounded-md border border-current/20 bg-transparent px-2 py-1.5 text-sm text-ink"
+              className={control('md', 'w-28')}
             />
           </label>
 
@@ -233,10 +232,7 @@ export function ArAccountDetailPanel({
               : money(data.account.creditLimit, locale)
           }
         />
-        <Figure
-          label={t.ar.termDays}
-          value={fill(t.ar.days, { count: data.account.termDays })}
-        />
+        <Figure label={t.ar.termDays} value={fill(t.ar.days, { count: data.account.termDays })} />
       </section>
 
       {canManage && (
@@ -255,7 +251,7 @@ export function ArAccountDetailPanel({
                 step={1}
                 defaultValue={paymentState.values?.amount ?? ''}
                 required
-                className="w-40 rounded-md border border-current/20 bg-transparent px-2 py-1.5 text-sm text-ink"
+                className={control('md', 'w-40')}
               />
             </label>
             <label className="flex flex-col gap-1 text-xs text-subtle">
@@ -267,16 +263,12 @@ export function ArAccountDetailPanel({
                 required
                 maxLength={200}
                 placeholder={t.ar.paymentMemoPlaceholder}
-                className="w-56 rounded-md border border-current/20 bg-transparent px-2 py-1.5 text-sm text-ink"
+                className={control('md', 'w-56')}
               />
             </label>
             <label className="flex flex-col gap-1 text-xs text-subtle">
               {t.ar.allocation}
-              <select
-                name="apply"
-                defaultValue="auto"
-                className="w-56 rounded-md border border-current/20 bg-transparent px-2 py-1.5 text-sm text-ink"
-              >
+              <select name="apply" defaultValue="auto" className={control('md', 'w-56')}>
                 <option value="auto">{t.ar.allocationAuto}</option>
                 <option value="none">{t.ar.allocationNone}</option>
                 {open.map((invoice) => (
@@ -304,7 +296,7 @@ export function ArAccountDetailPanel({
                 name="note"
                 maxLength={500}
                 placeholder={t.ar.invoiceNotePlaceholder}
-                className="w-56 rounded-md border border-current/20 bg-transparent px-2 py-1.5 text-sm text-ink"
+                className={control('md', 'w-56')}
               />
             </label>
             <SubmitButton pendingLabel={t.ar.issuingInvoice}>{t.ar.issueInvoice}</SubmitButton>
@@ -399,7 +391,7 @@ export function ArAccountDetailPanel({
                               name="status"
                               defaultValue={invoice.status}
                               aria-label={fill(t.ar.invoiceStatusAria, { number: invoice.number })}
-                              className="rounded-md border border-current/20 bg-transparent px-1.5 py-0.5 text-xs"
+                              className={control('2xs')}
                             >
                               {INVOICE_STATUSES.map((value) => (
                                 <option key={value} value={value}>
@@ -407,7 +399,7 @@ export function ArAccountDetailPanel({
                                 </option>
                               ))}
                             </select>
-                            <SubmitButton pendingLabel="…" className={smallButton}>
+                            <SubmitButton pendingLabel="…" className={ghostButton()}>
                               {t.ar.applyStatus}
                             </SubmitButton>
                           </form>
@@ -493,15 +485,6 @@ export function ArAccountDetailPanel({
           </div>
         )}
       </section>
-    </div>
-  );
-}
-
-function Figure({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex flex-col gap-0.5 rounded-lg border border-current/10 px-4 py-3">
-      <span className="text-xs uppercase tracking-wide text-subtle">{label}</span>
-      <span className="text-sm font-medium tabular-nums">{value}</span>
     </div>
   );
 }

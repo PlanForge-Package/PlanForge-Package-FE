@@ -7,6 +7,7 @@ import { IDLE, type ActionState } from '@/lib/action-state';
 import { useI18n } from '@/lib/i18n/provider';
 import { ActionMessage, SubmitButton } from './action-feedback';
 import type { Folio, PostingType } from '@/lib/types';
+import { control } from './ui';
 
 /** Dictionary keys for transaction kinds. The wording follows the screen language. */
 const POSTING_KEYS: Record<PostingType, 'charge' | 'payment' | 'adjustment' | 'tax'> = {
@@ -242,7 +243,7 @@ function FolioCard({
                               name="toWindow"
                               defaultValue={targets[0]?.window}
                               aria-label={`${posting.description} ${t.frontDesk.transferTarget}`}
-                              className="rounded-md border border-current/20 bg-transparent px-1.5 py-0.5 text-xs"
+                              className={control('2xs')}
                             >
                               {targets.map((target) => (
                                 <option key={target.id} value={target.window}>
@@ -298,12 +299,7 @@ function PostingForm({ reservationId, window }: { reservationId: string; window:
           <label htmlFor={`${uid}-type`} className="text-xs text-subtle">
             {t.frontDesk.kind}
           </label>
-          <select
-            id={`${uid}-type`}
-            name="type"
-            defaultValue="CHARGE"
-            className="rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm"
-          >
+          <select id={`${uid}-type`} name="type" defaultValue="CHARGE" className={control('lg')}>
             {(Object.keys(POSTING_KEYS) as PostingType[]).map((type) => (
               <option key={type} value={type}>
                 {t.frontDesk[POSTING_KEYS[type]]}
@@ -321,7 +317,7 @@ function PostingForm({ reservationId, window }: { reservationId: string; window:
             name="transactionCode"
             defaultValue={DEFAULT_CODES.CHARGE}
             required
-            className="w-24 rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm"
+            className={control('lg', 'w-24')}
           />
         </div>
 
@@ -334,7 +330,7 @@ function PostingForm({ reservationId, window }: { reservationId: string; window:
             name="description"
             placeholder={t.frontDesk.descriptionPlaceholder}
             required
-            className="w-40 rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm"
+            className={control('lg', 'w-40')}
           />
         </div>
 
@@ -351,7 +347,7 @@ function PostingForm({ reservationId, window }: { reservationId: string; window:
             inputMode="numeric"
             placeholder="240000"
             required
-            className="w-32 rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm"
+            className={control('lg', 'w-32')}
           />
         </div>
 

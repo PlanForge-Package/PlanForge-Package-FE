@@ -7,6 +7,7 @@ import type { Room, RoomStatus } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
 import { useI18n } from '@/lib/i18n/provider';
 import { RoomStatusBadge } from './status-badge';
+import { control, ghostButton } from './ui';
 
 const STATUSES: RoomStatus[] = ['CLEAN', 'DIRTY', 'INSPECTED', 'OUT_OF_ORDER', 'OUT_OF_SERVICE'];
 
@@ -71,7 +72,7 @@ export function RoomStatusPanel({ rooms }: { rooms: Room[] }) {
                       name="status"
                       defaultValue={room.status}
                       aria-label={`${room.number} ${t.common.status}`}
-                      className="rounded-md border border-current/20 bg-transparent px-2 py-1 text-sm"
+                      className={control('sm')}
                     >
                       {STATUSES.map((status) => (
                         <option
@@ -84,10 +85,7 @@ export function RoomStatusPanel({ rooms }: { rooms: Room[] }) {
                         </option>
                       ))}
                     </select>
-                    <SubmitButton
-                      pendingLabel="…"
-                      className="rounded-md border border-current/20 px-2.5 py-1 text-xs transition-colors hover:bg-current/5 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
+                    <SubmitButton pendingLabel="…" className={ghostButton()}>
                       {t.rooms.change}
                     </SubmitButton>
                   </form>

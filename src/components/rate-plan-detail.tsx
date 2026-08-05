@@ -11,12 +11,9 @@ import { money } from '@/lib/i18n/format';
 import { useI18n, useLocale } from '@/lib/i18n/provider';
 import type { RatePackage, RatePlanConfig, RoomType } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
+import { Figure } from './field';
 import { AmountGrid } from './rate-panels';
-
-const inputClass =
-  'rounded-md border border-current/20 bg-transparent px-2 py-1.5 text-sm text-ink';
-const smallButton =
-  'rounded-md border border-current/20 px-2.5 py-1 text-xs transition-colors hover:bg-current/5 disabled:cursor-not-allowed disabled:opacity-50';
+import { control, ghostButton } from './ui';
 
 /**
  * Edits a single rate code.
@@ -93,7 +90,7 @@ export function RatePlanDetail({
                   defaultValue={plan.name}
                   required
                   maxLength={120}
-                  className={`w-56 ${inputClass}`}
+                  className={control('md', 'w-56')}
                 />
               </label>
 
@@ -104,7 +101,7 @@ export function RatePlanDetail({
                   name="sellStartDate"
                   defaultValue={plan.sellStartDate}
                   required
-                  className={inputClass}
+                  className={control('md')}
                 />
               </label>
 
@@ -115,13 +112,13 @@ export function RatePlanDetail({
                   name="sellEndDate"
                   defaultValue={plan.sellEndDate}
                   required
-                  className={inputClass}
+                  className={control('md')}
                 />
               </label>
 
               <label className="flex flex-col gap-1 text-xs text-subtle">
                 {t.rates.status}
-                <select name="status" defaultValue={plan.status} className={inputClass}>
+                <select name="status" defaultValue={plan.status} className={control('md')}>
                   <option value="Active">{t.rates.onSale}</option>
                   <option value="Inactive">{t.rates.offSale}</option>
                 </select>
@@ -148,9 +145,8 @@ export function RatePlanDetail({
                     {pkg.name}
                     <span className="text-xs text-subtle">
                       (
-                      {t.rates.calculations[
-                        pkg.calculation as keyof typeof t.rates.calculations
-                      ] ?? pkg.calculation}{' '}
+                      {t.rates.calculations[pkg.calculation as keyof typeof t.rates.calculations] ??
+                        pkg.calculation}{' '}
                       {money(pkg.amount, locale)}
                       {pkg.includedInRate ? t.rates.includedSuffix : ''})
                     </span>
@@ -235,7 +231,7 @@ export function RatePlanDetail({
                         <form action={removeAction} onSubmit={() => setLast('remove')}>
                           <input type="hidden" name="propertyId" value={propertyId} />
                           <input type="hidden" name="seasonId" value={season.seasonId} />
-                          <SubmitButton pendingLabel="…" className={smallButton}>
+                          <SubmitButton pendingLabel="…" className={ghostButton()}>
                             {t.rates.remove}
                           </SubmitButton>
                         </form>
@@ -266,7 +262,7 @@ export function RatePlanDetail({
                   required
                   maxLength={120}
                   placeholder={t.rates.seasonNamePlaceholder}
-                  className={`w-48 ${inputClass}`}
+                  className={control('md', 'w-48')}
                 />
               </label>
 
@@ -277,7 +273,7 @@ export function RatePlanDetail({
                   name="startDate"
                   defaultValue={seasonState.values?.startDate ?? ''}
                   required
-                  className={inputClass}
+                  className={control('md')}
                 />
               </label>
 
@@ -288,7 +284,7 @@ export function RatePlanDetail({
                   name="endDate"
                   defaultValue={seasonState.values?.endDate ?? ''}
                   required
-                  className={inputClass}
+                  className={control('md')}
                 />
               </label>
             </div>
@@ -313,15 +309,6 @@ export function RatePlanDetail({
 
         <p className="text-xs text-subtle">{t.rates.seasonsNote}</p>
       </section>
-    </div>
-  );
-}
-
-function Figure({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex flex-col gap-0.5 rounded-lg border border-current/10 px-4 py-3">
-      <span className="text-xs uppercase tracking-wide text-subtle">{label}</span>
-      <span className="text-sm font-medium tabular-nums">{value}</span>
     </div>
   );
 }

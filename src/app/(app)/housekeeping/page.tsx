@@ -8,6 +8,7 @@ import { getDictionary } from '@/lib/i18n';
 import { fill } from '@/lib/i18n/format';
 import { getPropertyContext } from '@/lib/property';
 import type { DiscrepancyResponse, ManagedUser, TaskListResponse } from '@/lib/types';
+import { control, primaryButton } from '@/components/ui';
 
 interface AttendantResponse {
   propertyId: string;
@@ -95,10 +96,10 @@ export default async function HousekeepingPage({
             name="date"
             type="date"
             defaultValue={workDate}
-            className="rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm"
+            className={control('lg')}
           />
         </div>
-        <button type="submit" className="btn-primary rounded-md px-3 py-1.5 text-sm font-medium">
+        <button type="submit" className={primaryButton()}>
           {t.common.search}
         </button>
       </form>
@@ -137,11 +138,7 @@ export default async function HousekeepingPage({
         />
       ) : tasks.data.items.length === 0 ? (
         <EmptyState
-          message={
-            canManage
-              ? t.housekeeping.emptyCanCreate
-              : t.housekeeping.emptyAssigned
-          }
+          message={canManage ? t.housekeeping.emptyCanCreate : t.housekeeping.emptyAssigned}
         />
       ) : (
         <>

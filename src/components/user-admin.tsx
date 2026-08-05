@@ -12,12 +12,9 @@ import { fill } from '@/lib/i18n/format';
 import { useI18n } from '@/lib/i18n/provider';
 import type { ManagedUser, Property, UserRole } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
+import { control, ghostButton } from './ui';
 
 const ROLES: UserRole[] = ['ADMIN', 'MANAGER', 'FRONT_DESK', 'HOUSEKEEPING'];
-
-const inputClass = 'rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm';
-const smallButtonClass =
-  'rounded-md border border-current/20 px-2.5 py-1 text-xs transition-colors hover:bg-current/5 disabled:cursor-not-allowed disabled:opacity-50';
 
 /** Home hotel selection. Empty means no property (head office). */
 function PropertySelect({
@@ -37,7 +34,7 @@ function PropertySelect({
       <label htmlFor={id} className="text-xs text-subtle">
         {label ?? t.users.property}
       </label>
-      <select id={id} name="propertyId" defaultValue={defaultValue ?? ''} className={inputClass}>
+      <select id={id} name="propertyId" defaultValue={defaultValue ?? ''} className={control('lg')}>
         <option value="">{t.users.headOfficeAll}</option>
         {properties.map((property) => (
           <option key={property.id} value={property.id}>
@@ -69,7 +66,7 @@ export function CreateUserForm({ properties }: { properties: Property[] }) {
             type="email"
             required
             placeholder="staff@planforge.local"
-            className={`w-56 ${inputClass}`}
+            className={control('lg', 'w-56')}
           />
         </div>
 
@@ -83,7 +80,7 @@ export function CreateUserForm({ properties }: { properties: Property[] }) {
             required
             maxLength={60}
             placeholder={t.users.namePlaceholder}
-            className={`w-32 ${inputClass}`}
+            className={control('lg', 'w-32')}
           />
         </div>
 
@@ -91,7 +88,12 @@ export function CreateUserForm({ properties }: { properties: Property[] }) {
           <label htmlFor={`${uid}-role`} className="text-xs text-subtle">
             {t.users.role}
           </label>
-          <select id={`${uid}-role`} name="role" defaultValue="FRONT_DESK" className={inputClass}>
+          <select
+            id={`${uid}-role`}
+            name="role"
+            defaultValue="FRONT_DESK"
+            className={control('lg')}
+          >
             {ROLES.map((role) => (
               <option key={role} value={role}>
                 {t.roles[role]}
@@ -111,7 +113,7 @@ export function CreateUserForm({ properties }: { properties: Property[] }) {
             required
             minLength={8}
             autoComplete="new-password"
-            className={`w-40 ${inputClass}`}
+            className={control('lg', 'w-40')}
           />
         </div>
 
@@ -288,7 +290,7 @@ function UserRow({
                 name="role"
                 defaultValue={user.role}
                 aria-label={fill(t.users.roleAria, { name: user.name })}
-                className="rounded-md border border-current/20 bg-transparent px-2 py-1 text-sm"
+                className={control('sm')}
               >
                 {ROLES.map((role) => (
                   <option key={role} value={role}>
@@ -300,7 +302,7 @@ function UserRow({
                 name="propertyId"
                 defaultValue={user.propertyId ?? ''}
                 aria-label={fill(t.users.propertyAria, { name: user.name })}
-                className="rounded-md border border-current/20 bg-transparent px-2 py-1 text-sm"
+                className={control('sm')}
               >
                 <option value="">{t.users.headOffice}</option>
                 {properties.map((property) => (
@@ -309,7 +311,7 @@ function UserRow({
                   </option>
                 ))}
               </select>
-              <SubmitButton pendingLabel="…" className={smallButtonClass}>
+              <SubmitButton pendingLabel="…" className={ghostButton()}>
                 {t.users.change}
               </SubmitButton>
             </form>
@@ -332,10 +334,8 @@ function UserRow({
                 <input type="hidden" name="active" value={nextActive ? '1' : '0'} />
                 <SubmitButton
                   pendingLabel="…"
-                  confirm={
-                    nextActive ? undefined : fill(t.users.leaveConfirm, { name: user.name })
-                  }
-                  className={smallButtonClass}
+                  confirm={nextActive ? undefined : fill(t.users.leaveConfirm, { name: user.name })}
+                  className={ghostButton()}
                 >
                   {nextActive ? t.users.reinstate : t.users.left}
                 </SubmitButton>
@@ -346,7 +346,7 @@ function UserRow({
               type="button"
               onClick={onToggleExpand}
               aria-expanded={expanded}
-              className={smallButtonClass}
+              className={ghostButton()}
             >
               {t.users.resetPassword}
             </button>
@@ -370,7 +370,7 @@ function UserRow({
                   required
                   minLength={8}
                   autoComplete="new-password"
-                  className={`w-48 ${inputClass}`}
+                  className={control('lg', 'w-48')}
                 />
               </div>
               <SubmitButton pendingLabel={t.users.resetting}>{t.users.reset}</SubmitButton>

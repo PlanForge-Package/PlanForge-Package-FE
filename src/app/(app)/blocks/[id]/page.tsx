@@ -64,11 +64,7 @@ export default async function BlockDetailPage({ params }: Props) {
     return (
       <main className="flex flex-col gap-6">
         <PageHeader title={t.blocks.detailTitle} />
-        <ErrorNotice
-          title={t.blocks.loadFailed}
-          message={block.message}
-          status={block.status}
-        />
+        <ErrorNotice title={t.blocks.loadFailed} message={block.message} status={block.status} />
       </main>
     );
   }

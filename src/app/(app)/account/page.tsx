@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { PageHeader } from '@/components/page-header';
 import { ChangePasswordForm } from '@/components/change-password';
+import { Detail } from '@/components/field';
 import { requireUser } from '@/lib/auth';
 import { getDictionary } from '@/lib/i18n';
 
@@ -19,21 +20,12 @@ export default async function AccountPage() {
       <PageHeader title={t.users.accountTitle} />
 
       <section aria-label={t.users.accountInfo} className="flex flex-col gap-3">
-        <Field label={t.users.name} value={me.name} />
-        <Field label={t.users.email} value={me.email} />
-        <Field label={t.users.role} value={t.roles[me.role]} />
+        <Detail label={t.users.name} value={me.name} />
+        <Detail label={t.users.email} value={me.email} />
+        <Detail label={t.users.role} value={t.roles[me.role]} />
       </section>
 
       <ChangePasswordForm />
     </main>
-  );
-}
-
-function Field({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex flex-col gap-0.5">
-      <span className="text-xs uppercase tracking-wide text-subtle">{label}</span>
-      <span className="text-sm">{value}</span>
-    </div>
   );
 }

@@ -9,6 +9,7 @@ import {
 import { IDLE, type ActionState } from '@/lib/action-state';
 import type { Reservation } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
+import { control, ghostButton } from './ui';
 
 function guestName(reservation: Reservation): string {
   const name = [reservation.profile.lastName, reservation.profile.firstName]
@@ -63,7 +64,7 @@ export function SharePanel({
             <SubmitButton
               pendingLabel="해제 중…"
               confirm="이 예약을 공유에서 빼시겠습니까?"
-              className="rounded-md border border-current/20 px-2.5 py-1 text-xs transition-colors hover:bg-current/5 disabled:cursor-not-allowed disabled:opacity-50"
+              className={ghostButton()}
             >
               공유 해제
             </SubmitButton>
@@ -113,7 +114,7 @@ export function SharePanel({
               name="withReservationId"
               defaultValue={shareState.values?.withReservationId ?? ''}
               required
-              className="w-80 rounded-md border border-current/20 bg-transparent px-2 py-1.5 text-sm text-ink"
+              className={control('md', 'w-80')}
             >
               <option value="">선택</option>
               {candidates.map((candidate) => (

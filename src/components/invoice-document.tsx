@@ -3,6 +3,7 @@
 import { fill, money } from '@/lib/i18n/format';
 import { useI18n, useLocale } from '@/lib/i18n/provider';
 import type { ArInvoiceDetail } from '@/lib/types';
+import { primaryButton } from './ui';
 
 function date(value: string | null): string {
   return value ? value.slice(0, 10) : '—';
@@ -35,11 +36,7 @@ export function InvoiceDocument({ invoice }: { invoice: ArInvoiceDetail }) {
             <span className="ml-2 text-red-700 dark:text-red-300">{t.ar.overdue}</span>
           )}
         </p>
-        <button
-          type="button"
-          onClick={() => window.print()}
-          className="btn-primary rounded-md px-3 py-1.5 text-sm font-medium"
-        >
+        <button type="button" onClick={() => window.print()} className={primaryButton()}>
           {t.ar.print}
         </button>
       </div>
@@ -111,7 +108,9 @@ export function InvoiceDocument({ invoice }: { invoice: ArInvoiceDetail }) {
                   <td className="py-2 pr-4 font-mono text-xs text-subtle">
                     {row.reservation?.confirmationNumber ?? '—'}
                   </td>
-                  <td className="py-2 text-right tabular-nums">{money(row.amount, locale, currency)}</td>
+                  <td className="py-2 text-right tabular-nums">
+                    {money(row.amount, locale, currency)}
+                  </td>
                 </tr>
               ))}
               {invoice.transactions.length === 0 && (
@@ -137,7 +136,9 @@ export function InvoiceDocument({ invoice }: { invoice: ArInvoiceDetail }) {
       </section>
 
       <section aria-label={t.ar.collections} className="flex flex-col gap-2">
-        <h3 className="text-sm font-medium uppercase tracking-wide text-subtle">{t.ar.collections}</h3>
+        <h3 className="text-sm font-medium uppercase tracking-wide text-subtle">
+          {t.ar.collections}
+        </h3>
         {invoice.allocations.length === 0 ? (
           <p className="text-sm text-subtle">{t.ar.noCollections}</p>
         ) : (
@@ -163,7 +164,9 @@ export function InvoiceDocument({ invoice }: { invoice: ArInvoiceDetail }) {
                       {date(row.payment.postedAt)}
                     </td>
                     <td className="py-2 pr-4">{row.payment.description}</td>
-                    <td className="py-2 text-right tabular-nums">{money(row.amount, locale, currency)}</td>
+                    <td className="py-2 text-right tabular-nums">
+                      {money(row.amount, locale, currency)}
+                    </td>
                   </tr>
                 ))}
               </tbody>

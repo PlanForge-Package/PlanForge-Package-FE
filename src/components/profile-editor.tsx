@@ -8,8 +8,9 @@ import { useI18n } from '@/lib/i18n/provider';
 import { PREFERENCE_CODES, profileName } from '@/lib/profile-labels';
 import type { DuplicateCandidate, MembershipTier, ProfileDetail } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
+import { TextField } from './field';
+import { control } from './ui';
 
-const inputClass = 'rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm';
 const TIERS: MembershipTier[] = ['NONE', 'SILVER', 'GOLD', 'PLATINUM'];
 
 export function ProfileEditor({ profile }: { profile: ProfileDetail }) {
@@ -28,45 +29,45 @@ export function ProfileEditor({ profile }: { profile: ProfileDetail }) {
         <legend className="mb-2 text-sm font-medium">{t.profiles.editTitle}</legend>
 
         <div className="flex flex-wrap items-end gap-2">
-          <Field
+          <TextField
             label={t.profiles.lastName}
             name="lastName"
             defaultValue={kept?.lastName ?? profile.lastName}
           />
-          <Field
+          <TextField
             label={t.profiles.firstName}
             name="firstName"
             defaultValue={kept?.firstName ?? profile.firstName}
           />
-          <Field
+          <TextField
             label={t.profiles.company}
             name="companyName"
-            width="w-48"
+            className="w-48"
             defaultValue={kept?.companyName ?? profile.companyName}
           />
-          <Field
+          <TextField
             label={t.profiles.email}
             name="email"
             type="email"
-            width="w-56"
+            className="w-56"
             defaultValue={kept?.email ?? profile.email}
           />
-          <Field
+          <TextField
             label={t.profiles.phone}
             name="phone"
             defaultValue={kept?.phone ?? profile.phone}
           />
-          <Field
+          <TextField
             label={t.profiles.nationality}
             name="nationality"
-            width="w-20"
+            className="w-20"
             placeholder="KR"
             defaultValue={kept?.nationality ?? profile.nationality}
           />
         </div>
 
         <div className="flex flex-wrap items-end gap-2">
-          <Field
+          <TextField
             label={t.profiles.membershipNumber}
             name="membershipNumber"
             defaultValue={kept?.membershipNumber ?? profile.membershipNumber}
@@ -79,7 +80,7 @@ export function ProfileEditor({ profile }: { profile: ProfileDetail }) {
               id="membershipTier"
               name="membershipTier"
               defaultValue={profile.membershipTier}
-              className={inputClass}
+              className={control('lg')}
             >
               {TIERS.map((tier) => (
                 <option key={tier} value={tier}>
@@ -95,9 +96,7 @@ export function ProfileEditor({ profile }: { profile: ProfileDetail }) {
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <span className="text-xs text-subtle">
-            {t.profiles.preferencesLegend}
-          </span>
+          <span className="text-xs text-subtle">{t.profiles.preferencesLegend}</span>
           <div className="flex flex-wrap gap-x-4 gap-y-1.5">
             {PREFERENCE_CODES.map((code) => (
               <label key={code} className="flex items-center gap-1.5 text-sm">
@@ -107,9 +106,8 @@ export function ProfileEditor({ profile }: { profile: ProfileDetail }) {
                   value={code}
                   defaultChecked={profile.preferences.includes(code)}
                 />
-                {t.profiles.preferenceCodes[
-                  code as keyof typeof t.profiles.preferenceCodes
-                ] ?? code}
+                {t.profiles.preferenceCodes[code as keyof typeof t.profiles.preferenceCodes] ??
+                  code}
               </label>
             ))}
           </div>
@@ -125,7 +123,7 @@ export function ProfileEditor({ profile }: { profile: ProfileDetail }) {
             rows={3}
             maxLength={1000}
             defaultValue={kept?.notes ?? profile.notes ?? ''}
-            className={`w-full ${inputClass}`}
+            className={control('lg', 'w-full')}
           />
         </div>
 
@@ -136,38 +134,6 @@ export function ProfileEditor({ profile }: { profile: ProfileDetail }) {
 
       <ActionMessage state={state} />
     </form>
-  );
-}
-
-function Field({
-  label,
-  name,
-  defaultValue,
-  type = 'text',
-  width = 'w-32',
-  placeholder,
-}: {
-  label: string;
-  name: string;
-  defaultValue: string | null | undefined;
-  type?: string;
-  width?: string;
-  placeholder?: string;
-}) {
-  return (
-    <div className="flex flex-col gap-1">
-      <label htmlFor={name} className="text-xs text-subtle">
-        {label}
-      </label>
-      <input
-        id={name}
-        name={name}
-        type={type}
-        placeholder={placeholder}
-        defaultValue={defaultValue ?? ''}
-        className={`${width} ${inputClass}`}
-      />
-    </div>
   );
 }
 

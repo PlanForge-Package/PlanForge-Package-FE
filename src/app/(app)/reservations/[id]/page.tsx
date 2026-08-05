@@ -11,6 +11,7 @@ import { PolicyPanel } from '@/components/policy-panel';
 import { WaitlistPanel } from '@/components/waitlist-panel';
 import { FrontDeskPanel } from '@/components/front-desk';
 import { ReservationEditPanel } from '@/components/reservation-edit';
+import { Detail } from '@/components/field';
 import { ErrorNotice } from '@/components/notice';
 import { PageHeader } from '@/components/page-header';
 import { PaymentPanel } from '@/components/payment-panel';
@@ -176,20 +177,20 @@ export default async function ReservationDetailPage({ params }: Props) {
       </div>
 
       <section aria-label="예약 정보" className="grid gap-x-8 gap-y-3 sm:grid-cols-2">
-        <Field label="호텔" value={reservation.property.name} />
-        <Field
+        <Detail label="호텔" value={reservation.property.name} />
+        <Detail
           label="OPERA 예약 번호"
           value={reservation.operaReservationId ?? '연동 전'}
           mono={Boolean(reservation.operaReservationId)}
         />
-        <Field label="도착" value={reservation.arrivalDate.slice(0, 10)} />
-        <Field label="출발" value={reservation.departureDate.slice(0, 10)} />
-        <Field
+        <Detail label="도착" value={reservation.arrivalDate.slice(0, 10)} />
+        <Detail label="출발" value={reservation.departureDate.slice(0, 10)} />
+        <Detail
           label="객실 타입"
           value={`${reservation.roomType.code} · ${reservation.roomType.name}`}
         />
-        <Field label="배정 객실" value={reservation.assignedRoomNumber ?? '미배정'} />
-        <Field
+        <Detail label="배정 객실" value={reservation.assignedRoomNumber ?? '미배정'} />
+        <Detail
           label="요금제"
           value={
             reservation.ratePlan
@@ -197,9 +198,9 @@ export default async function ReservationDetailPage({ params }: Props) {
               : '없음'
           }
         />
-        <Field label="인원" value={`성인 ${reservation.adults} · 아동 ${reservation.children}`} />
-        {reservation.blockCode && <Field label="단체 블록" value={reservation.blockCode} mono />}
-        <Field
+        <Detail label="인원" value={`성인 ${reservation.adults} · 아동 ${reservation.children}`} />
+        {reservation.blockCode && <Detail label="단체 블록" value={reservation.blockCode} mono />}
+        <Detail
           label="예약 경로"
           value={[
             label(t.sourceCodes, reservation.sourceCode),
@@ -209,8 +210,8 @@ export default async function ReservationDetailPage({ params }: Props) {
             .filter((part) => part !== '—')
             .join(' · ')}
         />
-        {reservation.profile.email && <Field label="이메일" value={reservation.profile.email} />}
-        {reservation.notes && <Field label="메모" value={reservation.notes} />}
+        {reservation.profile.email && <Detail label="이메일" value={reservation.profile.email} />}
+        {reservation.notes && <Detail label="메모" value={reservation.notes} />}
       </section>
 
       {/* 확정한 뒤에도 결과가 보여야 하므로 패널이 스스로 숨는다. */}
@@ -304,14 +305,5 @@ export default async function ReservationDetailPage({ params }: Props) {
         />
       )}
     </main>
-  );
-}
-
-function Field({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
-  return (
-    <div className="flex flex-col gap-0.5">
-      <span className="text-xs uppercase tracking-wide text-subtle">{label}</span>
-      <span className={`text-sm ${mono ? 'font-mono' : ''}`}>{value}</span>
-    </div>
   );
 }

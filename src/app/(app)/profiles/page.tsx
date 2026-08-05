@@ -8,6 +8,7 @@ import { getDictionary } from '@/lib/i18n';
 import { fill, num } from '@/lib/i18n/format';
 import { profileName } from '@/lib/profile-labels';
 import type { MembershipTier, ProfileListResponse } from '@/lib/types';
+import { control, primaryButton } from '@/components/ui';
 
 const TIERS: MembershipTier[] = ['NONE', 'SILVER', 'GOLD', 'PLATINUM'];
 
@@ -16,8 +17,6 @@ export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
   title: 'Guest profiles — PlanForge',
 };
-
-const fieldClass = 'rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm';
 
 export default async function ProfilesPage({
   searchParams,
@@ -41,10 +40,7 @@ export default async function ProfilesPage({
 
   return (
     <main className="flex flex-col gap-6">
-      <PageHeader
-        title={t.profiles.title}
-        description={t.profiles.description}
-      />
+      <PageHeader title={t.profiles.title} description={t.profiles.description} />
 
       <form className="flex flex-wrap items-end gap-2" role="search">
         <div className="flex flex-col gap-1">
@@ -56,14 +52,14 @@ export default async function ProfilesPage({
             name="q"
             defaultValue={q ?? ''}
             placeholder={t.profiles.searchPlaceholder}
-            className={`w-56 ${fieldClass}`}
+            className={control('lg', 'w-56')}
           />
         </div>
         <div className="flex flex-col gap-1">
           <label htmlFor="tier" className="text-xs text-subtle">
             {t.profiles.tier}
           </label>
-          <select id="tier" name="tier" defaultValue={tier ?? ''} className={fieldClass}>
+          <select id="tier" name="tier" defaultValue={tier ?? ''} className={control('lg')}>
             <option value="">{t.common.all}</option>
             {TIERS.map((value) => (
               <option key={value} value={value}>
@@ -76,7 +72,7 @@ export default async function ProfilesPage({
           <input type="checkbox" name="vip" value="1" defaultChecked={vip === '1'} />
           {t.profiles.vipOnly}
         </label>
-        <button type="submit" className="btn-primary rounded-md px-3 py-1.5 text-sm font-medium">
+        <button type="submit" className={primaryButton()}>
           {t.common.search}
         </button>
       </form>

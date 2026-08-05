@@ -111,7 +111,10 @@ export default async function ProfileDetailPage({ params }: Props) {
         />
       )}
 
-      <section aria-label={t.profiles.staySummary} className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <section
+        aria-label={t.profiles.staySummary}
+        className="grid grid-cols-2 gap-3 sm:grid-cols-4"
+      >
         <StatTile label={t.profiles.stayCount} value={profile.summary.stayCount} />
         <StatTile label={t.profiles.nights} value={profile.summary.nights} />
         <StatTile label={t.profiles.revenue} value={money(profile.summary.revenue, locale)} />

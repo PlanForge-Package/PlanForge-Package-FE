@@ -10,6 +10,7 @@ import type { SessionUser } from '@/lib/session';
 import type { Property } from '@/lib/types';
 import { SubmitButton } from './action-feedback';
 import { PropertySwitcher } from './property-switcher';
+import { control } from './ui';
 
 interface NavLink {
   href: string;
@@ -92,7 +93,7 @@ export function Nav({
               defaultValue={locale}
               aria-label={t.common.language}
               onChange={(event) => event.currentTarget.form?.requestSubmit()}
-              className="rounded-md border border-current/20 bg-transparent px-2 py-1 text-xs"
+              className={control('xs')}
             >
               {LOCALES.map((value) => (
                 <option key={value} value={value}>

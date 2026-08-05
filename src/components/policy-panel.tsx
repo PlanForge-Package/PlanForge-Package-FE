@@ -5,6 +5,8 @@ import { recordDepositAction, setGuaranteeAction } from '@/app/(app)/reservation
 import { IDLE, type ActionState } from '@/lib/action-state';
 import type { ReservationPolicies } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
+import { Figure } from './field';
+import { control } from './ui';
 
 export const GUARANTEE_LABELS: Record<string, string> = {
   SIXPM: '18시까지 (보증 없음)',
@@ -20,9 +22,6 @@ const METHOD_LABELS: Record<string, string> = {
   TRANSFER: '계좌이체',
   VOUCHER: '바우처',
 };
-
-const inputClass =
-  'rounded-md border border-current/20 bg-transparent px-2 py-1.5 text-sm text-ink';
 
 function money(amount: number, currency: string): string {
   if (!Number.isFinite(amount)) return '—';
@@ -111,7 +110,7 @@ export function PolicyPanel({
               name="guaranteeCode"
               aria-label="보증 방식"
               defaultValue={policies.guaranteeCode}
-              className={`w-56 ${inputClass}`}
+              className={control('md', 'w-56')}
             >
               {Object.entries(GUARANTEE_LABELS).map(([code, label]) => (
                 <option key={code} value={code}>
@@ -160,7 +159,7 @@ export function PolicyPanel({
                   depositState.values?.amount ?? (remaining > 0 ? String(remaining) : '')
                 }
                 required
-                className={`w-36 ${inputClass}`}
+                className={control('md', 'w-36')}
               />
             </label>
 
@@ -170,7 +169,7 @@ export function PolicyPanel({
                 name="method"
                 aria-label="받은 방법"
                 defaultValue={depositState.values?.method ?? 'CARD'}
-                className={inputClass}
+                className={control('md')}
               >
                 {Object.entries(METHOD_LABELS).map(([code, label]) => (
                   <option key={code} value={code}>
@@ -188,7 +187,7 @@ export function PolicyPanel({
                 defaultValue={depositState.values?.description ?? ''}
                 maxLength={200}
                 placeholder="비우면 보증금으로 적습니다"
-                className={`w-56 ${inputClass}`}
+                className={control('md', 'w-56')}
               />
             </label>
 
@@ -202,16 +201,5 @@ export function PolicyPanel({
         위약금은 무료 기한을 넘긴 뒤에만 붙고, 붙으면 폴리오에 청구로 달립니다.
       </p>
     </section>
-  );
-}
-
-function Figure({ label, value, alert }: { label: string; value: string; alert?: boolean }) {
-  return (
-    <div className="flex flex-col gap-0.5 rounded-lg border border-current/10 px-4 py-3">
-      <span className="text-xs uppercase tracking-wide text-subtle">{label}</span>
-      <span className={`text-sm font-medium ${alert ? 'text-red-700 dark:text-red-300' : ''}`}>
-        {value}
-      </span>
-    </div>
   );
 }

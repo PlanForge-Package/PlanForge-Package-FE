@@ -5,6 +5,8 @@ import { closeShiftAction, openShiftAction } from '@/app/(app)/cashier/actions';
 import { IDLE, type ActionState } from '@/lib/action-state';
 import type { CashierShift, CashierSummary, PaymentMethod } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
+import { Figure } from './field';
+import { control } from './ui';
 
 const METHOD_LABELS: Record<PaymentMethod, string> = {
   CASH: '현금',
@@ -80,7 +82,7 @@ export function CashierPanel({
               step={1}
               defaultValue={openState.values?.openingFloat ?? '0'}
               required
-              className="w-40 rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm text-ink"
+              className={control('lg', 'w-40')}
             />
           </label>
 
@@ -138,7 +140,7 @@ export function CashierPanel({
                 defaultValue={closeState.values?.countedCash ?? ''}
                 required
                 placeholder={summary.expectedCash.split('.')[0]}
-                className="w-40 rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm text-ink"
+                className={control('lg', 'w-40')}
               />
             </label>
 
@@ -150,7 +152,7 @@ export function CashierPanel({
                 maxLength={500}
                 defaultValue={closeState.values?.notes ?? ''}
                 placeholder="차이가 있으면 사유를 적어 주세요"
-                className="w-72 rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm text-ink"
+                className={control('lg', 'w-72')}
               />
             </label>
 
@@ -166,15 +168,6 @@ export function CashierPanel({
         </article>
       )}
     </section>
-  );
-}
-
-function Figure({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex flex-col gap-0.5">
-      <dt className="text-xs uppercase tracking-wide text-subtle">{label}</dt>
-      <dd className="text-sm font-medium tabular-nums">{value}</dd>
-    </div>
   );
 }
 

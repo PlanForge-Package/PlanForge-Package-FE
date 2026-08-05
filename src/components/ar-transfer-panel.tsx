@@ -7,6 +7,7 @@ import { fill, money } from '@/lib/i18n/format';
 import { useI18n, useLocale } from '@/lib/i18n/provider';
 import type { ArAccount, Folio } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
+import { control } from './ui';
 
 /**
  * Transfers a folio balance to a direct-bill account.
@@ -41,7 +42,9 @@ export function ArTransferPanel({
 
   return (
     <section aria-label={t.ar.transfer} className="flex flex-col gap-3">
-      <h2 className="text-sm font-medium uppercase tracking-wide text-subtle">{t.ar.transferTitle}</h2>
+      <h2 className="text-sm font-medium uppercase tracking-wide text-subtle">
+        {t.ar.transferTitle}
+      </h2>
 
       <div aria-live="polite">
         <ActionMessage state={state} />
@@ -63,7 +66,7 @@ export function ArTransferPanel({
               name="accountId"
               defaultValue={state.values?.accountId ?? ''}
               required
-              className="w-56 rounded-md border border-current/20 bg-transparent px-2 py-1.5 text-sm text-ink"
+              className={control('md', 'w-56')}
             >
               <option value="">{t.ar.transferSelect}</option>
               {accounts.map((account) => (
@@ -80,7 +83,7 @@ export function ArTransferPanel({
               name="window"
               defaultValue={state.values?.window ?? String(transferable[0]?.window ?? 1)}
               required
-              className="rounded-md border border-current/20 bg-transparent px-2 py-1.5 text-sm text-ink"
+              className={control('md')}
             >
               {transferable.map((folio) => (
                 <option key={folio.id} value={folio.window}>
@@ -101,7 +104,7 @@ export function ArTransferPanel({
               defaultValue={state.values?.description ?? ''}
               maxLength={200}
               placeholder={t.ar.transferMemoPlaceholder}
-              className="w-64 rounded-md border border-current/20 bg-transparent px-2 py-1.5 text-sm text-ink"
+              className={control('md', 'w-64')}
             />
           </label>
 

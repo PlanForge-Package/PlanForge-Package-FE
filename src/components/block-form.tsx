@@ -7,8 +7,7 @@ import type { BlockStatus, RoomType } from '@/lib/types';
 import { fill, num } from '@/lib/i18n/format';
 import { useI18n, useLocale } from '@/lib/i18n/provider';
 import { ActionMessage, SubmitButton } from './action-feedback';
-
-const inputClass = 'rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm';
+import { control, primaryButton } from './ui';
 
 /** Cancelling needs its own confirmation, so it is left out of this list. */
 const EDITABLE_STATUSES: BlockStatus[] = [
@@ -44,11 +43,7 @@ export function CreateBlockForm({
   if (!open) {
     return (
       <div className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          className="btn-primary rounded-md px-3 py-1.5 text-sm font-medium"
-        >
+        <button type="button" onClick={() => setOpen(true)} className={primaryButton()}>
           {t.blocks.openForm}
         </button>
         <ActionMessage state={state} />
@@ -76,7 +71,7 @@ export function CreateBlockForm({
               pattern="[A-Za-z0-9_-]+"
               placeholder="SPGRP"
               defaultValue={kept?.code ?? ''}
-              className={`w-32 font-mono uppercase ${inputClass}`}
+              className={control('lg', 'w-32 font-mono uppercase')}
             />
           </div>
 
@@ -91,7 +86,7 @@ export function CreateBlockForm({
               maxLength={100}
               placeholder={t.blocks.groupNamePlaceholder}
               defaultValue={kept?.name ?? ''}
-              className={`w-64 ${inputClass}`}
+              className={control('lg', 'w-64')}
             />
           </div>
 
@@ -105,7 +100,7 @@ export function CreateBlockForm({
               type="date"
               required
               defaultValue={kept?.startDate ?? ''}
-              className={inputClass}
+              className={control('lg')}
             />
           </div>
 
@@ -119,7 +114,7 @@ export function CreateBlockForm({
               type="date"
               required
               defaultValue={kept?.endDate ?? ''}
-              className={inputClass}
+              className={control('lg')}
             />
           </div>
 
@@ -132,7 +127,7 @@ export function CreateBlockForm({
               name="cutoffDate"
               type="date"
               defaultValue={kept?.cutoffDate ?? ''}
-              className={inputClass}
+              className={control('lg')}
             />
           </div>
 
@@ -146,7 +141,7 @@ export function CreateBlockForm({
               maxLength={20}
               placeholder="CORP"
               defaultValue={kept?.ratePlanCode ?? ''}
-              className={`w-28 font-mono uppercase ${inputClass}`}
+              className={control('lg', 'w-28 font-mono uppercase')}
             />
           </div>
         </div>
@@ -166,7 +161,7 @@ export function CreateBlockForm({
                 min={0}
                 max={999}
                 defaultValue={keptCounts[index] ?? 0}
-                className={`w-20 tabular-nums ${inputClass}`}
+                className={control('lg', 'w-20 tabular-nums')}
               />
             </div>
           ))}
@@ -186,7 +181,7 @@ export function CreateBlockForm({
                 min={0}
                 step={1}
                 placeholder={t.blocks.ratePlanValue}
-                className={`w-28 tabular-nums ${inputClass}`}
+                className={control('lg', 'w-28 tabular-nums')}
               />
             </div>
           ))}
@@ -204,9 +199,7 @@ export function CreateBlockForm({
         </div>
       </fieldset>
 
-      <p className="mt-1.5 text-xs text-subtle">
-        {t.blocks.createNote}
-      </p>
+      <p className="mt-1.5 text-xs text-subtle">{t.blocks.createNote}</p>
       <ActionMessage state={state} />
     </form>
   );
@@ -253,7 +246,7 @@ export function BlockEditor({
             name="name"
             defaultValue={name}
             maxLength={100}
-            className={`w-64 ${inputClass}`}
+            className={control('lg', 'w-64')}
           />
         </div>
 
@@ -261,7 +254,12 @@ export function BlockEditor({
           <label htmlFor={`${uid}-status`} className="text-xs text-subtle">
             {t.blocks.status}
           </label>
-          <select id={`${uid}-status`} name="status" defaultValue={status} className={inputClass}>
+          <select
+            id={`${uid}-status`}
+            name="status"
+            defaultValue={status}
+            className={control('lg')}
+          >
             {EDITABLE_STATUSES.map((value) => (
               <option key={value} value={value}>
                 {t.blockStatus[value]}
@@ -279,7 +277,7 @@ export function BlockEditor({
             name="cutoffDate"
             type="date"
             defaultValue={cutoffDate?.slice(0, 10) ?? ''}
-            className={inputClass}
+            className={control('lg')}
           />
         </div>
 
@@ -294,10 +292,8 @@ export function BlockEditor({
               type="number"
               min={0}
               step={1}
-              placeholder={
-                rate.amount ? num(Number(rate.amount), locale) : t.blocks.ratePlanValue
-              }
-              className={`w-28 tabular-nums ${inputClass}`}
+              placeholder={rate.amount ? num(Number(rate.amount), locale) : t.blocks.ratePlanValue}
+              className={control('lg', 'w-28 tabular-nums')}
             />
           </div>
         ))}
@@ -305,9 +301,7 @@ export function BlockEditor({
         <SubmitButton pendingLabel={t.blocks.saving}>{t.blocks.save}</SubmitButton>
       </fieldset>
 
-      <p className="mt-1.5 text-xs text-subtle">
-        {t.blocks.editNote}
-      </p>
+      <p className="mt-1.5 text-xs text-subtle">{t.blocks.editNote}</p>
       <ActionMessage state={state} />
     </form>
   );

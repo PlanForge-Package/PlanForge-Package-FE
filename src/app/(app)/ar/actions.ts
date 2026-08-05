@@ -170,9 +170,7 @@ export async function updateInvoiceStatusAction(
 
   revalidatePath(`/ar/${accountId}`);
   return actionSuccess(
-    status === 'VOID'
-      ? fill(t.ar.msgVoided, { number })
-      : fill(t.ar.msgStatusChanged, { number }),
+    status === 'VOID' ? fill(t.ar.msgVoided, { number }) : fill(t.ar.msgStatusChanged, { number }),
   );
 }
 

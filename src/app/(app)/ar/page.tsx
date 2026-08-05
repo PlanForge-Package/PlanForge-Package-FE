@@ -71,11 +71,7 @@ export default async function ArPage() {
       )}
 
       {!aging.ok ? (
-        <ErrorNotice
-          title={t.ar.loadAgingFailed}
-          message={aging.message}
-          status={aging.status}
-        />
+        <ErrorNotice title={t.ar.loadAgingFailed} message={aging.message} status={aging.status} />
       ) : (
         <ArAgingPanel data={aging.data} />
       )}

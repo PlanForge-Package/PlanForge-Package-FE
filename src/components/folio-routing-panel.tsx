@@ -8,6 +8,7 @@ import {
 import { IDLE, type ActionState } from '@/lib/action-state';
 import type { Folio, FolioRouting } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
+import { control, ghostButton } from './ui';
 
 /**
  * Routing instructions.
@@ -64,7 +65,7 @@ export function FolioRoutingPanel({
               required
               maxLength={20}
               placeholder="1000"
-              className="w-28 rounded-md border border-current/20 bg-transparent px-2 py-1.5 font-mono text-sm text-ink"
+              className={control('md', 'w-28 font-mono')}
             />
           </label>
 
@@ -74,7 +75,7 @@ export function FolioRoutingPanel({
               name="targetWindow"
               defaultValue={setState.values?.targetWindow ?? ''}
               required
-              className="rounded-md border border-current/20 bg-transparent px-2 py-1.5 text-sm text-ink"
+              className={control('md')}
             >
               <option value="">선택</option>
               {openWindows.map((folio) => (
@@ -93,7 +94,7 @@ export function FolioRoutingPanel({
               defaultValue={setState.values?.note ?? ''}
               maxLength={200}
               placeholder="객실료는 회사 부담"
-              className="w-56 rounded-md border border-current/20 bg-transparent px-2 py-1.5 text-sm text-ink"
+              className={control('md', 'w-56')}
             />
           </label>
 
@@ -130,10 +131,7 @@ export function FolioRoutingPanel({
                   <td className="py-2">
                     <form action={removeAction}>
                       <input type="hidden" name="transactionCode" value={routing.transactionCode} />
-                      <SubmitButton
-                        pendingLabel="…"
-                        className="rounded-md border border-current/20 px-2.5 py-1 text-xs transition-colors hover:bg-current/5 disabled:cursor-not-allowed disabled:opacity-50"
-                      >
+                      <SubmitButton pendingLabel="…" className={ghostButton()}>
                         해제
                       </SubmitButton>
                     </form>

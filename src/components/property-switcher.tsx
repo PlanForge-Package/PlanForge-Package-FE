@@ -3,6 +3,7 @@
 import { useRef } from 'react';
 import { selectPropertyAction } from '@/app/(app)/property-actions';
 import type { Property } from '@/lib/types';
+import { control } from './ui';
 
 /**
  * Hotel picker.
@@ -43,7 +44,7 @@ export function PropertySwitcher({
         defaultValue={selectedId ?? ''}
         // Applied on selection, with no separate button. The front desk works this screen one-handed.
         onChange={() => formRef.current?.requestSubmit()}
-        className="rounded-md border border-current/20 bg-transparent px-2 py-1 text-sm"
+        className={control('sm')}
       >
         {options.map((property) => (
           <option key={property.id} value={property.id}>

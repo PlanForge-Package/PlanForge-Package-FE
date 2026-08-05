@@ -10,6 +10,7 @@ import { getDictionary } from '@/lib/i18n';
 import { fill } from '@/lib/i18n/format';
 import { getPropertyContext } from '@/lib/property';
 import type { Block, BlockStatus, RoomType } from '@/lib/types';
+import { control, primaryButton } from '@/components/ui';
 
 export const dynamic = 'force-dynamic';
 
@@ -78,19 +79,14 @@ export default async function BlocksPage({
         <label htmlFor="status" className="sr-only">
           {t.common.status}
         </label>
-        <select
-          id="status"
-          name="status"
-          defaultValue={status ?? ''}
-          className="rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm"
-        >
+        <select id="status" name="status" defaultValue={status ?? ''} className={control('lg')}>
           {STATUS_FILTERS.map((value) => (
             <option key={value} value={value}>
               {value ? t.blockStatus[value] : t.common.all}
             </option>
           ))}
         </select>
-        <button type="submit" className="btn-primary rounded-md px-3 py-1.5 text-sm font-medium">
+        <button type="submit" className={primaryButton()}>
           {t.common.search}
         </button>
       </form>
@@ -100,11 +96,7 @@ export default async function BlocksPage({
       )}
 
       {!blocks.ok ? (
-        <ErrorNotice
-          title={t.blocks.loadFailed}
-          message={blocks.message}
-          status={blocks.status}
-        />
+        <ErrorNotice title={t.blocks.loadFailed} message={blocks.message} status={blocks.status} />
       ) : blocks.data.length === 0 ? (
         <EmptyState message={t.blocks.empty} />
       ) : (

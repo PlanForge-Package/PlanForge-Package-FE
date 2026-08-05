@@ -9,10 +9,7 @@ import {
 import { IDLE, type ActionState } from '@/lib/action-state';
 import type { PosOutlet } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
-
-const inputClass = 'rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm';
-const smallButton =
-  'rounded-md border border-current/20 px-2.5 py-1 text-xs transition-colors hover:bg-current/5 disabled:cursor-not-allowed disabled:opacity-50';
+import { control, ghostButton, primaryButton } from './ui';
 
 export function CreateOutletForm({ propertyId }: { propertyId: string }) {
   const [state, action] = useActionState<ActionState, FormData>(createOutletAction, IDLE);
@@ -25,11 +22,7 @@ export function CreateOutletForm({ propertyId }: { propertyId: string }) {
     return (
       <div className="flex flex-col gap-2">
         <div>
-          <button
-            type="button"
-            onClick={() => setOpen(true)}
-            className="btn-primary rounded-md px-3 py-1.5 text-sm font-medium"
-          >
+          <button type="button" onClick={() => setOpen(true)} className={primaryButton()}>
             아웃렛 등록
           </button>
         </div>
@@ -57,7 +50,7 @@ export function CreateOutletForm({ propertyId }: { propertyId: string }) {
             pattern="[A-Za-z0-9_]+"
             placeholder="RESTAURANT"
             defaultValue={kept?.code ?? ''}
-            className={`w-40 font-mono uppercase ${inputClass}`}
+            className={control('lg', 'w-40 font-mono uppercase')}
           />
         </div>
 
@@ -72,7 +65,7 @@ export function CreateOutletForm({ propertyId }: { propertyId: string }) {
             maxLength={60}
             placeholder="1층 레스토랑"
             defaultValue={kept?.name ?? ''}
-            className={`w-48 ${inputClass}`}
+            className={control('lg', 'w-48')}
           />
         </div>
 
@@ -88,7 +81,7 @@ export function CreateOutletForm({ propertyId }: { propertyId: string }) {
             pattern="[A-Za-z0-9_]+"
             placeholder="FNB"
             defaultValue={kept?.transactionCode ?? ''}
-            className={`w-28 font-mono uppercase ${inputClass}`}
+            className={control('lg', 'w-28 font-mono uppercase')}
           />
         </div>
 
@@ -184,7 +177,7 @@ export function OutletBoard({ outlets }: { outlets: PosOutlet[] }) {
                       <SubmitButton
                         pendingLabel="…"
                         confirm={`${outlet.name} 키를 재발급합니다. 이전 키는 즉시 통하지 않아 단말을 다시 설정해야 합니다. 진행할까요?`}
-                        className={smallButton}
+                        className={ghostButton()}
                       >
                         키 재발급
                       </SubmitButton>
@@ -206,7 +199,7 @@ export function OutletBoard({ outlets }: { outlets: PosOutlet[] }) {
                             ? `${outlet.name} 사용을 중지하면 그 단말의 키가 즉시 막힙니다. 진행할까요?`
                             : undefined
                         }
-                        className={smallButton}
+                        className={ghostButton()}
                       >
                         {outlet.active ? '사용 중지' : '다시 사용'}
                       </SubmitButton>
