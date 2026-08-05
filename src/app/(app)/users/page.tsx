@@ -4,12 +4,14 @@ import { PageHeader } from '@/components/page-header';
 import { CreateUserForm, UserTable } from '@/components/user-admin';
 import { apiFetch, tryFetch } from '@/lib/api';
 import { requireUser } from '@/lib/auth';
+import { getDictionary } from '@/lib/i18n';
+import { fill, num } from '@/lib/i18n/format';
 import type { Property, UserListResponse } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: '계정 관리 — PlanForge',
+  title: 'Accounts — PlanForge',
 };
 
 export default async function UsersPage({
@@ -17,6 +19,7 @@ export default async function UsersPage({
 }: {
   searchParams: Promise<{ q?: string; includeInactive?: string }>;
 }) {
+  const { locale, t } = await getDictionary();
   const { q, includeInactive } = await searchParams;
 
   // The layout already authenticated, but here we need to know *who* —
@@ -37,19 +40,19 @@ export default async function UsersPage({
   return (
     <main className="flex flex-col gap-6">
       <PageHeader
-        title="계정 관리"
-        description="직원 계정과 역할을 관리합니다. 퇴사는 삭제가 아니라 비활성화로 처리합니다."
+        title={t.users.title}
+        description={t.users.description}
       />
 
       <form className="flex flex-wrap items-center gap-2" role="search">
         <label htmlFor="q" className="sr-only">
-          이름 또는 이메일
+          {t.users.searchLabel}
         </label>
         <input
           id="q"
           name="q"
           defaultValue={q ?? ''}
-          placeholder="이름 · 이메일"
+          placeholder={t.users.searchPlaceholder}
           className="rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm"
         />
         <label className="flex items-center gap-1.5 text-sm text-subtle">
@@ -60,10 +63,10 @@ export default async function UsersPage({
             defaultChecked={showInactive}
             className="size-3.5"
           />
-          퇴사자 포함
+          {t.users.includeInactive}
         </label>
         <button type="submit" className="btn-primary rounded-md px-3 py-1.5 text-sm font-medium">
-          조회
+          {t.common.search}
         </button>
       </form>
 
@@ -71,15 +74,17 @@ export default async function UsersPage({
 
       {!result.ok ? (
         <ErrorNotice
-          title="계정을 불러오지 못했습니다"
+          title={t.users.loadFailed}
           message={result.message}
           status={result.status}
         />
       ) : result.data.items.length === 0 ? (
-        <EmptyState message="조건에 맞는 계정이 없습니다." />
+        <EmptyState message={t.users.empty} />
       ) : (
         <>
-          <p className="text-sm text-subtle">전체 {result.data.total.toLocaleString()}명</p>
+          <p className="text-sm text-subtle">
+            {fill(t.users.totalCount, { count: num(result.data.total, locale) })}
+          </p>
           <UserTable users={result.data.items} myId={me.id} properties={propertyOptions} />
         </>
       )}

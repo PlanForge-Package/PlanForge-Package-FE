@@ -8,17 +8,12 @@ import {
   updateUserAction,
 } from '@/app/(app)/users/actions';
 import { IDLE, type ActionState } from '@/lib/action-state';
+import { fill } from '@/lib/i18n/format';
+import { useI18n } from '@/lib/i18n/provider';
 import type { ManagedUser, Property, UserRole } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
 
-export const ROLE_LABELS: Record<UserRole, string> = {
-  ADMIN: '관리자',
-  MANAGER: '지배인',
-  FRONT_DESK: '프론트데스크',
-  HOUSEKEEPING: '하우스키핑',
-};
-
-const ROLES = Object.keys(ROLE_LABELS) as UserRole[];
+const ROLES: UserRole[] = ['ADMIN', 'MANAGER', 'FRONT_DESK', 'HOUSEKEEPING'];
 
 const inputClass = 'rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm';
 const smallButtonClass =
@@ -29,20 +24,21 @@ function PropertySelect({
   properties,
   defaultValue,
   id,
-  label = '소속 호텔',
+  label,
 }: {
   properties: Property[];
   defaultValue?: string | null;
   id: string;
   label?: string;
 }) {
+  const t = useI18n();
   return (
     <div className="flex flex-col gap-1">
       <label htmlFor={id} className="text-xs text-subtle">
-        {label}
+        {label ?? t.users.property}
       </label>
       <select id={id} name="propertyId" defaultValue={defaultValue ?? ''} className={inputClass}>
-        <option value="">본사 (전 호텔)</option>
+        <option value="">{t.users.headOfficeAll}</option>
         {properties.map((property) => (
           <option key={property.id} value={property.id}>
             {property.name}
@@ -54,17 +50,18 @@ function PropertySelect({
 }
 
 export function CreateUserForm({ properties }: { properties: Property[] }) {
+  const t = useI18n();
   const [state, action] = useActionState<ActionState, FormData>(createUserAction, IDLE);
   const uid = useId();
 
   return (
     <form action={action} className="rounded-lg border border-current/10 px-4 py-3">
       <fieldset className="flex flex-wrap items-end gap-2">
-        <legend className="mb-2 text-sm font-medium">계정 추가 (입사)</legend>
+        <legend className="mb-2 text-sm font-medium">{t.users.addTitle}</legend>
 
         <div className="flex flex-col gap-1">
           <label htmlFor={`${uid}-email`} className="text-xs text-subtle">
-            이메일
+            {t.users.email}
           </label>
           <input
             id={`${uid}-email`}
@@ -78,26 +75,26 @@ export function CreateUserForm({ properties }: { properties: Property[] }) {
 
         <div className="flex flex-col gap-1">
           <label htmlFor={`${uid}-name`} className="text-xs text-subtle">
-            이름
+            {t.users.name}
           </label>
           <input
             id={`${uid}-name`}
             name="name"
             required
             maxLength={60}
-            placeholder="홍길동"
+            placeholder={t.users.namePlaceholder}
             className={`w-32 ${inputClass}`}
           />
         </div>
 
         <div className="flex flex-col gap-1">
           <label htmlFor={`${uid}-role`} className="text-xs text-subtle">
-            역할
+            {t.users.role}
           </label>
           <select id={`${uid}-role`} name="role" defaultValue="FRONT_DESK" className={inputClass}>
             {ROLES.map((role) => (
               <option key={role} value={role}>
-                {ROLE_LABELS[role]}
+                {t.roles[role]}
               </option>
             ))}
           </select>
@@ -105,7 +102,7 @@ export function CreateUserForm({ properties }: { properties: Property[] }) {
 
         <div className="flex flex-col gap-1">
           <label htmlFor={`${uid}-password`} className="text-xs text-subtle">
-            초기 비밀번호
+            {t.users.initialPassword}
           </label>
           <input
             id={`${uid}-password`}
@@ -120,12 +117,10 @@ export function CreateUserForm({ properties }: { properties: Property[] }) {
 
         <PropertySelect properties={properties} id={`${uid}-property`} />
 
-        <SubmitButton pendingLabel="추가 중…">추가</SubmitButton>
+        <SubmitButton pendingLabel={t.users.adding}>{t.users.add}</SubmitButton>
       </fieldset>
 
-      <p className="mt-1.5 text-xs text-subtle">
-        비밀번호는 8자 이상입니다. 만든 뒤 본인에게 직접 전달하고 변경하도록 안내해 주세요.
-      </p>
+      <p className="mt-1.5 text-xs text-subtle">{t.users.addNote}</p>
       <ActionMessage state={state} />
     </form>
   );
@@ -147,6 +142,7 @@ export function UserTable({
   myId: string;
   properties: Property[];
 }) {
+  const t = useI18n();
   const [roleState, changeRole] = useActionState<ActionState, FormData>(updateUserAction, IDLE);
   const [activeState, setActive] = useActionState<ActionState, FormData>(setUserActiveAction, IDLE);
   const [passwordState, resetPassword] = useActionState<ActionState, FormData>(
@@ -199,22 +195,22 @@ export function UserTable({
           <thead>
             <tr className="border-b border-current/10 text-left">
               <th scope="col" className="py-2 pr-4 font-medium">
-                이름
+                {t.users.name}
               </th>
               <th scope="col" className="py-2 pr-4 font-medium">
-                이메일
+                {t.users.email}
               </th>
               <th scope="col" className="py-2 pr-4 font-medium">
-                역할 · 소속
+                {t.users.columnRoleProperty}
               </th>
               <th scope="col" className="py-2 pr-4 font-medium">
-                상태
+                {t.users.columnStatus}
               </th>
               <th scope="col" className="py-2 pr-4 font-medium">
-                최근 로그인
+                {t.users.columnLastLogin}
               </th>
               <th scope="col" className="py-2 font-medium">
-                작업
+                {t.users.columnActions}
               </th>
             </tr>
           </thead>
@@ -263,6 +259,7 @@ function UserRow({
   setActive,
   resetPassword,
 }: RowProps) {
+  const t = useI18n();
   const uid = useId();
   const nextActive = !user.active;
 
@@ -271,17 +268,17 @@ function UserRow({
       <tr className={`border-b border-current/5 ${user.active ? '' : 'opacity-50'}`}>
         <td className="py-2.5 pr-4">
           {user.name}
-          {isSelf && <span className="ml-1.5 text-xs text-subtle">(나)</span>}
+          {isSelf && <span className="ml-1.5 text-xs text-subtle">{t.users.self}</span>}
         </td>
         <td className="py-2.5 pr-4 font-mono text-xs">{user.email}</td>
 
         <td className="py-2.5 pr-4">
           {isSelf ? (
             // BE rejects changing your own role. A button that cannot work is not shown as active.
-            <span title="자기 역할은 다른 관리자만 바꿀 수 있습니다.">
-              {ROLE_LABELS[user.role]}
+            <span title={t.users.selfRoleHint}>
+              {t.roles[user.role]}
               <span className="ml-1.5 text-xs text-subtle">
-                {properties.find((p) => p.id === user.propertyId)?.name ?? '본사'}
+                {properties.find((p) => p.id === user.propertyId)?.name ?? t.users.headOffice}
               </span>
             </span>
           ) : (
@@ -290,22 +287,22 @@ function UserRow({
               <select
                 name="role"
                 defaultValue={user.role}
-                aria-label={`${user.name} 역할`}
+                aria-label={fill(t.users.roleAria, { name: user.name })}
                 className="rounded-md border border-current/20 bg-transparent px-2 py-1 text-sm"
               >
                 {ROLES.map((role) => (
                   <option key={role} value={role}>
-                    {ROLE_LABELS[role]}
+                    {t.roles[role]}
                   </option>
                 ))}
               </select>
               <select
                 name="propertyId"
                 defaultValue={user.propertyId ?? ''}
-                aria-label={`${user.name} 소속 호텔`}
+                aria-label={fill(t.users.propertyAria, { name: user.name })}
                 className="rounded-md border border-current/20 bg-transparent px-2 py-1 text-sm"
               >
-                <option value="">본사</option>
+                <option value="">{t.users.headOffice}</option>
                 {properties.map((property) => (
                   <option key={property.id} value={property.id}>
                     {property.name}
@@ -313,21 +310,21 @@ function UserRow({
                 ))}
               </select>
               <SubmitButton pendingLabel="…" className={smallButtonClass}>
-                변경
+                {t.users.change}
               </SubmitButton>
             </form>
           )}
         </td>
 
-        <td className="py-2.5 pr-4">{user.active ? '재직' : '퇴사'}</td>
+        <td className="py-2.5 pr-4">{user.active ? t.users.employed : t.users.left}</td>
         <td className="py-2.5 pr-4 text-xs tabular-nums text-subtle">
-          {user.lastLoginAt ? user.lastLoginAt.slice(0, 10) : '기록 없음'}
+          {user.lastLoginAt ? user.lastLoginAt.slice(0, 10) : t.users.noLogin}
         </td>
 
         <td className="py-2.5">
           <div className="flex flex-wrap items-center gap-2">
             {isSelf ? (
-              <span className="text-xs text-subtle">자기 계정</span>
+              <span className="text-xs text-subtle">{t.users.ownAccount}</span>
             ) : (
               <form action={setActive}>
                 <input type="hidden" name="userId" value={user.id} />
@@ -335,10 +332,12 @@ function UserRow({
                 <input type="hidden" name="active" value={nextActive ? '1' : '0'} />
                 <SubmitButton
                   pendingLabel="…"
-                  confirm={nextActive ? undefined : `${user.name} 계정을 퇴사 처리하시겠습니까?`}
+                  confirm={
+                    nextActive ? undefined : fill(t.users.leaveConfirm, { name: user.name })
+                  }
                   className={smallButtonClass}
                 >
-                  {nextActive ? '복직' : '퇴사'}
+                  {nextActive ? t.users.reinstate : t.users.left}
                 </SubmitButton>
               </form>
             )}
@@ -349,7 +348,7 @@ function UserRow({
               aria-expanded={expanded}
               className={smallButtonClass}
             >
-              비밀번호 초기화
+              {t.users.resetPassword}
             </button>
           </div>
         </td>
@@ -362,7 +361,7 @@ function UserRow({
               <input type="hidden" name="userId" value={user.id} />
               <div className="flex flex-col gap-1">
                 <label htmlFor={`${uid}-pw`} className="text-xs text-subtle">
-                  {user.name} 의 새 비밀번호
+                  {fill(t.users.newPasswordFor, { name: user.name })}
                 </label>
                 <input
                   id={`${uid}-pw`}
@@ -374,13 +373,13 @@ function UserRow({
                   className={`w-48 ${inputClass}`}
                 />
               </div>
-              <SubmitButton pendingLabel="초기화 중…">초기화</SubmitButton>
+              <SubmitButton pendingLabel={t.users.resetting}>{t.users.reset}</SubmitButton>
               <button
                 type="button"
                 onClick={onToggleExpand}
                 className="rounded-md px-2.5 py-1.5 text-sm link-subtle"
               >
-                닫기
+                {t.common.close}
               </button>
             </form>
           </td>

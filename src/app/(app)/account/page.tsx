@@ -1,26 +1,27 @@
 import type { Metadata } from 'next';
 import { PageHeader } from '@/components/page-header';
 import { ChangePasswordForm } from '@/components/change-password';
-import { ROLE_LABELS } from '@/components/user-admin';
 import { requireUser } from '@/lib/auth';
+import { getDictionary } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: '내 계정 — PlanForge',
+  title: 'My account — PlanForge',
 };
 
 export default async function AccountPage() {
+  const { t } = await getDictionary();
   const me = await requireUser('/account');
 
   return (
     <main className="flex max-w-md flex-col gap-8">
-      <PageHeader title="내 계정" />
+      <PageHeader title={t.users.accountTitle} />
 
-      <section aria-label="계정 정보" className="flex flex-col gap-3">
-        <Field label="이름" value={me.name} />
-        <Field label="이메일" value={me.email} />
-        <Field label="역할" value={ROLE_LABELS[me.role]} />
+      <section aria-label={t.users.accountInfo} className="flex flex-col gap-3">
+        <Field label={t.users.name} value={me.name} />
+        <Field label={t.users.email} value={me.email} />
+        <Field label={t.users.role} value={t.roles[me.role]} />
       </section>
 
       <ChangePasswordForm />
