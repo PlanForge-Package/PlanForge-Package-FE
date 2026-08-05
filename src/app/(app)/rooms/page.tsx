@@ -38,7 +38,7 @@ export default async function RoomsPage({
     return (
       <main className="flex flex-col gap-6">
         <PageHeader title={t.rooms.title} />
-        <ErrorNotice title="호텔 목록을 불러오지 못했습니다" message={property.error} />
+        <ErrorNotice title={t.reports.loadFailed} message={property.error} />
       </main>
     );
   }
@@ -95,7 +95,7 @@ export default async function RoomsPage({
 
       {!outages.ok ? (
         <ErrorNotice
-          title="사용 불가 객실을 불러오지 못했습니다"
+          title={t.outages.loadFailed}
           message={outages.message}
           status={outages.status}
         />

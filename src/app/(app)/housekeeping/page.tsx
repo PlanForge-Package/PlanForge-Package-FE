@@ -4,8 +4,10 @@ import { EmptyState, ErrorNotice } from '@/components/notice';
 import { PageHeader } from '@/components/page-header';
 import { apiFetch, tryFetch } from '@/lib/api';
 import { requireUser } from '@/lib/auth';
+import { getDictionary } from '@/lib/i18n';
+import { fill } from '@/lib/i18n/format';
 import { getPropertyContext } from '@/lib/property';
-import type { Discrepancy, DiscrepancyResponse, ManagedUser, TaskListResponse } from '@/lib/types';
+import type { DiscrepancyResponse, ManagedUser, TaskListResponse } from '@/lib/types';
 
 interface AttendantResponse {
   propertyId: string;
@@ -15,17 +17,11 @@ interface AttendantResponse {
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: '하우스키핑 — PlanForge',
+  title: 'Housekeeping — PlanForge',
 };
 
 /** Assignment and task creation are for managers and the front desk. */
 const CAN_MANAGE = ['ADMIN', 'MANAGER', 'FRONT_DESK'];
-
-const DISCREPANCY_LABELS: Record<Discrepancy['kind'], string> = {
-  OCCUPIED_WITHOUT_RESERVATION: '재실 표시인데 재실 예약이 없습니다 — 체크아웃 누락 가능성',
-  RESERVATION_WITHOUT_OCCUPANCY: '재실 예약이 있는데 객실이 비어 있습니다 — 배정 확인 필요',
-  OCCUPIED_BUT_CLEAN: '재실 중인데 청소 완료로 표시되어 있습니다',
-};
 
 function today(): string {
   return new Date().toISOString().slice(0, 10);
@@ -36,6 +32,7 @@ export default async function HousekeepingPage({
 }: {
   searchParams: Promise<{ date?: string }>;
 }) {
+  const { t } = await getDictionary();
   const { date } = await searchParams;
   const workDate = date ?? today();
 
@@ -47,8 +44,8 @@ export default async function HousekeepingPage({
   if (!propertyId) {
     return (
       <main className="flex flex-col gap-6">
-        <PageHeader title="하우스키핑" />
-        <EmptyState message="접근 가능한 호텔이 없습니다. 관리자에게 소속 지정을 요청해 주세요." />
+        <PageHeader title={t.housekeeping.title} />
+        <EmptyState message={t.common.noAccess} />
       </main>
     );
   }
@@ -81,14 +78,17 @@ export default async function HousekeepingPage({
   return (
     <main className="flex flex-col gap-6">
       <PageHeader
-        title="하우스키핑"
-        description={`${property.selected?.name} — ${workDate} 근무 작업입니다.`}
+        title={t.housekeeping.title}
+        description={fill(t.housekeeping.description, {
+          property: property.selected?.name ?? '',
+          date: workDate,
+        })}
       />
 
       <form className="flex flex-wrap items-end gap-2">
         <div className="flex flex-col gap-1">
           <label htmlFor="date" className="text-xs text-subtle">
-            근무일
+            {t.housekeeping.workDate}
           </label>
           <input
             id="date"
@@ -99,7 +99,7 @@ export default async function HousekeepingPage({
           />
         </div>
         <button type="submit" className="btn-primary rounded-md px-3 py-1.5 text-sm font-medium">
-          조회
+          {t.common.search}
         </button>
       </form>
 
@@ -107,15 +107,19 @@ export default async function HousekeepingPage({
 
       {discrepancies?.ok && discrepancies.data.total > 0 && (
         <section
-          aria-label="불일치"
+          aria-label={t.housekeeping.discrepancies}
           className="rounded-lg border border-amber-500/30 bg-amber-500/5 px-4 py-3"
         >
-          <h2 className="text-sm font-medium">확인이 필요한 객실 {discrepancies.data.total}건</h2>
+          <h2 className="text-sm font-medium">
+            {fill(t.housekeeping.discrepancyTitle, { count: discrepancies.data.total })}
+          </h2>
           <ul className="mt-2 flex flex-col gap-1 text-sm">
             {discrepancies.data.items.map((item) => (
               <li key={`${item.room.id}-${item.kind}`}>
                 <span className="font-medium tabular-nums">{item.room.number}</span>
-                <span className="ml-2 text-subtle">{DISCREPANCY_LABELS[item.kind]}</span>
+                <span className="ml-2 text-subtle">
+                  {t.housekeeping.discrepancyKinds[item.kind]}
+                </span>
                 {item.reservation && (
                   <span className="ml-2 font-mono text-xs">{item.reservation}</span>
                 )}
@@ -127,7 +131,7 @@ export default async function HousekeepingPage({
 
       {!tasks.ok ? (
         <ErrorNotice
-          title="작업을 불러오지 못했습니다"
+          title={t.housekeeping.loadFailed}
           message={tasks.message}
           status={tasks.status}
         />
@@ -135,13 +139,15 @@ export default async function HousekeepingPage({
         <EmptyState
           message={
             canManage
-              ? '이 날짜의 작업이 없습니다. 위의 작업 생성을 눌러 만들 수 있습니다.'
-              : '배정된 작업이 없습니다.'
+              ? t.housekeeping.emptyCanCreate
+              : t.housekeeping.emptyAssigned
           }
         />
       ) : (
         <>
-          <p className="text-sm text-subtle">전체 {tasks.data.total}건</p>
+          <p className="text-sm text-subtle">
+            {fill(t.housekeeping.totalCount, { count: tasks.data.total })}
+          </p>
           <HousekeepingBoard
             tasks={tasks.data.items}
             attendants={attendants?.ok ? attendants.data.items : []}

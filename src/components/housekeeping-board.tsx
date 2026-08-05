@@ -7,18 +7,13 @@ import {
   updateTaskAction,
 } from '@/app/(app)/housekeeping/actions';
 import { IDLE, type ActionState } from '@/lib/action-state';
+import { fill } from '@/lib/i18n/format';
+import { useI18n } from '@/lib/i18n/provider';
 import type { HousekeepingTask, ManagedUser, TaskStatus } from '@/lib/types';
 
 type Attendant = Pick<ManagedUser, 'id' | 'name' | 'role'>;
 import { ActionMessage, SubmitButton } from './action-feedback';
 import { RoomStatusBadge } from './status-badge';
-
-export const TASK_LABELS: Record<TaskStatus, string> = {
-  PENDING: '대기',
-  IN_PROGRESS: '진행 중',
-  DONE: '청소 완료',
-  INSPECTED: '점검 완료',
-};
 
 const TASK_TONES: Record<TaskStatus, string> = {
   PENDING: 'bg-slate-500/15 text-slate-700 dark:text-slate-300',
@@ -27,31 +22,35 @@ const TASK_TONES: Record<TaskStatus, string> = {
   INSPECTED: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300',
 };
 
-const STATUSES = Object.keys(TASK_LABELS) as TaskStatus[];
+const STATUSES: TaskStatus[] = ['PENDING', 'IN_PROGRESS', 'DONE', 'INSPECTED'];
 
 const selectClass = 'rounded-md border border-current/20 bg-transparent px-2 py-1 text-sm';
 const smallButton =
   'rounded-md border border-current/20 px-2.5 py-1 text-xs transition-colors hover:bg-current/5 disabled:cursor-not-allowed disabled:opacity-50';
 
 export function TaskStatusBadge({ status }: { status: TaskStatus }) {
+  const t = useI18n();
   return (
     <span
       className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${TASK_TONES[status]}`}
     >
-      {TASK_LABELS[status]}
+      {t.housekeeping.taskStatuses[status]}
     </span>
   );
 }
 
 export function GenerateTasksForm({ propertyId, date }: { propertyId: string; date: string }) {
+  const t = useI18n();
   const [state, action] = useActionState<ActionState, FormData>(generateTasksAction, IDLE);
 
   return (
     <form action={action} className="flex flex-wrap items-center gap-2">
       <input type="hidden" name="propertyId" value={propertyId} />
       <input type="hidden" name="date" value={date} />
-      <SubmitButton pendingLabel="만드는 중…">작업 생성</SubmitButton>
-      <span className="text-xs text-subtle">청소 필요·재실 객실을 대상으로 만듭니다.</span>
+      <SubmitButton pendingLabel={t.housekeeping.creating}>
+        {t.housekeeping.createTasks}
+      </SubmitButton>
+      <span className="text-xs text-subtle">{t.housekeeping.createHint}</span>
       <ActionMessage state={state} />
     </form>
   );
@@ -76,6 +75,7 @@ export function HousekeepingBoard({
   canAssign: boolean;
   myId: string;
 }) {
+  const t = useI18n();
   const [assignState, assign] = useActionState<ActionState, FormData>(assignTaskAction, IDLE);
   const [updateState, update] = useActionState<ActionState, FormData>(updateTaskAction, IDLE);
   const [last, setLast] = useState<'assign' | 'update' | null>(null);
@@ -93,22 +93,22 @@ export function HousekeepingBoard({
           <thead>
             <tr className="border-b border-current/10 text-left">
               <th scope="col" className="py-2 pr-4 font-medium">
-                객실
+                {t.housekeeping.room}
               </th>
               <th scope="col" className="py-2 pr-4 font-medium">
-                타입
+                {t.housekeeping.roomType}
               </th>
               <th scope="col" className="py-2 pr-4 font-medium">
-                객실 상태
+                {t.housekeeping.roomStatus}
               </th>
               <th scope="col" className="py-2 pr-4 font-medium">
-                담당
+                {t.housekeeping.assignee}
               </th>
               <th scope="col" className="py-2 pr-4 font-medium">
-                진행
+                {t.housekeeping.progress}
               </th>
               <th scope="col" className="py-2 font-medium">
-                처리
+                {t.housekeeping.action}
               </th>
             </tr>
           </thead>
@@ -120,7 +120,11 @@ export function HousekeepingBoard({
                 <tr key={task.id} className="border-b border-current/5">
                   <td className="py-2.5 pr-4 font-medium tabular-nums">
                     {task.room.number}
-                    {task.room.occupied && <span className="ml-1.5 text-xs text-subtle">재실</span>}
+                    {task.room.occupied && (
+                      <span className="ml-1.5 text-xs text-subtle">
+                        {t.housekeeping.occupied}
+                      </span>
+                    )}
                   </td>
                   <td className="py-2.5 pr-4">{task.room.roomType.code}</td>
                   <td className="py-2.5 pr-4">
@@ -141,10 +145,12 @@ export function HousekeepingBoard({
                         <select
                           name="assignedToId"
                           defaultValue={task.assignedToId ?? ''}
-                          aria-label={`${task.room.number} 담당자`}
+                          aria-label={fill(t.housekeeping.assigneeAria, {
+                            room: task.room.number,
+                          })}
                           className={selectClass}
                         >
-                          <option value="">미배정</option>
+                          <option value="">{t.housekeeping.unassigned}</option>
                           {attendants.map((person) => (
                             <option key={person.id} value={person.id}>
                               {person.name}
@@ -152,13 +158,15 @@ export function HousekeepingBoard({
                           ))}
                         </select>
                         <SubmitButton pendingLabel="…" className={smallButton}>
-                          배정
+                          {t.housekeeping.assign}
                         </SubmitButton>
                       </form>
                     ) : (
                       <span className={task.assignedTo ? '' : 'text-subtle'}>
-                        {task.assignedTo?.name ?? '미배정'}
-                        {mine && <span className="ml-1.5 text-xs text-subtle">(나)</span>}
+                        {task.assignedTo?.name ?? t.housekeeping.unassigned}
+                        {mine && (
+                          <span className="ml-1.5 text-xs text-subtle">{t.housekeeping.self}</span>
+                        )}
                       </span>
                     )}
                   </td>
@@ -180,17 +188,19 @@ export function HousekeepingBoard({
                       <select
                         name="status"
                         defaultValue={task.status}
-                        aria-label={`${task.room.number} 진행 상태`}
+                        aria-label={fill(t.housekeeping.progressAria, {
+                          room: task.room.number,
+                        })}
                         className={selectClass}
                       >
                         {STATUSES.map((status) => (
                           <option key={status} value={status}>
-                            {TASK_LABELS[status]}
+                            {t.housekeeping.taskStatuses[status]}
                           </option>
                         ))}
                       </select>
                       <SubmitButton pendingLabel="…" className={smallButton}>
-                        변경
+                        {t.housekeeping.change}
                       </SubmitButton>
                     </form>
                   </td>

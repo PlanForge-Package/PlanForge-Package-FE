@@ -3,6 +3,8 @@
 import { revalidatePath } from 'next/cache';
 import { actionError, actionSuccess, formValues, type ActionState } from '@/lib/action-state';
 import { apiFetch, backendMessage } from '@/lib/api';
+import { getDictionary } from '@/lib/i18n';
+import { fill } from '@/lib/i18n/format';
 import type { RoomOutageKind, RoomStatus } from '@/lib/types';
 
 const KINDS: RoomOutageKind[] = ['OUT_OF_ORDER', 'OUT_OF_SERVICE'];
@@ -21,32 +23,33 @@ export async function createOutageAction(
    * React 19 resets uncontrolled inputs when a form action finishes. Without returning
    * them, a form with dates and a reason filled in is emptied by a one-line error.
    */
+  const { t } = await getDictionary();
   const values = formValues(formData, FIELDS);
 
   const propertyId = String(formData.get('propertyId') ?? '').trim();
-  if (!propertyId) return actionError('호텔을 선택해 주세요.', values);
+  if (!propertyId) return actionError(t.outages.msgSelectProperty, values);
 
   const roomNumber = String(formData.get('roomNumber') ?? '').trim();
-  if (!roomNumber) return actionError('객실을 선택해 주세요.', values);
+  if (!roomNumber) return actionError(t.outages.msgRoomRequired, values);
 
   const kind = String(formData.get('kind') ?? '');
   if (!KINDS.includes(kind as RoomOutageKind)) {
-    return actionError('사용 불가 구분을 선택해 주세요.', values);
+    return actionError(t.outages.msgKindRequired, values);
   }
 
   const startDate = String(formData.get('startDate') ?? '').trim();
   const endDate = String(formData.get('endDate') ?? '').trim();
-  if (!startDate || !endDate) return actionError('기간을 입력해 주세요.', values);
+  if (!startDate || !endDate) return actionError(t.outages.msgPeriodRequired, values);
   if (endDate < startDate) {
-    return actionError('종료일이 시작일보다 앞설 수 없습니다.', values);
+    return actionError(t.outages.msgEndBeforeStart, values);
   }
 
   const reason = String(formData.get('reason') ?? '').trim();
-  if (!reason) return actionError('사유를 입력해 주세요.', values);
+  if (!reason) return actionError(t.outages.msgReasonRequired, values);
 
   const returnStatus = String(formData.get('returnStatus') ?? 'DIRTY');
   if (!RETURN_STATUSES.includes(returnStatus as RoomStatus)) {
-    return actionError('복귀 상태를 선택해 주세요.', values);
+    return actionError(t.outages.msgReturnStatusRequired, values);
   }
 
   try {
@@ -55,22 +58,25 @@ export async function createOutageAction(
       json: { propertyId, roomNumber, kind, startDate, endDate, reason, returnStatus },
     });
   } catch (error) {
-    return actionError(backendMessage(error, '사용 불가로 등록하지 못했습니다.'), values);
+    return actionError(backendMessage(error, t.outages.msgRegisterFailed), values);
   }
 
   revalidatePath('/rooms');
   revalidatePath('/reports');
-  return actionSuccess(`객실 ${roomNumber} 를 ${startDate} ~ ${endDate} 사용 불가로 등록했습니다.`);
+  return actionSuccess(
+    fill(t.outages.msgRegistered, { room: roomNumber, start: startDate, end: endDate }),
+  );
 }
 
 export async function releaseOutageAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   const id = String(formData.get('outageId') ?? '').trim();
-  if (!id) return actionError('대상 기록을 찾을 수 없습니다.');
+  if (!id) return actionError(t.outages.msgTargetMissing);
 
-  const roomNumber = String(formData.get('roomNumber') ?? '객실');
+  const roomNumber = String(formData.get('roomNumber') || t.outages.msgFallbackRoom);
   const reason = String(formData.get('reason') ?? '').trim();
 
   try {
@@ -79,10 +85,10 @@ export async function releaseOutageAction(
       json: reason ? { reason } : {},
     });
   } catch (error) {
-    return actionError(backendMessage(error, '사용 불가를 해제하지 못했습니다.'));
+    return actionError(backendMessage(error, t.outages.msgReleaseFailed));
   }
 
   revalidatePath('/rooms');
   revalidatePath('/reports');
-  return actionSuccess(`객실 ${roomNumber} 사용 불가를 해제했습니다.`);
+  return actionSuccess(fill(t.outages.msgReleased, { room: roomNumber }));
 }
