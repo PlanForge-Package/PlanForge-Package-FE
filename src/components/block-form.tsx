@@ -4,7 +4,8 @@ import { useActionState, useId, useState } from 'react';
 import { createBlockAction, updateBlockAction } from '@/app/(app)/blocks/actions';
 import { IDLE, type ActionState } from '@/lib/action-state';
 import type { BlockStatus, RoomType } from '@/lib/types';
-import { useI18n } from '@/lib/i18n/provider';
+import { fill, num } from '@/lib/i18n/format';
+import { useI18n, useLocale } from '@/lib/i18n/provider';
 import { ActionMessage, SubmitButton } from './action-feedback';
 
 const inputClass = 'rounded-md border border-current/20 bg-transparent px-3 py-1.5 text-sm';
@@ -30,6 +31,7 @@ export function CreateBlockForm({
   propertyId: string;
   roomTypes: RoomType[];
 }) {
+  const t = useI18n();
   const [state, action] = useActionState<ActionState, FormData>(createBlockAction, IDLE);
   const [open, setOpen] = useState(false);
   const uid = useId();
@@ -47,7 +49,7 @@ export function CreateBlockForm({
           onClick={() => setOpen(true)}
           className="btn-primary rounded-md px-3 py-1.5 text-sm font-medium"
         >
-          블록 만들기
+          {t.blocks.openForm}
         </button>
         <ActionMessage state={state} />
       </div>
@@ -59,12 +61,12 @@ export function CreateBlockForm({
       <input type="hidden" name="propertyId" value={propertyId} />
 
       <fieldset className="flex flex-col gap-3">
-        <legend className="mb-2 text-sm font-medium">새 단체 블록</legend>
+        <legend className="mb-2 text-sm font-medium">{t.blocks.createTitle}</legend>
 
         <div className="flex flex-wrap items-end gap-2">
           <div className="flex flex-col gap-1">
             <label htmlFor={`${uid}-code`} className="text-xs text-subtle">
-              블록 코드
+              {t.blocks.blockCode}
             </label>
             <input
               id={`${uid}-code`}
@@ -80,14 +82,14 @@ export function CreateBlockForm({
 
           <div className="flex flex-col gap-1">
             <label htmlFor={`${uid}-name`} className="text-xs text-subtle">
-              단체 이름
+              {t.blocks.groupName}
             </label>
             <input
               id={`${uid}-name`}
               name="name"
               required
               maxLength={100}
-              placeholder="스페이스플래닝 워크숍"
+              placeholder={t.blocks.groupNamePlaceholder}
               defaultValue={kept?.name ?? ''}
               className={`w-64 ${inputClass}`}
             />
@@ -95,7 +97,7 @@ export function CreateBlockForm({
 
           <div className="flex flex-col gap-1">
             <label htmlFor={`${uid}-start`} className="text-xs text-subtle">
-              시작일
+              {t.blocks.startDate}
             </label>
             <input
               id={`${uid}-start`}
@@ -109,7 +111,7 @@ export function CreateBlockForm({
 
           <div className="flex flex-col gap-1">
             <label htmlFor={`${uid}-end`} className="text-xs text-subtle">
-              종료일
+              {t.blocks.endDate}
             </label>
             <input
               id={`${uid}-end`}
@@ -123,7 +125,7 @@ export function CreateBlockForm({
 
           <div className="flex flex-col gap-1">
             <label htmlFor={`${uid}-cutoff`} className="text-xs text-subtle">
-              컷오프 (선택)
+              {t.blocks.cutoffOptional}
             </label>
             <input
               id={`${uid}-cutoff`}
@@ -136,7 +138,7 @@ export function CreateBlockForm({
 
           <div className="flex flex-col gap-1">
             <label htmlFor={`${uid}-rate`} className="text-xs text-subtle">
-              요금제 (선택)
+              {t.blocks.ratePlanOptional}
             </label>
             <input
               id={`${uid}-rate`}
@@ -150,7 +152,7 @@ export function CreateBlockForm({
         </div>
 
         <div className="flex flex-wrap items-end gap-3">
-          <span className="text-xs text-subtle">객실 타입별 수량 — 0 은 잡지 않습니다</span>
+          <span className="text-xs text-subtle">{t.blocks.allotmentLegend}</span>
           {roomTypes.map((type, index) => (
             <div key={type.id} className="flex flex-col gap-1">
               <label htmlFor={`${uid}-${type.code}`} className="text-xs text-subtle">
@@ -171,7 +173,7 @@ export function CreateBlockForm({
         </div>
 
         <div className="flex flex-wrap items-end gap-3">
-          <span className="text-xs text-subtle">협의 요금 — 비우면 요금제 값으로 팝니다</span>
+          <span className="text-xs text-subtle">{t.blocks.negotiatedLegend}</span>
           {roomTypes.map((type) => (
             <div key={type.id} className="flex flex-col gap-1">
               <label htmlFor={`${uid}-amount-${type.code}`} className="text-xs text-subtle">
@@ -183,7 +185,7 @@ export function CreateBlockForm({
                 type="number"
                 min={0}
                 step={1}
-                placeholder="요금제 값"
+                placeholder={t.blocks.ratePlanValue}
                 className={`w-28 tabular-nums ${inputClass}`}
               />
             </div>
@@ -191,19 +193,19 @@ export function CreateBlockForm({
         </div>
 
         <div className="flex items-center gap-2">
-          <SubmitButton pendingLabel="만드는 중…">블록 생성</SubmitButton>
+          <SubmitButton pendingLabel={t.blocks.creating}>{t.blocks.create}</SubmitButton>
           <button
             type="button"
             onClick={() => setOpen(false)}
             className="rounded-md border border-current/20 px-3 py-1.5 text-sm transition-colors hover:bg-current/5"
           >
-            닫기
+            {t.common.close}
           </button>
         </div>
       </fieldset>
 
       <p className="mt-1.5 text-xs text-subtle">
-        재고 확보 여부는 OPERA 가 판단합니다. 컷오프는 시작일보다 앞이어야 합니다.
+        {t.blocks.createNote}
       </p>
       <ActionMessage state={state} />
     </form>
@@ -231,6 +233,7 @@ export function BlockEditor({
   rates?: Array<{ roomTypeCode: string; amount: string | null }>;
 }) {
   const t = useI18n();
+  const locale = useLocale();
   const [state, action] = useActionState<ActionState, FormData>(updateBlockAction, IDLE);
   const uid = useId();
 
@@ -239,11 +242,11 @@ export function BlockEditor({
       <input type="hidden" name="blockId" value={blockId} />
 
       <fieldset className="flex flex-wrap items-end gap-2">
-        <legend className="mb-2 text-sm font-medium">블록 수정</legend>
+        <legend className="mb-2 text-sm font-medium">{t.blocks.editTitle}</legend>
 
         <div className="flex flex-col gap-1">
           <label htmlFor={`${uid}-name`} className="text-xs text-subtle">
-            이름
+            {t.blocks.name}
           </label>
           <input
             id={`${uid}-name`}
@@ -256,7 +259,7 @@ export function BlockEditor({
 
         <div className="flex flex-col gap-1">
           <label htmlFor={`${uid}-status`} className="text-xs text-subtle">
-            상태
+            {t.blocks.status}
           </label>
           <select id={`${uid}-status`} name="status" defaultValue={status} className={inputClass}>
             {EDITABLE_STATUSES.map((value) => (
@@ -269,7 +272,7 @@ export function BlockEditor({
 
         <div className="flex flex-col gap-1">
           <label htmlFor={`${uid}-cutoff`} className="text-xs text-subtle">
-            컷오프
+            {t.blocks.cutoff}
           </label>
           <input
             id={`${uid}-cutoff`}
@@ -283,7 +286,7 @@ export function BlockEditor({
         {rates.map((rate) => (
           <div key={rate.roomTypeCode} className="flex flex-col gap-1">
             <label htmlFor={`${uid}-rate-${rate.roomTypeCode}`} className="text-xs text-subtle">
-              {rate.roomTypeCode} 협의가
+              {fill(t.blocks.negotiatedFor, { roomType: rate.roomTypeCode })}
             </label>
             <input
               id={`${uid}-rate-${rate.roomTypeCode}`}
@@ -291,18 +294,19 @@ export function BlockEditor({
               type="number"
               min={0}
               step={1}
-              placeholder={rate.amount ? Number(rate.amount).toLocaleString('ko-KR') : '요금제 값'}
+              placeholder={
+                rate.amount ? num(Number(rate.amount), locale) : t.blocks.ratePlanValue
+              }
               className={`w-28 tabular-nums ${inputClass}`}
             />
           </div>
         ))}
 
-        <SubmitButton pendingLabel="반영 중…">저장</SubmitButton>
+        <SubmitButton pendingLabel={t.blocks.saving}>{t.blocks.save}</SubmitButton>
       </fieldset>
 
       <p className="mt-1.5 text-xs text-subtle">
-        확정(DEFINITE)부터 재고를 실제로 잡습니다. 이미 픽업된 예약이 있으면 취소할 수 없습니다.
-        협의 요금을 바꿔도 이미 빠져나간 예약의 금액은 그대로입니다.
+        {t.blocks.editNote}
       </p>
       <ActionMessage state={state} />
     </form>

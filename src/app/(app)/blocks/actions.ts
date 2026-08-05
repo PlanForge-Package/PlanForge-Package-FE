@@ -3,6 +3,8 @@
 import { revalidatePath } from 'next/cache';
 import { actionError, actionSuccess, formValues, type ActionState } from '@/lib/action-state';
 import { apiFetch, backendMessage } from '@/lib/api';
+import { getDictionary } from '@/lib/i18n';
+import { fill } from '@/lib/i18n/format';
 import type { Block, BlockStatus } from '@/lib/types';
 
 /** Input fields handed back on failure. Counts are an array and handled separately. */
@@ -47,6 +49,7 @@ export async function createBlockAction(
   formData: FormData,
 ): Promise<ActionState> {
   // Every failure returns the input. Making them retype it repeats the same mistake.
+  const { t } = await getDictionary();
   const kept = {
     ...formValues(formData, KEEP),
     // Counts arrive in room-type order. The screen re-seeds them in the same order.
@@ -55,7 +58,7 @@ export async function createBlockAction(
   const fail = (message: string) => actionError(message, kept);
 
   const propertyId = text(formData, 'propertyId');
-  if (!propertyId) return fail('호텔을 선택해 주세요.');
+  if (!propertyId) return fail(t.blocks.msgSelectProperty);
 
   const code = text(formData, 'code').toUpperCase();
   const name = text(formData, 'name');
@@ -63,17 +66,17 @@ export async function createBlockAction(
   const endDate = text(formData, 'endDate');
   const cutoffDate = text(formData, 'cutoffDate');
 
-  if (!code) return fail('블록 코드를 입력해 주세요.');
-  if (!name) return fail('블록 이름을 입력해 주세요.');
-  if (!startDate || !endDate) return fail('기간을 입력해 주세요.');
-  if (endDate <= startDate) return fail('종료일은 시작일보다 뒤여야 합니다.');
+  if (!code) return fail(t.blocks.msgCodeRequired);
+  if (!name) return fail(t.blocks.msgNameRequired);
+  if (!startDate || !endDate) return fail(t.blocks.msgPeriodRequired);
+  if (endDate <= startDate) return fail(t.blocks.msgEndBeforeStart);
   if (cutoffDate && cutoffDate > startDate) {
-    return fail('컷오프 날짜는 블록 시작일보다 앞이어야 합니다.');
+    return fail(t.blocks.msgCutoffAfterStart);
   }
 
   const allotments = readAllotments(formData);
   if (allotments.length === 0) {
-    return fail('객실 타입별 수량을 하나 이상 입력해 주세요.');
+    return fail(t.blocks.msgAllotmentRequired);
   }
 
   let created: Block;
@@ -91,12 +94,12 @@ export async function createBlockAction(
       },
     });
   } catch (error) {
-    return fail(backendMessage(error, '블록을 만들지 못했습니다.'));
+    return fail(backendMessage(error, t.blocks.msgCreateFailed));
   }
 
   revalidatePath('/blocks');
   return actionSuccess(
-    `블록 ${created.code} 를 만들었습니다. 객실 ${created.totalBlocked}실을 잡았습니다.`,
+    fill(t.blocks.msgCreated, { code: created.code, rooms: created.totalBlocked }),
   );
 }
 
@@ -104,12 +107,13 @@ export async function updateBlockAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   const blockId = text(formData, 'blockId');
-  if (!blockId) return actionError('대상 블록을 찾을 수 없습니다.');
+  if (!blockId) return actionError(t.blocks.msgTargetMissing);
 
   const status = text(formData, 'status');
   if (status && !BLOCK_STATUSES.includes(status as BlockStatus)) {
-    return actionError('블록 상태를 선택해 주세요.');
+    return actionError(t.blocks.msgStatusRequired);
   }
 
   const name = text(formData, 'name');
@@ -130,13 +134,13 @@ export async function updateBlockAction(
     const amount = Number(raw);
     const roomTypeCode = key.slice('rate:'.length);
     if (!Number.isInteger(amount) || amount < 0) {
-      return actionError(`${roomTypeCode} 협의 요금은 0 이상의 정수여야 합니다.`);
+      return actionError(fill(t.blocks.msgRateInvalid, { roomType: roomTypeCode }));
     }
     rates.push({ roomTypeCode, amount });
   }
 
   if (!status && !name && !cutoffDate && rates.length === 0) {
-    return actionError('바꿀 내용이 없습니다.');
+    return actionError(t.blocks.msgNothingToChange);
   }
 
   try {
@@ -150,10 +154,10 @@ export async function updateBlockAction(
       },
     });
   } catch (error) {
-    return actionError(backendMessage(error, '블록을 수정하지 못했습니다.'));
+    return actionError(backendMessage(error, t.blocks.msgUpdateFailed));
   }
 
   revalidatePath('/blocks');
   revalidatePath(`/blocks/${blockId}`);
-  return actionSuccess('블록을 수정했습니다. OPERA 에 반영되었습니다.');
+  return actionSuccess(t.blocks.msgUpdated);
 }

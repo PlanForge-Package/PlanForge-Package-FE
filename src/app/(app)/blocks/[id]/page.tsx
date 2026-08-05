@@ -7,12 +7,14 @@ import { PageHeader, StatTile } from '@/components/page-header';
 import { BlockStatusBadge } from '@/components/status-badge';
 import { ApiError, apiFetch, backendMessage, tryFetch } from '@/lib/api';
 import { logoutUrl, requireUser } from '@/lib/auth';
+import { getDictionary, type Dictionary } from '@/lib/i18n';
+import { fill } from '@/lib/i18n/format';
 import type { Block, BlockRoomingList } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: '블록 상세 — PlanForge',
+  title: 'Block detail — PlanForge',
 };
 
 /** Editing holds inventory, so managers and above. BE enforces the same rule. */
@@ -28,6 +30,7 @@ interface Props {
  */
 async function loadBlock(
   id: string,
+  t: Dictionary,
 ): Promise<{ ok: true; data: Block } | { ok: false; message: string; status: number }> {
   try {
     return { ok: true, data: await apiFetch<Block>('be', `/api/blocks/${encodeURIComponent(id)}`) };
@@ -40,7 +43,7 @@ async function loadBlock(
     }
     return {
       ok: false,
-      message: backendMessage(error, '블록을 불러오지 못했습니다.'),
+      message: backendMessage(error, t.blocks.loadFailed),
       status: error instanceof ApiError ? error.status : 0,
     };
   }
@@ -51,17 +54,18 @@ function date(value: string): string {
 }
 
 export default async function BlockDetailPage({ params }: Props) {
+  const { t } = await getDictionary();
   const { id } = await params;
   const user = await requireUser(`/blocks/${id}`);
 
-  const block = await loadBlock(id);
+  const block = await loadBlock(id, t);
 
   if (!block.ok) {
     return (
       <main className="flex flex-col gap-6">
-        <PageHeader title="블록 상세" />
+        <PageHeader title={t.blocks.detailTitle} />
         <ErrorNotice
-          title="블록을 불러오지 못했습니다"
+          title={t.blocks.loadFailed}
           message={block.message}
           status={block.status}
         />
@@ -83,23 +87,23 @@ export default async function BlockDetailPage({ params }: Props) {
     <main className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
         <Link href="/blocks" className="text-sm underline underline-offset-4 text-subtle">
-          ← 단체 블록 목록
+          {t.blocks.backToList}
         </Link>
         <PageHeader
           title={data.name}
           description={`${data.code} · ${date(data.startDate)} ~ ${date(data.endDate)}${
-            data.cutoffDate ? ` · 컷오프 ${date(data.cutoffDate)}` : ''
+            data.cutoffDate ? fill(t.blocks.cutoffSuffix, { date: date(data.cutoffDate) }) : ''
           }`}
           actions={<BlockStatusBadge status={data.status} />}
         />
       </div>
 
-      <section aria-label="요약" className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatTile label="확보" value={data.totalBlocked} />
-        <StatTile label="픽업" value={data.totalPickedUp} />
-        <StatTile label="잔여" value={remaining} />
+      <section aria-label={t.blocks.summary} className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <StatTile label={t.blocks.blocked} value={data.totalBlocked} />
+        <StatTile label={t.blocks.pickedUp} value={data.totalPickedUp} />
+        <StatTile label={t.blocks.remaining} value={remaining} />
         <StatTile
-          label="소진율"
+          label={t.blocks.pickupRate}
           value={
             data.totalBlocked === 0
               ? '—'
@@ -126,18 +130,18 @@ export default async function BlockDetailPage({ params }: Props) {
         />
       )}
 
-      <section aria-label="일자별 할당" className="flex flex-col gap-2">
-        <h2 className="text-sm font-medium">일자별 할당</h2>
+      <section aria-label={t.blocks.allotmentSection} className="flex flex-col gap-2">
+        <h2 className="text-sm font-medium">{t.blocks.allotmentSection}</h2>
         {dates.length === 0 ? (
-          <p className="text-sm text-subtle">할당된 객실이 없습니다.</p>
+          <p className="text-sm text-subtle">{t.blocks.allotmentEmpty}</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[40rem] text-sm">
-              <caption className="sr-only">일자와 객실 타입별 확보·픽업 수량</caption>
+              <caption className="sr-only">{t.blocks.allotmentCaption}</caption>
               <thead>
                 <tr className="border-b border-current/10 text-left">
                   <th scope="col" className="py-2 pr-4 font-medium">
-                    날짜
+                    {t.blocks.date}
                   </th>
                   {roomTypes.map((code) => (
                     <th key={code} scope="col" className="py-2 pr-4 text-right font-medium">
@@ -145,7 +149,7 @@ export default async function BlockDetailPage({ params }: Props) {
                     </th>
                   ))}
                   <th scope="col" className="py-2 text-right font-medium">
-                    합계
+                    {t.blocks.total}
                   </th>
                 </tr>
               </thead>
@@ -186,21 +190,20 @@ export default async function BlockDetailPage({ params }: Props) {
             </table>
           </div>
         )}
-        <p className="text-xs text-subtle">픽업 / 확보 순으로 표시합니다.</p>
+        <p className="text-xs text-subtle">{t.blocks.allotmentNote}</p>
       </section>
 
-      <section aria-label="룸리스트" className="flex flex-col gap-2">
-        <h2 className="text-sm font-medium">룸리스트</h2>
+      <section aria-label={t.blocks.roomingList} className="flex flex-col gap-2">
+        <h2 className="text-sm font-medium">{t.blocks.roomingList}</h2>
         {!rooming.ok ? (
           <ErrorNotice
-            title="룸리스트를 불러오지 못했습니다"
+            title={t.blocks.roomingListFailed}
             message={rooming.message}
             status={rooming.status}
           />
         ) : rooming.data.items.length === 0 ? (
           <p className="text-sm text-subtle">
-            아직 이 블록에서 빠져나간 예약이 없습니다. 새 예약에서 블록 {data.code} 를 고르면 여기에
-            나타납니다.
+            {fill(t.blocks.roomingListEmpty, { code: data.code })}
           </p>
         ) : (
           <div className="overflow-x-auto">
@@ -208,22 +211,22 @@ export default async function BlockDetailPage({ params }: Props) {
               <thead>
                 <tr className="border-b border-current/10 text-left">
                   <th scope="col" className="py-2 pr-4 font-medium">
-                    확인 번호
+                    {t.blocks.confirmationNumber}
                   </th>
                   <th scope="col" className="py-2 pr-4 font-medium">
-                    게스트
+                    {t.blocks.guest}
                   </th>
                   <th scope="col" className="py-2 pr-4 font-medium">
-                    도착
+                    {t.blocks.arrival}
                   </th>
                   <th scope="col" className="py-2 pr-4 font-medium">
-                    출발
+                    {t.blocks.departure}
                   </th>
                   <th scope="col" className="py-2 pr-4 font-medium">
-                    타입
+                    {t.blocks.roomType}
                   </th>
                   <th scope="col" className="py-2 font-medium">
-                    객실
+                    {t.blocks.room}
                   </th>
                 </tr>
               </thead>
@@ -235,7 +238,7 @@ export default async function BlockDetailPage({ params }: Props) {
                     </td>
                     <td className="py-2.5 pr-4">
                       {[item.guest?.lastName, item.guest?.firstName].filter(Boolean).join(' ') ||
-                        '(이름 없음)'}
+                        t.blocks.unnamed}
                     </td>
                     <td className="py-2.5 pr-4 tabular-nums">{date(item.arrivalDate)}</td>
                     <td className="py-2.5 pr-4 tabular-nums">{date(item.departureDate)}</td>

@@ -7,13 +7,14 @@ import { BlockStatusBadge } from '@/components/status-badge';
 import { apiFetch, tryFetch } from '@/lib/api';
 import { requireUser } from '@/lib/auth';
 import { getDictionary } from '@/lib/i18n';
+import { fill } from '@/lib/i18n/format';
 import { getPropertyContext } from '@/lib/property';
 import type { Block, BlockStatus, RoomType } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: '단체 블록 — PlanForge',
+  title: 'Group blocks — PlanForge',
 };
 
 /** Creating a block holds inventory, so managers and above. BE enforces the same rule. */
@@ -48,7 +49,7 @@ export default async function BlocksPage({
   if (!propertyId) {
     return (
       <main className="flex flex-col gap-6">
-        <PageHeader title="단체 블록" />
+        <PageHeader title={t.blocks.title} />
         <EmptyState message={t.common.noAccess} />
       </main>
     );
@@ -69,8 +70,8 @@ export default async function BlocksPage({
   return (
     <main className="flex flex-col gap-6">
       <PageHeader
-        title="단체 블록"
-        description={`${property.selected?.name} — 재고 확보와 픽업 계산은 OPERA 가 합니다.`}
+        title={t.blocks.title}
+        description={fill(t.blocks.description, { property: property.selected?.name ?? '' })}
       />
 
       <form className="flex flex-wrap items-center gap-2">
@@ -90,7 +91,7 @@ export default async function BlocksPage({
           ))}
         </select>
         <button type="submit" className="btn-primary rounded-md px-3 py-1.5 text-sm font-medium">
-          조회
+          {t.common.search}
         </button>
       </form>
 
@@ -100,37 +101,37 @@ export default async function BlocksPage({
 
       {!blocks.ok ? (
         <ErrorNotice
-          title="블록을 불러오지 못했습니다"
+          title={t.blocks.loadFailed}
           message={blocks.message}
           status={blocks.status}
         />
       ) : blocks.data.length === 0 ? (
-        <EmptyState message="조건에 맞는 단체 블록이 없습니다." />
+        <EmptyState message={t.blocks.empty} />
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[52rem] text-sm">
             <thead>
               <tr className="border-b border-current/10 text-left">
                 <th scope="col" className="py-2 pr-4 font-medium">
-                  코드
+                  {t.blocks.code}
                 </th>
                 <th scope="col" className="py-2 pr-4 font-medium">
-                  단체
+                  {t.blocks.group}
                 </th>
                 <th scope="col" className="py-2 pr-4 font-medium">
-                  기간
+                  {t.blocks.period}
                 </th>
                 <th scope="col" className="py-2 pr-4 font-medium">
-                  컷오프
+                  {t.blocks.cutoff}
                 </th>
                 <th scope="col" className="py-2 pr-4 text-right font-medium">
-                  확보
+                  {t.blocks.blocked}
                 </th>
                 <th scope="col" className="py-2 pr-4 text-right font-medium">
-                  픽업
+                  {t.blocks.pickedUp}
                 </th>
                 <th scope="col" className="py-2 font-medium">
-                  상태
+                  {t.blocks.status}
                 </th>
               </tr>
             </thead>
