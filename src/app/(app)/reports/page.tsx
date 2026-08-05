@@ -3,11 +3,10 @@ import Link from 'next/link';
 import { EmptyState, ErrorNotice } from '@/components/notice';
 import { PageHeader, StatTile } from '@/components/page-header';
 import { apiFetch, tryFetch } from '@/lib/api';
-import { requireUser } from '@/lib/auth';
-import { getDictionary, type Dictionary } from '@/lib/i18n';
+import type { Dictionary } from '@/lib/i18n';
 import { fill, money } from '@/lib/i18n/format';
 import type { Locale } from '@/lib/i18n/locales';
-import { getPropertyContext } from '@/lib/property';
+import { requirePropertyContext } from '@/lib/property';
 import { label } from '@/lib/channel-labels';
 import type { BreakdownRow, DailyReport } from '@/lib/types';
 import { control, primaryButton } from '@/components/ui';
@@ -33,10 +32,7 @@ export default async function ReportsPage({
   const from = params.from ?? dayOffset(-7);
   const to = params.to ?? dayOffset(-1);
 
-  const user = await requireUser('/reports');
-  const { locale, t } = await getDictionary();
-  const property = await getPropertyContext(user);
-  const propertyId = property.selected?.id;
+  const { locale, t, property, propertyId } = await requirePropertyContext('/reports');
 
   if (!propertyId) {
     return (

@@ -4,10 +4,8 @@ import { ArAccountsPanel } from '@/components/ar-panels';
 import { EmptyState, ErrorNotice } from '@/components/notice';
 import { PageHeader } from '@/components/page-header';
 import { apiFetch, tryFetch } from '@/lib/api';
-import { getDictionary } from '@/lib/i18n';
 import { fill } from '@/lib/i18n/format';
-import { requireUser } from '@/lib/auth';
-import { getPropertyContext } from '@/lib/property';
+import { requirePropertyContext } from '@/lib/property';
 import type { ArAccountList, ArAging } from '@/lib/types';
 
 /** Registering accounts is receivables management, so a manager owns it. */
@@ -20,10 +18,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ArPage() {
-  const { t } = await getDictionary();
-  const user = await requireUser('/ar');
-  const property = await getPropertyContext(user);
-  const propertyId = property.selected?.id;
+  const { t, user, property, propertyId } = await requirePropertyContext('/ar');
 
   if (property.error) {
     return (

@@ -5,10 +5,8 @@ import { EmptyState, ErrorNotice } from '@/components/notice';
 import { PageHeader } from '@/components/page-header';
 import { BlockStatusBadge } from '@/components/status-badge';
 import { apiFetch, tryFetch } from '@/lib/api';
-import { requireUser } from '@/lib/auth';
-import { getDictionary } from '@/lib/i18n';
 import { fill } from '@/lib/i18n/format';
-import { getPropertyContext } from '@/lib/property';
+import { requirePropertyContext } from '@/lib/property';
 import type { Block, BlockStatus, RoomType } from '@/lib/types';
 import { control, primaryButton } from '@/components/ui';
 import { dateOnly } from '@/lib/date';
@@ -38,10 +36,7 @@ export default async function BlocksPage({
 }) {
   const { status } = await searchParams;
 
-  const user = await requireUser('/blocks');
-  const { t } = await getDictionary();
-  const property = await getPropertyContext(user);
-  const propertyId = property.selected?.id;
+  const { t, user, property, propertyId } = await requirePropertyContext('/blocks');
   const canCreate = CAN_CREATE.includes(user.role);
 
   if (!propertyId) {

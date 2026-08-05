@@ -2,6 +2,9 @@ import 'server-only';
 
 import { cookies } from 'next/headers';
 import { apiFetch, tryFetch } from './api';
+import { requireUser } from './auth';
+import { getDictionary, type Dictionary } from './i18n';
+import type { Locale } from './i18n/locales';
 import type { SessionUser } from './session';
 import type { Property } from './types';
 
@@ -44,4 +47,24 @@ export async function getPropertyContext(user: SessionUser): Promise<PropertyCon
     null;
 
   return { options, selected, canSwitch: options.length > 1, error: null };
+}
+
+/**
+ * Everything a property-scoped page needs, in one await.
+ *
+ * Every such page repeated the same four lines — dictionary, user, property context,
+ * selected id — and each one is a place to forget the scope check. Pages keep their
+ * own early return because the heading differs, but the resolution is shared.
+ */
+export async function requirePropertyContext(path: string): Promise<{
+  locale: Locale;
+  t: Dictionary;
+  user: SessionUser;
+  property: PropertyContext;
+  propertyId: string | undefined;
+}> {
+  const { locale, t } = await getDictionary();
+  const user = await requireUser(path);
+  const property = await getPropertyContext(user);
+  return { locale, t, user, property, propertyId: property.selected?.id };
 }

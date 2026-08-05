@@ -3,10 +3,8 @@ import { EmptyState, ErrorNotice } from '@/components/notice';
 import { PageHeader } from '@/components/page-header';
 import { PackagesPanel, RatePlansPanel } from '@/components/rate-panels';
 import { apiFetch, tryFetch } from '@/lib/api';
-import { requireUser } from '@/lib/auth';
-import { getDictionary } from '@/lib/i18n';
 import { fill } from '@/lib/i18n/format';
-import { getPropertyContext } from '@/lib/property';
+import { requirePropertyContext } from '@/lib/property';
 import type { RatePackageList, RatePlanConfigList, RoomType } from '@/lib/types';
 
 /** Rate setup moves revenue directly. Managers and above only. */
@@ -19,10 +17,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RatesPage() {
-  const { t } = await getDictionary();
-  const user = await requireUser('/rates');
-  const property = await getPropertyContext(user);
-  const propertyId = property.selected?.id;
+  const { t, user, property, propertyId } = await requirePropertyContext('/rates');
 
   if (property.error) {
     return (

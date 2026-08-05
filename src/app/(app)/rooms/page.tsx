@@ -4,9 +4,7 @@ import { RoomOutagePanel } from '@/components/room-outage-panel';
 import { RoomStatusPanel } from '@/components/room-status';
 
 import { apiFetch, tryFetch } from '@/lib/api';
-import { requireUser } from '@/lib/auth';
-import { getDictionary } from '@/lib/i18n';
-import { getPropertyContext } from '@/lib/property';
+import { requirePropertyContext } from '@/lib/property';
 import type { Room, RoomOutageList, RoomStatus, RoomStatusSummary } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -29,10 +27,7 @@ export default async function RoomsPage({
 
   // The hotel comes from the picker, not the URL. Taking it from the query string
   // suggests editing the address shows another hotel; in reality BE returns 403.
-  const user = await requireUser('/rooms');
-  const { t } = await getDictionary();
-  const property = await getPropertyContext(user);
-  const propertyId = property.selected?.id;
+  const { t, property, propertyId } = await requirePropertyContext('/rooms');
 
   if (property.error) {
     return (

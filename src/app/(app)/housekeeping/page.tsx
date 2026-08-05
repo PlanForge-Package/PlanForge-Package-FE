@@ -3,10 +3,8 @@ import { GenerateTasksForm, HousekeepingBoard } from '@/components/housekeeping-
 import { EmptyState, ErrorNotice } from '@/components/notice';
 import { PageHeader } from '@/components/page-header';
 import { apiFetch, tryFetch } from '@/lib/api';
-import { requireUser } from '@/lib/auth';
-import { getDictionary } from '@/lib/i18n';
 import { fill } from '@/lib/i18n/format';
-import { getPropertyContext } from '@/lib/property';
+import { requirePropertyContext } from '@/lib/property';
 import type { DiscrepancyResponse, ManagedUser, TaskListResponse } from '@/lib/types';
 import { control, primaryButton } from '@/components/ui';
 import { today } from '@/lib/date';
@@ -30,13 +28,10 @@ export default async function HousekeepingPage({
 }: {
   searchParams: Promise<{ date?: string }>;
 }) {
-  const { t } = await getDictionary();
+  const { t, user, property, propertyId } = await requirePropertyContext('/housekeeping');
   const { date } = await searchParams;
   const workDate = date ?? today();
 
-  const user = await requireUser('/housekeeping');
-  const property = await getPropertyContext(user);
-  const propertyId = property.selected?.id;
   const canManage = CAN_MANAGE.includes(user.role);
 
   if (!propertyId) {

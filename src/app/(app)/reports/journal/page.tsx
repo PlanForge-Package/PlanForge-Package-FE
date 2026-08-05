@@ -3,11 +3,10 @@ import Link from 'next/link';
 import { EmptyState, ErrorNotice, InfoNotice } from '@/components/notice';
 import { PageHeader, StatTile } from '@/components/page-header';
 import { apiFetch, tryFetch } from '@/lib/api';
-import { requireUser } from '@/lib/auth';
-import { getDictionary, type Dictionary } from '@/lib/i18n';
+import type { Dictionary } from '@/lib/i18n';
 import { fill, money } from '@/lib/i18n/format';
 import type { Locale } from '@/lib/i18n/locales';
-import { getPropertyContext } from '@/lib/property';
+import { requirePropertyContext } from '@/lib/property';
 import type { JournalReport } from '@/lib/types';
 import { control, primaryButton } from '@/components/ui';
 import { dayOffset } from '@/lib/date';
@@ -27,10 +26,7 @@ export default async function JournalPage({
   // Today is not over yet. A close normally looks at yesterday.
   const date = params.date ?? dayOffset(-1);
 
-  const user = await requireUser('/reports/journal');
-  const { locale, t } = await getDictionary();
-  const property = await getPropertyContext(user);
-  const propertyId = property.selected?.id;
+  const { locale, t, property, propertyId } = await requirePropertyContext('/reports/journal');
 
   if (!propertyId) {
     return (
