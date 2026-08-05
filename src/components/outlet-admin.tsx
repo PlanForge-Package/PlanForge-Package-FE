@@ -7,9 +7,11 @@ import {
   setOutletActiveAction,
 } from '@/app/(app)/pos-outlets/actions';
 import { IDLE, type ActionState } from '@/lib/action-state';
+import { useLastAction } from '@/lib/use-last-action';
 import type { PosOutlet } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
 import { control, ghostButton, primaryButton } from './ui';
+import { dateTime } from '@/lib/date';
 
 export function CreateOutletForm({ propertyId }: { propertyId: string }) {
   const [state, action] = useActionState<ActionState, FormData>(createOutletAction, IDLE);
@@ -115,9 +117,7 @@ export function OutletBoard({ outlets }: { outlets: PosOutlet[] }) {
     setOutletActiveAction,
     IDLE,
   );
-  const [last, setLast] = useState<'rotate' | 'active' | null>(null);
-
-  const feedback = last === 'rotate' ? rotateState : last === 'active' ? activeState : IDLE;
+  const { state: feedback, mark } = useLastAction({ rotate: rotateState, active: activeState });
 
   return (
     <div className="flex flex-col gap-3">
@@ -163,13 +163,13 @@ export function OutletBoard({ outlets }: { outlets: PosOutlet[] }) {
                   {outlet.apiKeyPrefix}…
                 </td>
                 <td className="py-2.5 pr-4 text-xs text-subtle">
-                  {outlet.lastUsedAt ? outlet.lastUsedAt.slice(0, 16).replace('T', ' ') : '없음'}
+                  {outlet.lastUsedAt ? dateTime(outlet.lastUsedAt) : '없음'}
                 </td>
                 <td className="py-2.5">
                   <div className="flex flex-wrap items-center gap-1.5">
                     <form
                       action={(formData) => {
-                        setLast('rotate');
+                        mark('rotate')();
                         rotate(formData);
                       }}
                     >
@@ -185,7 +185,7 @@ export function OutletBoard({ outlets }: { outlets: PosOutlet[] }) {
 
                     <form
                       action={(formData) => {
-                        setLast('active');
+                        mark('active')();
                         setActive(formData);
                       }}
                     >

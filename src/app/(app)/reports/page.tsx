@@ -11,18 +11,13 @@ import { getPropertyContext } from '@/lib/property';
 import { label } from '@/lib/channel-labels';
 import type { BreakdownRow, DailyReport } from '@/lib/types';
 import { control, primaryButton } from '@/components/ui';
+import { dayOffset } from '@/lib/date';
 
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Reports — PlanForge',
 };
-
-function day(offset: number): string {
-  const date = new Date();
-  date.setUTCDate(date.getUTCDate() + offset);
-  return date.toISOString().slice(0, 10);
-}
 
 function percent(value: number): string {
   return `${(value * 100).toFixed(1)}%`;
@@ -35,8 +30,8 @@ export default async function ReportsPage({
 }) {
   const params = await searchParams;
   // Defaults to the last 7 days. Today is unfinished and only half counted, so it ends yesterday.
-  const from = params.from ?? day(-7);
-  const to = params.to ?? day(-1);
+  const from = params.from ?? dayOffset(-7);
+  const to = params.to ?? dayOffset(-1);
 
   const user = await requireUser('/reports');
   const { locale, t } = await getDictionary();

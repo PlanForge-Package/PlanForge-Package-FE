@@ -1,13 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { useActionState, useState } from 'react';
+import { useActionState } from 'react';
 import {
   createPackageAction,
   createRatePlanAction,
   updatePackageAction,
 } from '@/app/(app)/rates/actions';
 import { IDLE, type ActionState } from '@/lib/action-state';
+import { useLastAction } from '@/lib/use-last-action';
 import { fill, money } from '@/lib/i18n/format';
 import { useI18n, useLocale } from '@/lib/i18n/provider';
 import type { RatePackage, RatePlanConfig, RoomType } from '@/lib/types';
@@ -248,8 +249,7 @@ export function PackagesPanel({
   );
 
   // Shows whichever ran last. A fixed priority would hide what was just done.
-  const [last, setLast] = useState<'create' | 'update' | null>(null);
-  const state = last === 'update' ? updateState : last === 'create' ? createState : IDLE;
+  const { state: state, mark } = useLastAction({ create: createState, update: updateState });
 
   return (
     <section aria-label={t.rates.packages} className="flex flex-col gap-3">
@@ -304,7 +304,7 @@ export function PackagesPanel({
                     {canManage ? (
                       <form
                         action={updateAction}
-                        onSubmit={() => setLast('update')}
+                        onSubmit={mark('update')}
                         className="flex items-center gap-2"
                       >
                         <input type="hidden" name="propertyId" value={propertyId} />
@@ -351,7 +351,7 @@ export function PackagesPanel({
       {canManage && (
         <form
           action={createAction}
-          onSubmit={() => setLast('create')}
+          onSubmit={mark('create')}
           className="flex flex-wrap items-end gap-2"
         >
           <input type="hidden" name="propertyId" value={propertyId} />

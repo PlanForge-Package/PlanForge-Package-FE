@@ -9,6 +9,7 @@ import { fill } from '@/lib/i18n/format';
 import { getPropertyContext } from '@/lib/property';
 import type { DiscrepancyResponse, ManagedUser, TaskListResponse } from '@/lib/types';
 import { control, primaryButton } from '@/components/ui';
+import { today } from '@/lib/date';
 
 interface AttendantResponse {
   propertyId: string;
@@ -23,10 +24,6 @@ export const metadata: Metadata = {
 
 /** Assignment and task creation are for managers and the front desk. */
 const CAN_MANAGE = ['ADMIN', 'MANAGER', 'FRONT_DESK'];
-
-function today(): string {
-  return new Date().toISOString().slice(0, 10);
-}
 
 export default async function HousekeepingPage({
   searchParams,

@@ -10,6 +10,7 @@ import { logoutUrl, requireUser } from '@/lib/auth';
 import { getDictionary, type Dictionary } from '@/lib/i18n';
 import { fill } from '@/lib/i18n/format';
 import type { Block, BlockRoomingList } from '@/lib/types';
+import { dateOnly } from '@/lib/date';
 
 export const dynamic = 'force-dynamic';
 
@@ -49,10 +50,6 @@ async function loadBlock(
   }
 }
 
-function date(value: string): string {
-  return value.slice(0, 10);
-}
-
 export default async function BlockDetailPage({ params }: Props) {
   const { t } = await getDictionary();
   const { id } = await params;
@@ -76,7 +73,7 @@ export default async function BlockDetailPage({ params }: Props) {
 
   const data = block.data;
   const remaining = data.totalBlocked - data.totalPickedUp;
-  const dates = [...new Set(data.allotments.map((slot) => date(slot.date)))].sort();
+  const dates = [...new Set(data.allotments.map((slot) => dateOnly(slot.date)))].sort();
   const roomTypes = [...new Set(data.allotments.map((slot) => slot.roomTypeCode))].sort();
 
   return (
@@ -87,8 +84,8 @@ export default async function BlockDetailPage({ params }: Props) {
         </Link>
         <PageHeader
           title={data.name}
-          description={`${data.code} · ${date(data.startDate)} ~ ${date(data.endDate)}${
-            data.cutoffDate ? fill(t.blocks.cutoffSuffix, { date: date(data.cutoffDate) }) : ''
+          description={`${data.code} · ${dateOnly(data.startDate)} ~ ${dateOnly(data.endDate)}${
+            data.cutoffDate ? fill(t.blocks.cutoffSuffix, { date: dateOnly(data.cutoffDate) }) : ''
           }`}
           actions={<BlockStatusBadge status={data.status} />}
         />
@@ -151,7 +148,7 @@ export default async function BlockDetailPage({ params }: Props) {
               </thead>
               <tbody>
                 {dates.map((day) => {
-                  const row = data.allotments.filter((slot) => date(slot.date) === day);
+                  const row = data.allotments.filter((slot) => dateOnly(slot.date) === day);
                   const blocked = row.reduce((sum, slot) => sum + slot.blocked, 0);
                   const pickedUp = row.reduce((sum, slot) => sum + slot.pickedUp, 0);
 
@@ -236,8 +233,8 @@ export default async function BlockDetailPage({ params }: Props) {
                       {[item.guest?.lastName, item.guest?.firstName].filter(Boolean).join(' ') ||
                         t.blocks.unnamed}
                     </td>
-                    <td className="py-2.5 pr-4 tabular-nums">{date(item.arrivalDate)}</td>
-                    <td className="py-2.5 pr-4 tabular-nums">{date(item.departureDate)}</td>
+                    <td className="py-2.5 pr-4 tabular-nums">{dateOnly(item.arrivalDate)}</td>
+                    <td className="py-2.5 pr-4 tabular-nums">{dateOnly(item.departureDate)}</td>
                     <td className="py-2.5 pr-4">{item.roomTypeCode ?? '—'}</td>
                     <td className="py-2.5 tabular-nums">{item.roomNumber ?? '—'}</td>
                   </tr>

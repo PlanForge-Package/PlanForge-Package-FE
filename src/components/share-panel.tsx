@@ -10,6 +10,7 @@ import { IDLE, type ActionState } from '@/lib/action-state';
 import type { Reservation } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
 import { control, ghostButton } from './ui';
+import { dateOnly } from '@/lib/date';
 
 function guestName(reservation: Reservation): string {
   const name = [reservation.profile.lastName, reservation.profile.firstName]
@@ -93,7 +94,7 @@ export function SharePanel({
                 </Link>
                 <span className="font-mono text-xs text-subtle">{partner.confirmationNumber}</span>
                 <span className="text-subtle">
-                  {partner.arrivalDate.slice(0, 10)} ~ {partner.departureDate.slice(0, 10)}
+                  {dateOnly(partner.arrivalDate)} ~ {dateOnly(partner.departureDate)}
                 </span>
                 <span className="ml-auto text-subtle">
                   {partner.assignedRoomNumber ?? '미배정'}
@@ -120,7 +121,7 @@ export function SharePanel({
               {candidates.map((candidate) => (
                 <option key={candidate.id} value={candidate.id}>
                   {guestName(candidate)} · {candidate.confirmationNumber} ·{' '}
-                  {candidate.arrivalDate.slice(0, 10)} ~ {candidate.departureDate.slice(0, 10)}
+                  {dateOnly(candidate.arrivalDate)} ~ {dateOnly(candidate.departureDate)}
                 </option>
               ))}
             </select>

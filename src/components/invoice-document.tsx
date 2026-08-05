@@ -4,10 +4,7 @@ import { fill, money } from '@/lib/i18n/format';
 import { useI18n, useLocale } from '@/lib/i18n/provider';
 import type { ArInvoiceDetail } from '@/lib/types';
 import { primaryButton } from './ui';
-
-function date(value: string | null): string {
-  return value ? value.slice(0, 10) : '—';
-}
+import { dateOnly } from '@/lib/date';
 
 /**
  * The invoice sent to an account.
@@ -72,11 +69,11 @@ export function InvoiceDocument({ invoice }: { invoice: ArInvoiceDetail }) {
         </dl>
         <dl className="grid grid-cols-2 gap-2 text-sm">
           <dt className="text-xs uppercase tracking-wide text-subtle">{t.ar.issuedOn}</dt>
-          <dd className="text-right tabular-nums">{date(invoice.issuedAt)}</dd>
+          <dd className="text-right tabular-nums">{dateOnly(invoice.issuedAt)}</dd>
           <dt className="text-xs uppercase tracking-wide text-subtle">{t.ar.dueOn}</dt>
-          <dd className="text-right tabular-nums">{date(invoice.dueDate)}</dd>
+          <dd className="text-right tabular-nums">{dateOnly(invoice.dueDate)}</dd>
           <dt className="text-xs uppercase tracking-wide text-subtle">{t.ar.sentOn}</dt>
-          <dd className="text-right tabular-nums">{date(invoice.sentAt)}</dd>
+          <dd className="text-right tabular-nums">{dateOnly(invoice.sentAt)}</dd>
         </dl>
       </section>
 
@@ -103,7 +100,7 @@ export function InvoiceDocument({ invoice }: { invoice: ArInvoiceDetail }) {
             <tbody>
               {invoice.transactions.map((row) => (
                 <tr key={row.id} className="border-b border-current/5">
-                  <td className="py-2 pr-4 tabular-nums text-subtle">{date(row.postedAt)}</td>
+                  <td className="py-2 pr-4 tabular-nums text-subtle">{dateOnly(row.postedAt)}</td>
                   <td className="py-2 pr-4">{row.description}</td>
                   <td className="py-2 pr-4 font-mono text-xs text-subtle">
                     {row.reservation?.confirmationNumber ?? '—'}
@@ -161,7 +158,7 @@ export function InvoiceDocument({ invoice }: { invoice: ArInvoiceDetail }) {
                 {invoice.allocations.map((row) => (
                   <tr key={row.id} className="border-b border-current/5">
                     <td className="py-2 pr-4 tabular-nums text-subtle">
-                      {date(row.payment.postedAt)}
+                      {dateOnly(row.payment.postedAt)}
                     </td>
                     <td className="py-2 pr-4">{row.payment.description}</td>
                     <td className="py-2 text-right tabular-nums">

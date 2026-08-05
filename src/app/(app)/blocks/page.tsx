@@ -11,6 +11,7 @@ import { fill } from '@/lib/i18n/format';
 import { getPropertyContext } from '@/lib/property';
 import type { Block, BlockStatus, RoomType } from '@/lib/types';
 import { control, primaryButton } from '@/components/ui';
+import { dateOnly } from '@/lib/date';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,10 +24,6 @@ const CAN_CREATE = ['ADMIN', 'MANAGER'];
 
 /** Statuses used in the filter. Names come from the dictionary and follow the screen language. */
 const STATUS_FILTERS: Array<BlockStatus | ''> = ['', 'TENTATIVE', 'DEFINITE', 'CANCELLED'];
-
-function date(value: string): string {
-  return value.slice(0, 10);
-}
 
 /** Pickup rate. The basis for deciding whether to release rooms at cutoff. */
 function pickupRate(block: Block): string {
@@ -140,10 +137,10 @@ export default async function BlocksPage({
                   </td>
                   <td className="py-2.5 pr-4">{block.name}</td>
                   <td className="py-2.5 pr-4 tabular-nums">
-                    {date(block.startDate)} ~ {date(block.endDate)}
+                    {dateOnly(block.startDate)} ~ {dateOnly(block.endDate)}
                   </td>
                   <td className="py-2.5 pr-4 tabular-nums">
-                    {block.cutoffDate ? date(block.cutoffDate) : '—'}
+                    {block.cutoffDate ? dateOnly(block.cutoffDate) : '—'}
                   </td>
                   <td className="py-2.5 pr-4 text-right tabular-nums">{block.totalBlocked}</td>
                   <td className="py-2.5 pr-4 text-right tabular-nums">

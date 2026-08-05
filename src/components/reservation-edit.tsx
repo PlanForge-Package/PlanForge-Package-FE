@@ -1,11 +1,12 @@
 'use client';
 
-import { useActionState, useId, useState } from 'react';
+import { useActionState, useId } from 'react';
 import {
   cancelReservationAction,
   updateReservationAction,
 } from '@/app/(app)/reservations/[id]/actions';
 import { IDLE, type ActionState } from '@/lib/action-state';
+import { useLastAction } from '@/lib/use-last-action';
 import type { ReservationStatus } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
 import { control } from './ui';
@@ -44,11 +45,10 @@ export function ReservationEditPanel({
     cancelReservationAction.bind(null, reservationId),
     IDLE,
   );
-  const [last, setLast] = useState<'update' | 'cancel' | null>(null);
+  const { state: feedback, mark } = useLastAction({ update: updateState, cancel: cancelState });
   const uid = useId();
 
   const editable = EDITABLE.includes(status);
-  const feedback = last === 'cancel' ? cancelState : last === 'update' ? updateState : IDLE;
 
   if (!editable) {
     return (
@@ -68,7 +68,7 @@ export function ReservationEditPanel({
 
       <form
         action={(formData) => {
-          setLast('update');
+          mark('update')();
           update(formData);
         }}
         className="mt-3"
@@ -153,7 +153,7 @@ export function ReservationEditPanel({
 
       <form
         action={(formData) => {
-          setLast('cancel');
+          mark('cancel')();
           cancel(formData);
         }}
         className="mt-4 flex flex-wrap items-end gap-2 border-t border-current/10 pt-3"

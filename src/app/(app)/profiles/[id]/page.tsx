@@ -11,6 +11,7 @@ import { getDictionary, type Dictionary } from '@/lib/i18n';
 import { fill, money } from '@/lib/i18n/format';
 import { profileName } from '@/lib/profile-labels';
 import type { DuplicateResponse, ProfileDetail } from '@/lib/types';
+import { dateOnly } from '@/lib/date';
 
 export const dynamic = 'force-dynamic';
 
@@ -118,10 +119,7 @@ export default async function ProfileDetailPage({ params }: Props) {
         <StatTile label={t.profiles.stayCount} value={profile.summary.stayCount} />
         <StatTile label={t.profiles.nights} value={profile.summary.nights} />
         <StatTile label={t.profiles.revenue} value={money(profile.summary.revenue, locale)} />
-        <StatTile
-          label={t.profiles.lastStay}
-          value={profile.summary.lastStay?.slice(0, 10) ?? '—'}
-        />
+        <StatTile label={t.profiles.lastStay} value={dateOnly(profile.summary.lastStay)} />
       </section>
 
       {!profile.merged && <ProfileEditor profile={profile} />}
@@ -187,8 +185,8 @@ export default async function ProfileDetailPage({ params }: Props) {
                       </Link>
                     </td>
                     <td className="py-2.5 pr-4">{stay.property.name}</td>
-                    <td className="py-2.5 pr-4 tabular-nums">{stay.arrivalDate.slice(0, 10)}</td>
-                    <td className="py-2.5 pr-4 tabular-nums">{stay.departureDate.slice(0, 10)}</td>
+                    <td className="py-2.5 pr-4 tabular-nums">{dateOnly(stay.arrivalDate)}</td>
+                    <td className="py-2.5 pr-4 tabular-nums">{dateOnly(stay.departureDate)}</td>
                     <td className="py-2.5 pr-4 tabular-nums">
                       {stay.assignedRoomNumber ?? '—'}
                       <span className="ml-1.5 text-xs text-subtle">{stay.roomType.code}</span>

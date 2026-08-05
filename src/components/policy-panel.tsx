@@ -1,8 +1,9 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState } from 'react';
 import { recordDepositAction, setGuaranteeAction } from '@/app/(app)/reservations/[id]/actions';
 import { IDLE, type ActionState } from '@/lib/action-state';
+import { useLastAction } from '@/lib/use-last-action';
 import type { ReservationPolicies } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
 import { Figure } from './field';
@@ -61,8 +62,10 @@ export function PolicyPanel({
     IDLE,
   );
 
-  const [last, setLast] = useState<'guarantee' | 'deposit' | null>(null);
-  const state = last === 'deposit' ? depositState : last === 'guarantee' ? guaranteeState : IDLE;
+  const { state: state, mark } = useLastAction({
+    guarantee: guaranteeState,
+    deposit: depositState,
+  });
 
   const { cancellation, deposit } = policies;
   const currency = policies.currency || 'KRW';
@@ -97,7 +100,7 @@ export function PolicyPanel({
       {canManage && (
         <form
           action={guaranteeAction}
-          onSubmit={() => setLast('guarantee')}
+          onSubmit={mark('guarantee')}
           className="flex flex-wrap items-end gap-2"
         >
           <label className="flex flex-col gap-1 text-xs text-subtle">
@@ -142,7 +145,7 @@ export function PolicyPanel({
         {canManage && (
           <form
             action={depositAction}
-            onSubmit={() => setLast('deposit')}
+            onSubmit={mark('deposit')}
             className="flex flex-wrap items-end gap-2"
           >
             {/* 같은 금액을 두 번 눌러도 한 번만 받도록 전표 번호를 흔든다. */}

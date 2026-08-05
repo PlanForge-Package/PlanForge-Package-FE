@@ -8,6 +8,7 @@ import {
   voidPaymentAction,
 } from '@/app/(app)/reservations/[id]/payment-actions';
 import { IDLE, type ActionState } from '@/lib/action-state';
+import { useLastAction } from '@/lib/use-last-action';
 import type { PaymentListResponse, PaymentMethod, PaymentStatus } from '@/lib/types';
 import { useI18n } from '@/lib/i18n/provider';
 import { ActionMessage, SubmitButton } from './action-feedback';
@@ -60,7 +61,12 @@ export function PaymentPanel({
   const [captureState, capture] = useActionState<ActionState, FormData>(capturePaymentAction, IDLE);
   const [voidState, voidPayment] = useActionState<ActionState, FormData>(voidPaymentAction, IDLE);
   const [refundState, refund] = useActionState<ActionState, FormData>(refundPaymentAction, IDLE);
-  const [last, setLast] = useState<'auth' | 'capture' | 'void' | 'refund' | null>(null);
+  const { state: feedback, mark } = useLastAction({
+    auth: authState,
+    capture: captureState,
+    void: voidState,
+    refund: refundState,
+  });
   const [method, setMethod] = useState<PaymentMethod>('CARD');
 
   const uid = useId();
@@ -85,17 +91,6 @@ export function PaymentPanel({
     if (authState.status === 'success') setIdempotencyKey(crypto.randomUUID());
   }, [authState]);
 
-  const feedback =
-    last === 'auth'
-      ? authState
-      : last === 'capture'
-        ? captureState
-        : last === 'void'
-          ? voidState
-          : last === 'refund'
-            ? refundState
-            : IDLE;
-
   const kept = authState.status === 'error' ? authState.values : undefined;
 
   return (
@@ -118,7 +113,7 @@ export function PaymentPanel({
 
       <form
         action={(formData) => {
-          setLast('auth');
+          mark('auth')();
           authorize(formData);
         }}
         className="flex flex-wrap items-end gap-2 rounded-lg border border-current/10 px-4 py-3"
@@ -262,7 +257,7 @@ export function PaymentPanel({
                           <>
                             <form
                               action={(formData) => {
-                                setLast('capture');
+                                mark('capture')();
                                 capture(formData);
                               }}
                             >
@@ -278,7 +273,7 @@ export function PaymentPanel({
                             </form>
                             <form
                               action={(formData) => {
-                                setLast('void');
+                                mark('void')();
                                 voidPayment(formData);
                               }}
                             >
@@ -304,7 +299,7 @@ export function PaymentPanel({
                           refundable > 0 && (
                             <form
                               action={(formData) => {
-                                setLast('refund');
+                                mark('refund')();
                                 refund(formData);
                               }}
                               className="flex flex-wrap items-center gap-1.5"

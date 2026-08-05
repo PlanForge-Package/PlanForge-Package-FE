@@ -7,6 +7,7 @@ import { useI18n } from '@/lib/i18n/provider';
 import type { Room, RoomOutage, RoomOutageKind } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
 import { control, ghostButton, primaryButton } from './ui';
+import { today } from '@/lib/date';
 
 const KINDS: RoomOutageKind[] = ['OUT_OF_ORDER', 'OUT_OF_SERVICE'];
 const RETURN_STATUSES = ['DIRTY', 'CLEAN', 'INSPECTED'] as const;
@@ -40,8 +41,6 @@ export function RoomOutagePanel({
   // With neither idle there is no way to tell which finished later, so the release
   // result wins — releasing removes a row from the list and needs more confirmation.
   const state = releaseState.status !== 'idle' ? releaseState : createState;
-
-  const today = new Date().toISOString().slice(0, 10);
 
   return (
     <section aria-label={t.outages.section} className="flex flex-col gap-3">
@@ -91,7 +90,7 @@ export function RoomOutagePanel({
           <input
             type="date"
             name="startDate"
-            defaultValue={createState.values?.startDate ?? today}
+            defaultValue={createState.values?.startDate ?? today()}
             required
             className={control('md')}
           />
@@ -102,7 +101,7 @@ export function RoomOutagePanel({
           <input
             type="date"
             name="endDate"
-            defaultValue={createState.values?.endDate ?? today}
+            defaultValue={createState.values?.endDate ?? today()}
             required
             className={control('md')}
           />
@@ -172,7 +171,7 @@ export function RoomOutagePanel({
             </thead>
             <tbody>
               {outages.map((outage) => {
-                const active = outage.startDate <= today && outage.endDate >= today;
+                const active = outage.startDate <= today() && outage.endDate >= today();
                 return (
                   <tr key={outage.id} className="border-b border-current/5">
                     <td className="py-2.5 pr-4 font-medium tabular-nums">

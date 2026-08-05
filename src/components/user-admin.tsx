@@ -8,11 +8,13 @@ import {
   updateUserAction,
 } from '@/app/(app)/users/actions';
 import { IDLE, type ActionState } from '@/lib/action-state';
+import { useLastAction } from '@/lib/use-last-action';
 import { fill } from '@/lib/i18n/format';
 import { useI18n } from '@/lib/i18n/provider';
 import type { ManagedUser, Property, UserRole } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
 import { control, ghostButton } from './ui';
+import { dateOnly } from '@/lib/date';
 
 const ROLES: UserRole[] = ['ADMIN', 'MANAGER', 'FRONT_DESK', 'HOUSEKEEPING'];
 
@@ -153,35 +155,29 @@ export function UserTable({
   );
   const [openRow, setOpenRow] = useState<string | null>(null);
 
+  const { state: feedback, mark } = useLastAction({
+    role: roleState,
+    active: activeState,
+    password: passwordState,
+  });
+
   /**
-   * Remembers the action that ran last.
+   * Each row submits through here so the panel knows which result to show.
    *
-   * Picking "the first non-empty state" by fixed priority lets an earlier action's
-   * message hide every later result. Resetting a password then deactivating would
-   * leave the admin staring at the reset notice.
+   * The action itself is passed straight through; `mark` only records which one it
+   * was. A row that leaves the list on success takes any state held on it with it.
    */
-  const [lastAction, setLastAction] = useState<'role' | 'active' | 'password' | null>(null);
-
-  const feedback =
-    lastAction === 'role'
-      ? roleState
-      : lastAction === 'active'
-        ? activeState
-        : lastAction === 'password'
-          ? passwordState
-          : IDLE;
-
   const dispatch = {
     role: (formData: FormData) => {
-      setLastAction('role');
+      mark('role')();
       changeRole(formData);
     },
     active: (formData: FormData) => {
-      setLastAction('active');
+      mark('active')();
       setActive(formData);
     },
     password: (formData: FormData) => {
-      setLastAction('password');
+      mark('password')();
       resetPassword(formData);
     },
   };
@@ -320,7 +316,7 @@ function UserRow({
 
         <td className="py-2.5 pr-4">{user.active ? t.users.employed : t.users.left}</td>
         <td className="py-2.5 pr-4 text-xs tabular-nums text-subtle">
-          {user.lastLoginAt ? user.lastLoginAt.slice(0, 10) : t.users.noLogin}
+          {user.lastLoginAt ? dateOnly(user.lastLoginAt) : t.users.noLogin}
         </td>
 
         <td className="py-2.5">

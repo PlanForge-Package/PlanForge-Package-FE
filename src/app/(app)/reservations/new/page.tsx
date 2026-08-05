@@ -8,6 +8,7 @@ import { requireUser } from '@/lib/auth';
 import { getPropertyContext } from '@/lib/property';
 import type { AvailabilityResponse, Block, RateResponse } from '@/lib/types';
 import { control, primaryButton } from '@/components/ui';
+import { dateOnly, dayOffset } from '@/lib/date';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,12 +17,6 @@ export const metadata: Metadata = {
 };
 
 /** A date relative to today, used as a form default. */
-function day(offset: number): string {
-  const date = new Date();
-  date.setUTCDate(date.getUTCDate() + offset);
-  return date.toISOString().slice(0, 10);
-}
-
 interface Search {
   arrivalDate?: string;
   departureDate?: string;
@@ -38,8 +33,8 @@ export default async function NewReservationPage({
   const user = await requireUser('/reservations/new');
   const property = await getPropertyContext(user);
 
-  const arrivalDate = params.arrivalDate ?? day(0);
-  const departureDate = params.departureDate ?? day(1);
+  const arrivalDate = params.arrivalDate ?? dayOffset(0);
+  const departureDate = params.departureDate ?? dayOffset(1);
   const adults = Number(params.adults ?? 1) || 1;
   const children = Number(params.children ?? 0) || 0;
 
@@ -242,7 +237,7 @@ async function Results({
         blocks={
           blocks.ok
             ? blocks.data
-                .filter((block) => block.startDate.slice(0, 10) <= departureDate)
+                .filter((block) => dateOnly(block.startDate) <= departureDate)
                 .map((block) => ({ code: block.code, name: block.name }))
             : []
         }

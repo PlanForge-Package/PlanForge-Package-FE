@@ -8,6 +8,7 @@ import { useI18n } from '@/lib/i18n/provider';
 import { ActionMessage, SubmitButton } from './action-feedback';
 import type { Folio, PostingType } from '@/lib/types';
 import { control } from './ui';
+import { dateTime } from '@/lib/date';
 
 /** Dictionary keys for transaction kinds. The wording follows the screen language. */
 const POSTING_KEYS: Record<PostingType, 'charge' | 'payment' | 'adjustment' | 'tax'> = {
@@ -225,7 +226,7 @@ function FolioCard({
                       {formatMoney(posting.amount, posting.currency || currency)}
                     </td>
                     <td className="py-2 pr-4 tabular-nums text-subtle">
-                      {posting.postedAt.slice(0, 16).replace('T', ' ')}
+                      {dateTime(posting.postedAt)}
                     </td>
                     {targets.length > 0 && !closed && (
                       <td className="py-2 pr-4">

@@ -1,11 +1,13 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState } from 'react';
 import { issueKeyAction, revokeKeyAction } from '@/app/(app)/reservations/[id]/key-actions';
 import { IDLE, type ActionState } from '@/lib/action-state';
+import { useLastAction } from '@/lib/use-last-action';
 import type { RoomKeyListResponse, RoomKeyStatus } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
 import { control, ghostButton } from './ui';
+import { dateTime } from '@/lib/date';
 
 const STATUS_LABELS: Record<RoomKeyStatus, string> = {
   ACTIVE: '사용 중',
@@ -20,7 +22,7 @@ const STATUS_TONES: Record<RoomKeyStatus, string> = {
 };
 
 function moment(value: string): string {
-  return value.slice(0, 16).replace('T', ' ');
+  return dateTime(value);
 }
 
 /**
@@ -32,9 +34,8 @@ function moment(value: string): string {
 export function RoomKeyPanel({ data }: { data: RoomKeyListResponse }) {
   const [issueState, issue] = useActionState<ActionState, FormData>(issueKeyAction, IDLE);
   const [revokeState, revoke] = useActionState<ActionState, FormData>(revokeKeyAction, IDLE);
-  const [last, setLast] = useState<'issue' | 'revoke' | null>(null);
+  const { state: feedback, mark } = useLastAction({ issue: issueState, revoke: revokeState });
 
-  const feedback = last === 'issue' ? issueState : last === 'revoke' ? revokeState : IDLE;
   const active = data.items.filter((key) => key.status === 'ACTIVE');
 
   return (
@@ -65,7 +66,7 @@ export function RoomKeyPanel({ data }: { data: RoomKeyListResponse }) {
       {data.roomNumber ? (
         <form
           action={(formData) => {
-            setLast('issue');
+            mark('issue')();
             issue(formData);
           }}
           className="flex flex-wrap items-center gap-3 rounded-lg border border-current/10 px-4 py-3"
@@ -139,7 +140,7 @@ export function RoomKeyPanel({ data }: { data: RoomKeyListResponse }) {
                     {key.status === 'ACTIVE' ? (
                       <form
                         action={(formData) => {
-                          setLast('revoke');
+                          mark('revoke')();
                           revoke(formData);
                         }}
                         className="flex flex-wrap items-center gap-1.5"

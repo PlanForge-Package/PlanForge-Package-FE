@@ -8,6 +8,7 @@ import { fill, num } from '@/lib/i18n/format';
 import { useI18n, useLocale } from '@/lib/i18n/provider';
 import { ActionMessage, SubmitButton } from './action-feedback';
 import { control, primaryButton } from './ui';
+import { dateOnly } from '@/lib/date';
 
 /** Cancelling needs its own confirmation, so it is left out of this list. */
 const EDITABLE_STATUSES: BlockStatus[] = [
@@ -276,7 +277,7 @@ export function BlockEditor({
             id={`${uid}-cutoff`}
             name="cutoffDate"
             type="date"
-            defaultValue={cutoffDate?.slice(0, 10) ?? ''}
+            defaultValue={cutoffDate ? dateOnly(cutoffDate) : ''}
             className={control('lg')}
           />
         </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useActionState, useState } from 'react';
+import { useActionState } from 'react';
 import {
   createAccountAction,
   createInvoiceAction,
@@ -9,12 +9,14 @@ import {
   updateInvoiceStatusAction,
 } from '@/app/(app)/ar/actions';
 import { IDLE, type ActionState } from '@/lib/action-state';
+import { useLastAction } from '@/lib/use-last-action';
 import { fill, money } from '@/lib/i18n/format';
 import { useI18n, useLocale } from '@/lib/i18n/provider';
 import type { ArAccountDetail, ArAccountList, ArInvoiceStatus } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
 import { Figure } from './field';
 import { control, ghostButton } from './ui';
+import { dateOnly, dateTime } from '@/lib/date';
 
 const INVOICE_STATUSES: ArInvoiceStatus[] = ['DRAFT', 'SENT', 'PAID', 'VOID'];
 
@@ -205,15 +207,11 @@ export function ArAccountDetailPanel({
       invoice.status !== 'PAID' && invoice.status !== 'VOID' && Number(invoice.outstanding) > 0,
   );
 
-  const [last, setLast] = useState<'payment' | 'invoice' | 'status' | null>(null);
-  const state =
-    last === 'status'
-      ? statusState
-      : last === 'invoice'
-        ? invoiceState
-        : last === 'payment'
-          ? paymentState
-          : IDLE;
+  const { state: state, mark } = useLastAction({
+    payment: paymentState,
+    invoice: invoiceState,
+    status: statusState,
+  });
 
   return (
     <div className="flex flex-col gap-8">
@@ -239,7 +237,7 @@ export function ArAccountDetailPanel({
         <section aria-label={t.ar.actionsSection} className="flex flex-wrap items-end gap-4">
           <form
             action={paymentAction}
-            onSubmit={() => setLast('payment')}
+            onSubmit={mark('payment')}
             className="flex flex-wrap items-end gap-2"
           >
             <label className="flex flex-col gap-1 text-xs text-subtle">
@@ -286,7 +284,7 @@ export function ArAccountDetailPanel({
 
           <form
             action={invoiceAction}
-            onSubmit={() => setLast('invoice')}
+            onSubmit={mark('invoice')}
             className="flex flex-wrap items-end gap-2"
           >
             <label className="flex flex-col gap-1 text-xs text-subtle">
@@ -364,14 +362,14 @@ export function ArAccountDetailPanel({
                       {money(invoice.outstanding, locale)}
                     </td>
                     <td className="py-2.5 pr-4 tabular-nums text-subtle">
-                      {invoice.issuedAt.slice(0, 10)}
+                      {dateOnly(invoice.issuedAt)}
                     </td>
                     <td
                       className={`py-2.5 pr-4 tabular-nums ${
                         invoice.overdue ? 'text-red-700 dark:text-red-300' : 'text-subtle'
                       }`}
                     >
-                      {invoice.dueDate.slice(0, 10)}
+                      {dateOnly(invoice.dueDate)}
                       {invoice.overdue && <span className="ml-1.5 text-xs">{t.ar.overdue}</span>}
                     </td>
                     <td className="py-2.5 pr-4">{t.ar.invoiceStatuses[invoice.status]}</td>
@@ -382,7 +380,7 @@ export function ArAccountDetailPanel({
                         ) : (
                           <form
                             action={statusAction}
-                            onSubmit={() => setLast('status')}
+                            onSubmit={mark('status')}
                             className="flex items-center gap-1"
                           >
                             <input type="hidden" name="invoiceId" value={invoice.id} />
@@ -453,7 +451,7 @@ export function ArAccountDetailPanel({
                   return (
                     <tr key={tx.id} className="border-b border-current/5">
                       <td className="py-2.5 pr-4 tabular-nums text-subtle">
-                        {tx.postedAt.slice(0, 16).replace('T', ' ')}
+                        {dateTime(tx.postedAt)}
                       </td>
                       <td className="py-2.5 pr-4">{typeLabel}</td>
                       <td className="py-2.5 pr-4">

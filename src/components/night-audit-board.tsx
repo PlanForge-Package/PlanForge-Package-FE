@@ -7,6 +7,7 @@ import { IDLE, type ActionState } from '@/lib/action-state';
 import type { AuditSection } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
 import { control, ghostButton } from './ui';
+import { dateOnly } from '@/lib/date';
 
 /**
  * Close checklist.
@@ -88,9 +89,7 @@ export function NightAuditBoard({ sections }: { sections: AuditSection[] }) {
                             )}
                           </td>
                           <td className="py-2.5 pr-4">{item.guest ?? '—'}</td>
-                          <td className="py-2.5 pr-4 tabular-nums">
-                            {item.date?.slice(0, 10) ?? '—'}
-                          </td>
+                          <td className="py-2.5 pr-4 tabular-nums">{dateOnly(item.date)}</td>
                           <td className="py-2.5 pr-4 tabular-nums">
                             {item.roomNumber ?? '미배정'}
                             {item.roomTypeCode && (

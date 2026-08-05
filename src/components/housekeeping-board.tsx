@@ -1,12 +1,13 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState } from 'react';
 import {
   assignTaskAction,
   generateTasksAction,
   updateTaskAction,
 } from '@/app/(app)/housekeeping/actions';
 import { IDLE, type ActionState } from '@/lib/action-state';
+import { useLastAction } from '@/lib/use-last-action';
 import { fill } from '@/lib/i18n/format';
 import { useI18n } from '@/lib/i18n/provider';
 import type { HousekeepingTask, ManagedUser, TaskStatus } from '@/lib/types';
@@ -75,9 +76,7 @@ export function HousekeepingBoard({
   const t = useI18n();
   const [assignState, assign] = useActionState<ActionState, FormData>(assignTaskAction, IDLE);
   const [updateState, update] = useActionState<ActionState, FormData>(updateTaskAction, IDLE);
-  const [last, setLast] = useState<'assign' | 'update' | null>(null);
-
-  const feedback = last === 'assign' ? assignState : last === 'update' ? updateState : IDLE;
+  const { state: feedback, mark } = useLastAction({ assign: assignState, update: updateState });
 
   return (
     <div className="flex flex-col gap-2">
@@ -130,7 +129,7 @@ export function HousekeepingBoard({
                     {canAssign ? (
                       <form
                         action={(formData) => {
-                          setLast('assign');
+                          mark('assign')();
                           assign(formData);
                         }}
                         className="flex items-center gap-1.5"
@@ -173,7 +172,7 @@ export function HousekeepingBoard({
                   <td className="py-2.5">
                     <form
                       action={(formData) => {
-                        setLast('update');
+                        mark('update')();
                         update(formData);
                       }}
                       className="flex items-center gap-1.5"

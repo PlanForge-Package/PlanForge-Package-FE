@@ -6,6 +6,7 @@ import { apiFetch, tryFetch } from '@/lib/api';
 import { requireUser } from '@/lib/auth';
 import { getPropertyContext } from '@/lib/property';
 import type { NightAuditReview } from '@/lib/types';
+import { dateOnly } from '@/lib/date';
 
 export const dynamic = 'force-dynamic';
 
@@ -47,8 +48,8 @@ export default async function NightAuditPage() {
       ) : (
         <>
           <section aria-label="요약" className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            <StatTile label="영업일" value={review.data.businessDate.slice(0, 10)} />
-            <StatTile label="달력 날짜" value={review.data.calendarDate.slice(0, 10)} />
+            <StatTile label="영업일" value={dateOnly(review.data.businessDate)} />
+            <StatTile label="달력 날짜" value={dateOnly(review.data.calendarDate)} />
             <StatTile label="남은 항목" value={review.data.outstanding} />
           </section>
 

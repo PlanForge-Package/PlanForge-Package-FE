@@ -10,18 +10,13 @@ import type { Locale } from '@/lib/i18n/locales';
 import { getPropertyContext } from '@/lib/property';
 import type { JournalReport } from '@/lib/types';
 import { control, primaryButton } from '@/components/ui';
+import { dayOffset } from '@/lib/date';
 
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Close journal — PlanForge',
 };
-
-function day(offset: number): string {
-  const date = new Date();
-  date.setUTCDate(date.getUTCDate() + offset);
-  return date.toISOString().slice(0, 10);
-}
 
 export default async function JournalPage({
   searchParams,
@@ -30,7 +25,7 @@ export default async function JournalPage({
 }) {
   const params = await searchParams;
   // Today is not over yet. A close normally looks at yesterday.
-  const date = params.date ?? day(-1);
+  const date = params.date ?? dayOffset(-1);
 
   const user = await requireUser('/reports/journal');
   const { locale, t } = await getDictionary();

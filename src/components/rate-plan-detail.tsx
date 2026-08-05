@@ -1,12 +1,13 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState } from 'react';
 import {
   addSeasonAction,
   removeSeasonAction,
   updateRatePlanAction,
 } from '@/app/(app)/rates/actions';
 import { IDLE, type ActionState } from '@/lib/action-state';
+import { useLastAction } from '@/lib/use-last-action';
 import { money } from '@/lib/i18n/format';
 import { useI18n, useLocale } from '@/lib/i18n/provider';
 import type { RatePackage, RatePlanConfig, RoomType } from '@/lib/types';
@@ -50,15 +51,11 @@ export function RatePlanDetail({
     IDLE,
   );
 
-  const [last, setLast] = useState<'plan' | 'season' | 'remove' | null>(null);
-  const state =
-    last === 'remove'
-      ? removeState
-      : last === 'season'
-        ? seasonState
-        : last === 'plan'
-          ? planState
-          : IDLE;
+  const { state: state, mark } = useLastAction({
+    plan: planState,
+    season: seasonState,
+    remove: removeState,
+  });
 
   return (
     <div className="flex flex-col gap-8">
@@ -74,7 +71,7 @@ export function RatePlanDetail({
         {canManage ? (
           <form
             action={planAction}
-            onSubmit={() => setLast('plan')}
+            onSubmit={mark('plan')}
             className="flex flex-col gap-3 rounded-lg border border-current/10 px-4 py-3"
           >
             <input type="hidden" name="propertyId" value={propertyId} />
@@ -228,7 +225,7 @@ export function RatePlanDetail({
                     </td>
                     {canManage && (
                       <td className="py-2.5">
-                        <form action={removeAction} onSubmit={() => setLast('remove')}>
+                        <form action={removeAction} onSubmit={mark('remove')}>
                           <input type="hidden" name="propertyId" value={propertyId} />
                           <input type="hidden" name="seasonId" value={season.seasonId} />
                           <SubmitButton pendingLabel="…" className={ghostButton()}>
@@ -247,7 +244,7 @@ export function RatePlanDetail({
         {canManage && (
           <form
             action={seasonAction}
-            onSubmit={() => setLast('season')}
+            onSubmit={mark('season')}
             className="flex flex-col gap-3 rounded-lg border border-current/10 px-4 py-3"
           >
             <input type="hidden" name="propertyId" value={propertyId} />

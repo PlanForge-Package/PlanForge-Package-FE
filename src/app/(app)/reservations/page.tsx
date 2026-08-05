@@ -9,6 +9,7 @@ import { getDictionary } from '@/lib/i18n';
 import { getPropertyContext } from '@/lib/property';
 import type { ReservationListResponse, ReservationStatus } from '@/lib/types';
 import { control, primaryButton } from '@/components/ui';
+import { dateOnly } from '@/lib/date';
 
 export const dynamic = 'force-dynamic';
 
@@ -31,7 +32,7 @@ function guestName(
 }
 
 function formatDate(value: string): string {
-  return value.slice(0, 10);
+  return dateOnly(value);
 }
 
 export default async function ReservationsPage({

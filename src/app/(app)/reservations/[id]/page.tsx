@@ -20,6 +20,7 @@ import { ReservationStatusBadge } from '@/components/status-badge';
 import { ApiError, apiFetch, backendMessage, tryFetch } from '@/lib/api';
 import { label } from '@/lib/channel-labels';
 import { getDictionary } from '@/lib/i18n';
+import { dateOnly } from '@/lib/date';
 import type {
   ArAccountList,
   FolioRoutingList,
@@ -183,8 +184,8 @@ export default async function ReservationDetailPage({ params }: Props) {
           value={reservation.operaReservationId ?? '연동 전'}
           mono={Boolean(reservation.operaReservationId)}
         />
-        <Detail label="도착" value={reservation.arrivalDate.slice(0, 10)} />
-        <Detail label="출발" value={reservation.departureDate.slice(0, 10)} />
+        <Detail label="도착" value={dateOnly(reservation.arrivalDate)} />
+        <Detail label="출발" value={dateOnly(reservation.departureDate)} />
         <Detail
           label="객실 타입"
           value={`${reservation.roomType.code} · ${reservation.roomType.name}`}
@@ -228,8 +229,8 @@ export default async function ReservationDetailPage({ params }: Props) {
       <ReservationEditPanel
         reservationId={reservation.id}
         status={reservation.status}
-        arrivalDate={reservation.arrivalDate.slice(0, 10)}
-        departureDate={reservation.departureDate.slice(0, 10)}
+        arrivalDate={dateOnly(reservation.arrivalDate)}
+        departureDate={dateOnly(reservation.departureDate)}
         roomTypeCode={reservation.roomType.code}
         adults={reservation.adults}
         childCount={reservation.children}

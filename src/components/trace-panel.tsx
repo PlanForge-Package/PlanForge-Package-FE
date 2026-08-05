@@ -10,6 +10,7 @@ import { IDLE, type ActionState } from '@/lib/action-state';
 import type { ReservationTrace, TraceDepartment } from '@/lib/types';
 import { ActionMessage, SubmitButton } from './action-feedback';
 import { control, ghostButton } from './ui';
+import { dateOnly, today } from '@/lib/date';
 
 export const DEPARTMENT_LABELS: Record<TraceDepartment, string> = {
   FRONT_DESK: '프론트데스크',
@@ -60,8 +61,6 @@ export function TracePanel({
         ? rowState
         : createState;
 
-  const today = new Date().toISOString().slice(0, 10);
-
   return (
     <section aria-label="지시" className="flex flex-col gap-3">
       <h2 className="text-sm font-medium uppercase tracking-wide text-subtle">지시 (트레이스)</h2>
@@ -92,8 +91,8 @@ export function TracePanel({
             <input
               type="date"
               name="dueDate"
-              max={departureDate.slice(0, 10)}
-              defaultValue={createState.values?.dueDate ?? today}
+              max={dateOnly(departureDate)}
+              defaultValue={createState.values?.dueDate ?? today()}
               required
               className={control('md')}
             />
@@ -129,7 +128,7 @@ export function TracePanel({
                 key={trace.id}
                 className="flex flex-wrap items-center gap-2 rounded-md border border-current/10 px-3 py-2 text-sm"
               >
-                <span className="tabular-nums text-subtle">{trace.dueDate.slice(0, 10)}</span>
+                <span className="tabular-nums text-subtle">{dateOnly(trace.dueDate)}</span>
                 <span className="rounded-full bg-current/10 px-2 py-0.5 text-xs">
                   {DEPARTMENT_LABELS[trace.department]}
                 </span>
