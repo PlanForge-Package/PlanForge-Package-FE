@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { actionError, actionSuccess, formValues, type ActionState } from '@/lib/action-state';
 import { apiFetch, backendMessage } from '@/lib/api';
+import { getDictionary } from '@/lib/i18n';
 
 // This file exports async functions only. Types and constants live in @/lib/action-state.
 
@@ -25,15 +26,16 @@ export async function updateProfileAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   const profileId = text(formData, 'profileId');
-  if (!profileId) return actionError('대상 프로필을 찾을 수 없습니다.');
+  if (!profileId) return actionError(t.profiles.msgTargetMissing);
 
   const kept = formValues(formData, KEEP);
   const fail = (message: string) => actionError(message, kept);
 
   const nationality = text(formData, 'nationality');
   if (nationality && !/^[A-Za-z]{2}$/.test(nationality)) {
-    return fail('국적은 두 자리 국가 코드로 입력해 주세요. (예: KR)');
+    return fail(t.profiles.msgNationality);
   }
 
   try {
@@ -55,12 +57,12 @@ export async function updateProfileAction(
       },
     });
   } catch (error) {
-    return fail(backendMessage(error, '프로필을 수정하지 못했습니다.'));
+    return fail(backendMessage(error, t.profiles.msgUpdateFailed));
   }
 
   revalidatePath('/profiles');
   revalidatePath(`/profiles/${profileId}`);
-  return actionSuccess('프로필을 수정했습니다.');
+  return actionSuccess(t.profiles.msgUpdated);
 }
 
 /**
@@ -73,9 +75,10 @@ export async function mergeProfileAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = await getDictionary();
   const sourceId = text(formData, 'sourceId');
   const targetId = text(formData, 'targetId');
-  if (!sourceId || !targetId) return actionError('병합 대상을 찾을 수 없습니다.');
+  if (!sourceId || !targetId) return actionError(t.profiles.msgMergeTargetMissing);
 
   try {
     await apiFetch('be', `/api/profiles/${encodeURIComponent(sourceId)}/merge`, {
@@ -83,11 +86,11 @@ export async function mergeProfileAction(
       json: { targetId },
     });
   } catch (error) {
-    return actionError(backendMessage(error, '병합하지 못했습니다.'));
+    return actionError(backendMessage(error, t.profiles.msgMergeFailed));
   }
 
   revalidatePath('/profiles');
   revalidatePath(`/profiles/${sourceId}`);
   revalidatePath(`/profiles/${targetId}`);
-  return actionSuccess('프로필을 병합했습니다. 예약 이력이 정본으로 옮겨졌습니다.');
+  return actionSuccess(t.profiles.msgMerged);
 }

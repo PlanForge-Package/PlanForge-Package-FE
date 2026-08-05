@@ -7,13 +7,15 @@ import { DuplicatePanel, ProfileEditor } from '@/components/profile-editor';
 import { ReservationStatusBadge } from '@/components/status-badge';
 import { ApiError, apiFetch, backendMessage, tryFetch } from '@/lib/api';
 import { logoutUrl, requireUser } from '@/lib/auth';
-import { PROFILE_TYPE_LABELS, TIER_LABELS, profileName } from '@/lib/profile-labels';
+import { getDictionary, type Dictionary } from '@/lib/i18n';
+import { fill, money } from '@/lib/i18n/format';
+import { profileName } from '@/lib/profile-labels';
 import type { DuplicateResponse, ProfileDetail } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: '프로필 상세 — PlanForge',
+  title: 'Guest profile — PlanForge',
 };
 
 /** A merge is hard to undo. Managers and above only. BE enforces the same rule. */
@@ -25,6 +27,7 @@ interface Props {
 
 async function loadProfile(
   id: string,
+  t: Dictionary,
 ): Promise<{ ok: true; data: ProfileDetail } | { ok: false; message: string; status: number }> {
   try {
     return {
@@ -40,37 +43,24 @@ async function loadProfile(
     }
     return {
       ok: false,
-      message: backendMessage(error, '프로필을 불러오지 못했습니다.'),
+      message: backendMessage(error, t.profiles.loadFailed),
       status: error instanceof ApiError ? error.status : 0,
     };
   }
 }
 
-function money(value: string, currency = 'KRW'): string {
-  const amount = Number(value);
-  if (!Number.isFinite(amount)) return value;
-  try {
-    return new Intl.NumberFormat('ko-KR', {
-      style: 'currency',
-      currency,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  } catch {
-    return `${amount.toLocaleString('ko-KR')} ${currency}`;
-  }
-}
-
 export default async function ProfileDetailPage({ params }: Props) {
+  const { locale, t } = await getDictionary();
   const { id } = await params;
   const user = await requireUser(`/profiles/${id}`);
-  const result = await loadProfile(id);
+  const result = await loadProfile(id, t);
 
   if (!result.ok) {
     return (
       <main className="flex flex-col gap-6">
-        <PageHeader title="프로필 상세" />
+        <PageHeader title={t.profiles.detailTitle} />
         <ErrorNotice
-          title="프로필을 불러오지 못했습니다"
+          title={t.profiles.loadFailed}
           message={result.message}
           status={result.status}
         />
@@ -87,12 +77,16 @@ export default async function ProfileDetailPage({ params }: Props) {
     <main className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
         <Link href="/profiles" className="text-sm underline underline-offset-4 text-subtle">
-          ← 게스트 프로필
+          {t.profiles.backToList}
         </Link>
         <PageHeader
-          title={profileName(profile)}
-          description={`${PROFILE_TYPE_LABELS[profile.type]} · ${TIER_LABELS[profile.membershipTier]}${
-            profile.operaProfileId ? ` · OPERA ${profile.operaProfileId}` : ' · OPERA 미연동'
+          title={profileName(profile, t.profiles.unnamed)}
+          description={`${t.profiles.kinds[profile.type]} · ${
+            t.profiles.tiers[profile.membershipTier]
+          }${
+            profile.operaProfileId
+              ? fill(t.profiles.operaLinked, { id: profile.operaProfileId })
+              : t.profiles.operaUnlinked
           }`}
           actions={
             profile.vip ? (
@@ -106,29 +100,34 @@ export default async function ProfileDetailPage({ params }: Props) {
 
       {profile.merged && (
         <InfoNotice
-          title="이 프로필은 병합되었습니다"
+          title={t.profiles.mergedTitle}
           message={
             profile.mergedInto
-              ? `${profileName(profile.mergedInto)} 프로필로 합쳐졌습니다. 수정은 그쪽에서 해 주세요.`
-              : '다른 프로필로 합쳐졌습니다. 수정은 정본 프로필에서 해 주세요.'
+              ? fill(t.profiles.mergedInto, {
+                  name: profileName(profile.mergedInto, t.profiles.unnamed),
+                })
+              : t.profiles.mergedUnknown
           }
         />
       )}
 
-      <section aria-label="투숙 요약" className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatTile label="투숙 횟수" value={profile.summary.stayCount} />
-        <StatTile label="누적 박수" value={profile.summary.nights} />
-        <StatTile label="누적 매출" value={money(profile.summary.revenue)} />
-        <StatTile label="최근 투숙" value={profile.summary.lastStay?.slice(0, 10) ?? '—'} />
+      <section aria-label={t.profiles.staySummary} className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <StatTile label={t.profiles.stayCount} value={profile.summary.stayCount} />
+        <StatTile label={t.profiles.nights} value={profile.summary.nights} />
+        <StatTile label={t.profiles.revenue} value={money(profile.summary.revenue, locale)} />
+        <StatTile
+          label={t.profiles.lastStay}
+          value={profile.summary.lastStay?.slice(0, 10) ?? '—'}
+        />
       </section>
 
       {!profile.merged && <ProfileEditor profile={profile} />}
 
-      <section aria-label="중복 후보" className="flex flex-col gap-2">
-        <h2 className="text-sm font-medium">중복 후보</h2>
+      <section aria-label={t.profiles.duplicatesSection} className="flex flex-col gap-2">
+        <h2 className="text-sm font-medium">{t.profiles.duplicatesSection}</h2>
         {!duplicates.ok ? (
           <ErrorNotice
-            title="중복 후보를 불러오지 못했습니다"
+            title={t.profiles.duplicatesLoadFailed}
             message={duplicates.message}
             status={duplicates.status}
           />
@@ -141,35 +140,35 @@ export default async function ProfileDetailPage({ params }: Props) {
         )}
       </section>
 
-      <section aria-label="투숙 이력" className="flex flex-col gap-2">
-        <h2 className="text-sm font-medium">투숙 이력</h2>
+      <section aria-label={t.profiles.historySection} className="flex flex-col gap-2">
+        <h2 className="text-sm font-medium">{t.profiles.historySection}</h2>
         {profile.stays.length === 0 ? (
-          <p className="text-sm text-subtle">투숙 이력이 없습니다.</p>
+          <p className="text-sm text-subtle">{t.profiles.historyEmpty}</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[48rem] text-sm">
               <thead>
                 <tr className="border-b border-current/10 text-left">
                   <th scope="col" className="py-2 pr-4 font-medium">
-                    확인 번호
+                    {t.profiles.confirmationNumber}
                   </th>
                   <th scope="col" className="py-2 pr-4 font-medium">
-                    호텔
+                    {t.profiles.hotel}
                   </th>
                   <th scope="col" className="py-2 pr-4 font-medium">
-                    도착
+                    {t.profiles.arrival}
                   </th>
                   <th scope="col" className="py-2 pr-4 font-medium">
-                    출발
+                    {t.profiles.departure}
                   </th>
                   <th scope="col" className="py-2 pr-4 font-medium">
-                    객실
+                    {t.profiles.room}
                   </th>
                   <th scope="col" className="py-2 pr-4 text-right font-medium">
-                    금액
+                    {t.profiles.amount}
                   </th>
                   <th scope="col" className="py-2 font-medium">
-                    상태
+                    {t.profiles.status}
                   </th>
                 </tr>
               </thead>
@@ -192,7 +191,7 @@ export default async function ProfileDetailPage({ params }: Props) {
                       <span className="ml-1.5 text-xs text-subtle">{stay.roomType.code}</span>
                     </td>
                     <td className="py-2.5 pr-4 text-right tabular-nums">
-                      {stay.totalAmount ? money(stay.totalAmount, stay.currency) : '—'}
+                      {stay.totalAmount ? money(stay.totalAmount, locale, stay.currency) : '—'}
                     </td>
                     <td className="py-2.5">
                       <ReservationStatusBadge status={stay.status} />
